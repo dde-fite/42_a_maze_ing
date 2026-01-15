@@ -20,4 +20,12 @@ $(DOCS_DIR)/%.pdf: $(DOCS_SRC_DIR)/%.md
 clean:
 	rm -f $(PDF_FILES)
 
+update_modules:
+	@echo "Updating submodules ..."
+	@git submodule init
+	@git submodule update --init --recursive --remote
+	@echo "Submodules successfully updated"
+
+get_mlx: update_modules
+
 .PHONY: docs clean
