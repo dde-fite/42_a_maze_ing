@@ -1,3 +1,6 @@
 [submodule "lib/mlx_CLXV"]
 	path = lib/mlx_CLXV
 	url = https://github.com/42school/mlx_CLXV
+[submodule "docs/MiniLibX_Python_Manual"]
+	path = docs/MiniLibX_Python_Manual
+	url = https://github.com/dde-fite/42_MiniLibX_Python_Manual.git
