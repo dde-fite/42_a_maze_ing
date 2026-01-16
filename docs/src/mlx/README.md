@@ -22,6 +22,9 @@ The MiniLibX Python Wrapper allows you to create graphical software easily witho
 
 ## How a graphics server works
 
+This library interacts with the underlying graphics system of your operating system. Before diving into usage, it's helpful to understand how graphics servers manage windows and handle user input.
+
+
 ### Historical X-Window concept
 
 X-Window is a network-oriented graphical system for Unix. It is based on two main parts:
@@ -64,7 +67,7 @@ local display application that gets data in JSON through a web API.
 sudo pacman -S libxcb xcb-util-keysyms zlib libbsd vulkan-icd-loader vulkan-tools shaderc
 ```
 
-### Debian
+### Debian/Ubuntu
 ```bash
 sudo apt install libxcb libxcb-keysyms libvulkan libz libbsd glslc
 ```
@@ -127,9 +130,46 @@ m.mlx_key_hook(win_ptr, mykey, stuff)
 m.mlx_loop(mlx_ptr)
 ```
 
-# Opening and closing MLX
+# Behind the Scenes
 
-## Sypnosys
+When an instance of the Mlx class is created, the first thing it does is construct the path to the C library called libmlx.so.
+
+```python
+def __init__(self):
+  module_dir = os.path.dirname(os.path.abspath(__file__))
+  self.so_file = os.path.join(module_dir, "libmlx.so")
+  #...
+```
+
+- \_\_file\_\_ is a special Python variable that contains the path to the file where this code is executed.
+
+- os.path.dirname extracts the path from __file__ and uses os.path.join to create the path to the library.
+
+It then declares the mlx_func variable, which acts as a bridge between Python and C. Using the CDLL function from Python's ctypes module, it loads the library and calls the original functions.
+
+```python
+def __init__(self):
+  # ...
+  self.mlx_func = CDLL(self.so_file)
+  # ...
+```
+
+For each C function available in the Python wrapper, there is a declaration within the Mlx class:
+
+```python
+def mlx_init(self):
+  self.mlx_func.mlx_init.restype = c_void_p
+  return self.mlx_func.mlx_init()
+```
+
+You can see how it calls mlx_func.mlx_init(). This mlx_init() is already the original C function. It is necessary to specify the data type returned by the function with mlx_init.restype, which in this case is c_void_p (equivalent to void *).
+
+All of this is passed to CDLL, which, using the previously loaded library, will execute the function and return whatever the function returns.
+
+
+# Initialization and Cleanup: mlx_init() and mlx_release()
+
+## Synopsis
 
 ```python
 from mlx import Mlx
@@ -139,7 +179,7 @@ def mlx_init() -> int # void *
 def mlx_release() -> int # void *
 ```
 
-##
+## Description
 
 First of all, you need to initialize the connection between your software and the graphic and user sub-systems. Once this completed, you'll be able to use other MiniLibX functions to send and receive the messages from the display, like "I want to draw a yellow pixel in this window" or "did the user hit a key?".
 
