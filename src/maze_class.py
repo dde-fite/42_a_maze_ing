@@ -55,8 +55,17 @@ class Player:
     def __init__(self, cell: Cell):
         self._cell = cell
 
-    def move_to(self, direction: str):
-        self._cell._adyacent
+    def get_cell(self) -> Cell:
+        return self._cell
+
+    def set_cell(self, cell: Cell) -> None:
+        self._cell = cell
+
+    def move_to(self, direction: str) -> bool:
+        if self._cell.check_if_can_go(direction):
+            self.set_cell(self._cell._adyacent[direction])
+            return True
+        return False
 
 
 class Maze:
@@ -132,6 +141,11 @@ class Maze:
             return self._cells[coord]
         return None
 
+    def get_cell_position(self, cell: Cell) -> tuple[int, int] | None:
+        for key, value in self._cells.items():
+            if value == cell:
+                return key
+
     def initiate_cells(self) -> None:
         # Initiates all cells, with all the walls on them closed (done by the Cell constructor).
         # Also stablishing their adyacent cells.
@@ -160,43 +174,14 @@ class Maze:
                     self._cells[(x, y)]._adyacent[SOUTH] = self._cells[(x, y + 1)]
 
     # PLAYER
-    def set_player(self, new_position: list[int]):
-        self._player = new_position
+    def set_player(self, player: Player):
+        self._player = player
 
-    def get_player(self) -> list[int]:
+    def get_player(self) -> Player:
         return self._player
 
     def move_player(self, direction: str) -> bool:
-        player_pos = tuple(self._player)
-        if direction == WEST:
-            if self._player[0] == 1:
-                return False
-            elif self._cells[player_pos].check_if_can_go(WEST):
-                self._player[0] -= 1
-                return True
-            return False
-        elif direction == NORTH:
-            if self._player[1] == 1:
-                return False
-            elif self._cells[player_pos].check_if_can_go(NORTH):
-                self._player[1] -= 1
-                return True
-            return False
-        elif direction == EAST:
-            if self._player[0] == self._width:
-                return False
-            elif self._cells[player_pos].check_if_can_go(EAST):
-                self._player[0] += 1
-                return True
-            return False
-        elif direction == SOUTH:
-            if self._player[1] == self._height:
-                return False
-            elif self._cells[player_pos].check_if_can_go(SOUTH):
-                self._player[1] += 1
-                return True
-            return False
-        return False
+        self._player.move_to(direction)
 
     # OUTPUT_FILE
     @classmethod
@@ -212,6 +197,7 @@ if __name__ == "__main__":
     print("\nCHECK COMMENTS IN CODE FOR ANY EXPLANATION!\n\n")
     try:
         maze = Maze(20, 20, (2, 2), (10, 10))
+
         # Printing the entry point for example:
         print("Checking cells...")
         print("State of cell 10,10 (15 means every wall closed, ...):", maze._cells[(10, 10)]._state)
@@ -220,10 +206,11 @@ if __name__ == "__main__":
         print("They are the same :)")
 
         print("\nMoving the player...")
-        print("Player starting position:", maze.get_player())
+        player = maze.get_player()
+        print("Player at cell:", maze.get_cell_position(player.get_cell()))
         maze.move_player(NORTH)
-        print("Can we go to NORTH?", maze.get_cells()[tuple(maze._player)].check_if_can_go(NORTH))
-        print("Player after moving to NORTH:", maze.get_player())
+        print("Can we go to NORTH?", player.get_cell().check_if_can_go(NORTH))
+        print("Player after moving to NORTH:", maze.get_cell_position(player.get_cell()))
 
         print("\nTesting to check if moving is possible...")
         # 2 examples to see if a wall is closed or not
@@ -260,16 +247,16 @@ if __name__ == "__main__":
 
         # Moving the player again
         print("\nMoving the player again...")
-        print("Player starting position:", maze.get_player())
-        print("Player cell state:", maze.get_cells()[tuple(maze._player)]._state)
+        print("Player starting position:", maze.get_cell_position(player.get_cell()))
+        print("Player cell state:", player.get_cell()._state)
 
-        print("Can we go to NORTH?", maze.get_cells()[tuple(maze._player)].check_if_can_go(NORTH))
+        print("Can we go to NORTH?", player.get_cell().check_if_can_go(NORTH))
         maze.move_player(NORTH)
-        print("Player after moving to NORTH:", maze.get_player())
+        print("Player after moving to NORTH:", maze.get_cell_position(player.get_cell()))
 
-        print("Can we go to SOUTH?", maze.get_cells()[tuple(maze._player)].check_if_can_go(SOUTH))
+        print("Can we go to SOUTH?", player.get_cell().check_if_can_go(SOUTH))
         maze.move_player(SOUTH)
-        print("Player after moving to SOUTH:", maze.get_player())
+        print("Player after moving to SOUTH:", maze.get_cell_position(player.get_cell()))
 
         # Moving the player randomly until it finds the exit...
         print("\nMoving the player randomly...")
@@ -277,13 +264,12 @@ if __name__ == "__main__":
         print("Player's position at the beginning:", maze.get_player())
         print("======================================")
         moves = 0
-        while tuple(maze.get_player()) != maze.get_exit() and moves < 1000000:
-            player_position = tuple(maze.get_player())
+        while maze.get_cell_position(player.get_cell()) != maze.get_exit() and moves < 1000000:
             direction = random.choice(POSSIBLE_MOVES)
             print("Direction chosen:", direction)
-            maze.get_cells()[player_position].open_direction(direction)
+            player.get_cell().open_direction(direction)
             maze.move_player(direction)
-            print("Player's new position:", maze.get_player())
+            print("Player's new position:", maze.get_cell_position(maze.get_player().get_cell()))
             moves += 1
             print("=================================")
         print("Exit was at:", maze.get_exit())
