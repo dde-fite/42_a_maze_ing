@@ -2,7 +2,7 @@
 
 # QUICK EXAMPLE TO SEE THE GENERATION OF A RANDOM MAZE WITH THE MAZE CLASS
 
-from maze_class import Maze
+from maze_class import Maze, Cell, POSSIBLE_DIRECTIONS, print_output
 import random
 
 
@@ -34,6 +34,17 @@ def get_maze_dict(maze: Maze) -> dict[tuple[int, int]: int]:
     return maze_dict
 
 
+def can_go_somewhere(maze: Maze) -> bool:
+    for dir in POSSIBLE_DIRECTIONS:
+        print(f"Checking if we can go {dir}...")
+        adyacent = maze.get_player().get_cell().get_adyacent()[dir]
+        if adyacent is not None and not adyacent.is_visited():
+            print(f"WE CAN GO {dir}")
+            return True
+    print("Can't go anywhere :(")
+    return False
+
+
 if __name__ == "__main__":
     maze = Maze(20, 20, (1, 1), (20, 20))
     maze_dict = get_maze_dict(maze)
@@ -53,3 +64,33 @@ if __name__ == "__main__":
         # FileNotFoundError, it creates it in case it doesn't exist.
         # But just in case ...
         print("ERROR: output file not found")
+
+    # Generating a new perfect maze
+    print("\nGenerating a new perfect maze...")
+    maze = Maze(5, 5, (2, 2), (5, 4))
+    maze.put_player_at((1, 1))
+    passed_cells: dict[int, tuple[int, int]] = {}
+    i = 0
+    while True:
+        direction = random.choice(POSSIBLE_DIRECTIONS)
+        print("===============")
+        print(i)
+        print("Cell at " + direction + ":", maze.get_player().get_cell().get_adyacent()[direction])
+        if maze.get_player().get_cell().get_adyacent()[direction] is not None:
+            print("Visited?", maze.get_player().get_cell().get_adyacent()[direction].is_visited())
+            print("Coordinates:", maze.get_cell_position(maze.get_player().get_cell().get_adyacent()[direction]))
+        if (maze.get_player().get_cell().get_adyacent()[direction] is not None and
+                not maze.get_player().get_cell().get_adyacent()[direction].is_visited()):
+            maze.get_player().get_cell().open_direction(direction)
+            print("Did we move? ", maze.move_player(direction))
+            maze.get_player().get_cell().set_visited(True)
+            passed_cells[i] = maze.get_player_coordinates()
+            i += 1
+        elif can_go_somewhere(maze):
+            continue
+        elif i > 0:
+            i -= 1
+            maze.put_player_at(passed_cells[i])
+        else:
+            break
+    print_output(maze)
