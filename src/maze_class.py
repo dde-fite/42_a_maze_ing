@@ -249,7 +249,7 @@ if __name__ == "__main__":
         print("Player after moving to SOUTH:", maze.get_player())
 
         # Moving the player randomly until it finds the exit...
-        print("Moving the player randomly...")
+        print("\nMoving the player randomly...")
         POSSIBLE_MOVES = ("NORTH", "EAST", "SOUTH", "WEST")
         print("Player's position at the beginning:", maze.get_player())
         print("======================================")
@@ -267,5 +267,16 @@ if __name__ == "__main__":
         print("Player last position is at:", maze.get_player())
         print("Total moves:", moves)
         print("\nCOMMENT THE LAST WHILE TO SEE OTHER PART OF THE CODE!")
+        try:
+            with open(Maze.get_output_file(), "w") as f:
+                for height in range(1, maze.get_height() + 1):
+                    for width in range(1, maze.get_width() + 1):
+                        f.write(str(format(maze.get_cells()[(width, height)]._state, 'x')) + " ")
+                    f.write("\n")
+        except FileNotFoundError:
+            # This error should never happen, since open with 'w' doesn't raise
+            # FileNotFoundError, it creates it in case it doesn't exist.
+            # But just in case ...
+            print("ERROR: output file not found")
     except MazeError as e:
         print("ERROR:", e)
