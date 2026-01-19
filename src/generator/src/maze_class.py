@@ -194,7 +194,7 @@ class Maze:
                     self._cells[(x, y)]._adyacent[SOUTH] = None
                 else:
                     self._cells[(x, y)]._adyacent[SOUTH] = self._cells[(x, y + 1)]
-        if self._width < 9 or self._height < 8:
+        if self._width < 9 or self._height < 7:
             return
         else:
             ft_logo: tuple = (  # type: ignore
