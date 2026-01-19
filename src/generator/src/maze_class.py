@@ -2,8 +2,10 @@
 
 # CONSIDER MAKING THE VARIABLE 'PLAYER' FROM THE MAZE CLASS AS ANOTHER CLASS (position, color, number of moves, ...)
 
+from typing import Optional
 # from __future__ import annotations  # Cell problem...
 import random
+import math
 
 
 class MazeError(Exception):
@@ -19,15 +21,18 @@ POSSIBLE_DIRECTIONS = [NORTH, SOUTH, EAST, WEST]
 
 class Cell:
 
-    def __init__(self):
+    def __init__(self, fixed: bool = False):
         self._visited = False  # To know if we already went through this cell
         self._state = 0b1111  # State of the walls from that cell
         self._adyacent: dict[str, Cell | None] = {NORTH: None, EAST: None,
                                                   SOUTH: None, WEST: None}  # Adyacent cells in each direction
+        self._fixed = fixed
 
-    # This function was done quikly might be wrong. We must check if the wall can be broken
+    # This function was done quikly might be wrong.
+    # We must check if the wall can be broken
     def open_direction(self, direction: str) -> None:
-        if self._adyacent[direction] is not None:
+        adyacent = self._adyacent[direction]
+        if adyacent is not None and not adyacent._fixed:
             self._state -= self._state & Maze.CLOSE_WALLS[direction]
         else:
             return
@@ -56,6 +61,13 @@ class Cell:
     def set_visited(self, value: bool) -> None:
         self._visited = value
 
+    # FIXED
+    def is_fixed(self) -> bool:
+        return self._fixed
+
+    def set_fixed(self, fixed: bool) -> None:
+        self._fixed = fixed
+
 
 class Player:
 
@@ -65,7 +77,9 @@ class Player:
     def get_cell(self) -> Cell:
         return self._cell
 
-    def set_cell(self, cell: Cell) -> None:
+    def set_cell(self, cell: Cell | None) -> None:
+        if cell is None:
+            return
         self._cell = cell
 
     def move_to(self, direction: str) -> bool:
@@ -90,7 +104,7 @@ class Maze:
         self.set_exit(exit)
         self._cells: dict[tuple[int, int], Cell] = {}
         self.initiate_cells()
-        self._player = Player(self._cells[entry])  # Must be a list so it can change
+        self._player = Player(self._cells[entry])
 
     # WIDTH
     def set_width(self, width: int) -> None:
@@ -143,15 +157,16 @@ class Maze:
         if coord in self._cells.keys():
             self._cells[coord] = new_cell
 
-    def get_cell(self, coord: tuple[int, int]) -> Cell | None:
+    def get_cell(self, coord: tuple[int, int]) -> Optional[Cell]:
         if coord in self._cells.keys():
             return self._cells[coord]
         return None
 
-    def get_cell_position(self, cell: Cell) -> tuple[int, int] | None:
+    def get_cell_position(self, cell: Cell) -> Optional[tuple[int, int]]:
         for key, value in self._cells.items():
             if value == cell:
                 return key
+        return None
 
     def initiate_cells(self) -> None:
         # Initiates all cells, with all the walls on them closed (done by the Cell constructor).
@@ -179,9 +194,44 @@ class Maze:
                     self._cells[(x, y)]._adyacent[SOUTH] = None
                 else:
                     self._cells[(x, y)]._adyacent[SOUTH] = self._cells[(x, y + 1)]
+        if self._width < 9 or self._height < 8:
+            return
+        else:
+            ft_logo: tuple = (  # type: ignore
+                (-1, 0),
+                (-2, 0),
+                (-3, 0),
+                (-3, -1),
+                (-3, -2),
+                (-1, 1),
+                (-1, 2),
+                (1, 0),
+                (2, 0),
+                (3, 0),
+                (3, -1),
+                (3, -2),
+                (2, -2),
+                (1, -2),
+                (1, 1),
+                (1, 2),
+                (2, 2),
+                (3, 2)
+            )
+            center_point = (math.ceil(self._width / 2),
+                            math.ceil(self._height / 2))
+            print("Center point:", center_point)
+            for pix in ft_logo:
+                ft_cell = self.get_cell((center_point[0] + pix[0],
+                                        center_point[1] + pix[1]))
+                if ft_cell is None:
+                    # This should never happen because
+                    # we won't get a cell that doesn't exist
+                    raise MazeError("Unexpected error")
+                else:
+                    ft_cell.set_fixed(True)
 
     # PLAYER
-    def set_player(self, player: Player):
+    def set_player(self, player: Player) -> None:
         self._player = player
 
     def get_player(self) -> Player:
@@ -200,7 +250,7 @@ class Maze:
 
     # OUTPUT_FILE
     @classmethod
-    def get_output_file(cls):
+    def get_output_file(cls) -> str:
         return cls.OUTPUT_FILE
 
 
