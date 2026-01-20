@@ -64,10 +64,9 @@ class Cell:
     # from the adyacent one.
     def open_direction(self, direction: str) -> None:
         adyacent = self._adyacent[direction]
-        if adyacent is not None and not adyacent._fixed:
-            self._state -= self._state & Maze.CLOSE_WALLS[direction]
-        else:
+        if adyacent is None or adyacent._fixed:
             return
+        self._state -= self._state & Maze.CLOSE_WALLS[direction]
         if direction == NORTH:
             self._adyacent[NORTH]._state -= (self._adyacent[NORTH]._state &
                                              Maze.CLOSE_WALLS[SOUTH])
@@ -101,6 +100,17 @@ class Player:
             return True
         return False
 
+    def can_go_somewhere(self) -> bool:
+        for dir in POSSIBLE_DIRECTIONS:
+            # print(f"Checking if we can go {dir}...")
+            adyacent = self.get_cell().get_adyacent()[dir]
+            if (adyacent is not None and adyacent.is_visited() is False and
+                    adyacent.is_fixed() is False):
+                # print(f"WE CAN GO {dir}")
+                return True
+        # print("Can't go anywhere :(")
+        return False
+
 
 class Maze:
 
@@ -121,6 +131,7 @@ class Maze:
         self._cells: dict[tuple[int, int], Cell] = {}
         self.initiate_cells()
         self._player = Player(self._cells[entry])
+        self._pathway: dict[int, tuple[int, int]] = {}
 
     # WIDTH
     def set_width(self, width: int) -> None:
@@ -274,7 +285,7 @@ class Maze:
     def get_output_file(cls) -> str:
         return cls.OUTPUT_FILE
 
-    def print_output(self):
+    def print_output(self) -> None:
         try:
             with open(Maze.get_output_file(), "w") as f:
                 for height in range(1, self._height + 1):
@@ -286,6 +297,9 @@ class Maze:
                 f.write(f"Exit point: ({self._exit[0]}, {self._exit[1]})\n")
                 f.write("Player's position: "
                         f"{self.get_player_coordinates()}\n")
+                f.write("Pathway----------------------\n")
+                for key, value in self._pathway.items():
+                    f.write(f"{key}: {value} | ")
         except FileNotFoundError:
             # This error should never happen, since open with 'w' doesn't raise
             # FileNotFoundError, it creates it in case it doesn't exist.

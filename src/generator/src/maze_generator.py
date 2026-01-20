@@ -8,18 +8,6 @@ import random
 import sys
 
 
-def can_go_somewhere(maze: Maze) -> bool:
-    for dir in POSSIBLE_DIRECTIONS:
-        # print(f"Checking if we can go {dir}...")
-        adyacent = maze.get_player().get_cell().get_adyacent()[dir]
-        if (adyacent is not None and adyacent.is_visited() is False and
-                adyacent.is_fixed() is False):
-            # print(f"WE CAN GO {dir}")
-            return True
-    # print("Can't go anywhere :(")
-    return False
-
-
 def reset_directions() -> list[str]:
     return [NORTH, EAST, SOUTH, WEST]
 
@@ -28,16 +16,19 @@ if __name__ == "__main__":
     # Generating a new perfect maze
     print("\nGenerating a new perfect maze...")
     try:
-        maze = Maze(9, 9, (2, 2), (1, 4))
+        maze = Maze(3, 3, (2, 2), (1, 2))
     except MazeError as e:
         print("ERROR:", e)
         sys.exit(1)
-    maze.put_player_at((1, 1))
+    # maze.put_player_at((1, 1))
     passed_cells: dict[int, tuple[int, int]] = {}
     i = 0
     player = maze.get_player()
     player_cell = player.get_cell()
     directions = reset_directions()
+    player_cell.set_visited(True)
+    passed_cells[i] = maze.get_player_coordinates()
+    i += 1
     # WITH THIS CODE WE GENERATE ALL THE MAZE WAYS
     while True:
         # Printing passed cells
@@ -69,9 +60,11 @@ if __name__ == "__main__":
                 player_cell = player.get_cell()
                 player_cell.set_visited(True)
                 passed_cells[i] = maze.get_player_coordinates()
+                if maze.get_player_coordinates() == maze.get_exit():
+                    maze._pathway = passed_cells.copy()
                 i += 1
                 directions = reset_directions()
-        elif can_go_somewhere(maze):
+        elif player.can_go_somewhere():
             directions.remove(direction)
             continue
         elif len(passed_cells) > 1:
