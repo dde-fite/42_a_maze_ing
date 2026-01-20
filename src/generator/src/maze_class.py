@@ -1,11 +1,8 @@
 #!/bin/env python3
 
-# CONSIDER MAKING THE VARIABLE 'PLAYER' FROM THE MAZE CLASS AS ANOTHER CLASS (position, color, number of moves, ...)
-
 from typing import Optional
 # from __future__ import annotations  # Cell problem...
-import random
-import math
+from math import ceil
 
 
 class MazeError(Exception):
@@ -22,37 +19,11 @@ POSSIBLE_DIRECTIONS = [NORTH, SOUTH, EAST, WEST]
 class Cell:
 
     def __init__(self, fixed: bool = False):
-        self._visited = False  # To know if we already went through this cell
-        self._state = 0b1111  # State of the walls from that cell
+        self._visited = False   # To know if we already went through this cell
+        self._state = 0b1111    # State of the walls from that cell
         self._adyacent: dict[str, Cell | None] = {NORTH: None, EAST: None,
-                                                  SOUTH: None, WEST: None}  # Adyacent cells in each direction
-        self._fixed = fixed
-
-    # This function was done quikly might be wrong.
-    # We must check if the wall can be broken
-    def open_direction(self, direction: str) -> None:
-        adyacent = self._adyacent[direction]
-        if adyacent is not None and not adyacent._fixed:
-            self._state -= self._state & Maze.CLOSE_WALLS[direction]
-        else:
-            return
-        if direction == NORTH:
-            self._adyacent[NORTH]._state -= self._adyacent[NORTH]._state & Maze.CLOSE_WALLS[SOUTH]
-        if direction == EAST:
-            self._adyacent[EAST]._state -= self._adyacent[EAST]._state & Maze.CLOSE_WALLS[WEST]
-        if direction == SOUTH:
-            self._adyacent[SOUTH]._state -= self._adyacent[SOUTH]._state & Maze.CLOSE_WALLS[NORTH]
-        if direction == WEST:
-            self._adyacent[WEST]._state -= self._adyacent[WEST]._state & Maze.CLOSE_WALLS[EAST]
-
-    def check_if_can_go(self, direction: str) -> bool:
-        if self._state & Maze.CLOSE_WALLS[direction]:
-            return False
-        return True
-
-    # ADYACENT CELLS
-    def get_adyacent(self) -> dict[str, "Cell | None"]:
-        return self._adyacent
+                                                  SOUTH: None, WEST: None}
+        self._fixed = fixed     # To know if it is a modifiable cell
 
     # VISITED
     def is_visited(self) -> bool:
@@ -61,12 +32,54 @@ class Cell:
     def set_visited(self, value: bool) -> None:
         self._visited = value
 
+    # STATE
+    def get_state(self) -> int:
+        return self._state
+
+    def set_state(self, state: int) -> None:
+        self._state = state
+
+    # ADYACENT CELLS
+    def get_adyacent(self) -> dict[str, "Cell | None"]:
+        return self._adyacent
+
     # FIXED
     def is_fixed(self) -> bool:
         return self._fixed
 
     def set_fixed(self, fixed: bool) -> None:
         self._fixed = fixed
+
+    # Other functions
+    # Checks if a wall un the given direction is closed or not,
+    # returning True if it is closed (can't go through),
+    # False if it is not (can go through)
+    def check_if_can_go(self, direction: str) -> bool:
+        if self._state & Maze.CLOSE_WALLS[direction]:
+            return False
+        return True
+
+    # We open the wall at the direction given if it is possible to do so.
+    # Also, if we do open it, we must open the opposite direction
+    # from the adyacent one.
+    def open_direction(self, direction: str) -> None:
+        adyacent = self._adyacent[direction]
+        if adyacent is not None and not adyacent._fixed:
+            self._state -= self._state & Maze.CLOSE_WALLS[direction]
+        else:
+            return
+        if direction == NORTH:
+            self._adyacent[NORTH]._state -= (self._adyacent[NORTH]._state &
+                                             Maze.CLOSE_WALLS[SOUTH])
+        if direction == EAST:
+            self._adyacent[EAST]._state -= (self._adyacent[EAST]._state &
+                                            Maze.CLOSE_WALLS[WEST])
+        if direction == SOUTH:
+            self._adyacent[SOUTH]._state -= (self._adyacent[SOUTH]._state &
+                                             Maze.CLOSE_WALLS[NORTH])
+        if direction == WEST:
+            self._adyacent[WEST]._state -= (self._adyacent[WEST]._state &
+                                            Maze.CLOSE_WALLS[EAST])
 
 
 class Player:
@@ -95,6 +108,9 @@ class Maze:
 
     CLOSE_WALLS = {NORTH: 0b0001, EAST: 0b0010,
                    SOUTH: 0b0100, WEST: 0b1000}
+
+    MIN_FT_WIDTH = 9
+    MIN_FT_HEIGHT = 7
 
     def __init__(self, width: int, height: int,
                  entry: tuple[int, int], exit: tuple[int, int]) -> None:
@@ -168,36 +184,11 @@ class Maze:
                 return key
         return None
 
-    def initiate_cells(self) -> None:
-        # Initiates all cells, with all the walls on them closed (done by the Cell constructor).
-        # Also stablishing their adyacent cells.
-        for y in range(1, self._height + 1):
-            for x in range(1, self._width + 1):
-                # Initiating new cells for each coordinate in the maze
-                self._cells.update({(x, y): Cell()})
-        for y in range(1, self._height + 1):
-            for x in range(1, self._width + 1):
-                # Stablihing adyacent cells for each cell
-                if x == 1:
-                    self._cells[(x, y)]._adyacent[WEST] = None
-                else:
-                    self._cells[(x, y)]._adyacent[WEST] = self._cells[(x - 1, y)]
-                if y == 1:
-                    self._cells[(x, y)]._adyacent[NORTH] = None
-                else:
-                    self._cells[(x, y)]._adyacent[NORTH] = self._cells[(x, y - 1)]
-                if x == self._width:
-                    self._cells[(x, y)]._adyacent[EAST] = None
-                else:
-                    self._cells[(x, y)]._adyacent[EAST] = self._cells[(x + 1, y)]
-                if y == self._height:
-                    self._cells[(x, y)]._adyacent[SOUTH] = None
-                else:
-                    self._cells[(x, y)]._adyacent[SOUTH] = self._cells[(x, y + 1)]
-        if self._width < 9 or self._height < 7:
+    def __generate_ft_logo(self) -> None:
+        if (self._width < Maze.MIN_FT_WIDTH
+                or self._height < Maze.MIN_FT_HEIGHT):
             return
-        else:
-            ft_logo: tuple = (  # type: ignore
+        ft_logo: tuple = (  # type: ignore
                 (-1, 0),
                 (-2, 0),
                 (-3, 0),
@@ -217,18 +208,48 @@ class Maze:
                 (2, 2),
                 (3, 2)
             )
-            center_point = (math.ceil(self._width / 2),
-                            math.ceil(self._height / 2))
-            print("Center point:", center_point)
-            for pix in ft_logo:
-                ft_cell = self.get_cell((center_point[0] + pix[0],
-                                        center_point[1] + pix[1]))
-                if ft_cell is None:
-                    # This should never happen because
-                    # we won't get a cell that doesn't exist
-                    raise MazeError("Unexpected error")
+        center_point = (ceil(self._width / 2),
+                        ceil(self._height / 2))
+        for pix in ft_logo:
+            ft_cell = self.get_cell((center_point[0] + pix[0],
+                                    center_point[1] + pix[1]))
+            if ft_cell is None:
+                # This should never happen because
+                # we won't get a cell that doesn't exist
+                raise MazeError("Unexpected error")
+            else:
+                ft_cell.set_fixed(True)
+
+    def initiate_cells(self) -> None:
+        # Initiates all cells, with all the walls on them closed
+        # at the start (done by the Cell constructor).
+        # Also stablishing their adyacent cells.
+        for y in range(1, self._height + 1):
+            for x in range(1, self._width + 1):
+                # Initiating new cells for each coordinate in the maze
+                self._cells.update({(x, y): Cell()})
+        for y in range(1, self._height + 1):
+            for x in range(1, self._width + 1):
+                # Stablihing adyacent cells for each cell
+                current_cell = self._cells[(x, y)]
+                if x == 1:
+                    current_cell._adyacent[WEST] = None
                 else:
-                    ft_cell.set_fixed(True)
+                    current_cell._adyacent[WEST] = self._cells[(x - 1, y)]
+                if y == 1:
+                    current_cell._adyacent[NORTH] = None
+                else:
+                    current_cell._adyacent[NORTH] = self._cells[(x, y - 1)]
+                if x == self._width:
+                    current_cell._adyacent[EAST] = None
+                else:
+                    current_cell._adyacent[EAST] = self._cells[(x + 1, y)]
+                if y == self._height:
+                    current_cell._adyacent[SOUTH] = None
+                else:
+                    current_cell._adyacent[SOUTH] = self._cells[(x, y + 1)]
+        # Generating 42 logo (the function checks if it can be done itself)
+        self.__generate_ft_logo()
 
     # PLAYER
     def set_player(self, player: Player) -> None:
@@ -253,19 +274,23 @@ class Maze:
     def get_output_file(cls) -> str:
         return cls.OUTPUT_FILE
 
-
-def print_output(maze: Maze):
-    try:
-        with open(Maze.get_output_file(), "w") as f:
-            for height in range(1, maze.get_height() + 1):
-                for width in range(1, maze.get_width() + 1):
-                    f.write(str(format(maze.get_cells()[(width, height)]._state, 'x')) + " ")
+    def print_output(self):
+        try:
+            with open(Maze.get_output_file(), "w") as f:
+                for height in range(1, self._height + 1):
+                    for width in range(1, self._width + 1):
+                        f.write(str(format(self._cells[(width, height)]._state, 'x')) + " ")
+                    f.write("\n")
                 f.write("\n")
-    except FileNotFoundError:
-        # This error should never happen, since open with 'w' doesn't raise
-        # FileNotFoundError, it creates it in case it doesn't exist.
-        # But just in case ...
-        print("ERROR: output file not found")
+                f.write(f"Entry point: ({self._entry[0]}, {self._entry[1]})\n")
+                f.write(f"Exit point: ({self._exit[0]}, {self._exit[1]})\n")
+                f.write("Player's position: "
+                        f"{self.get_player_coordinates()}\n")
+        except FileNotFoundError:
+            # This error should never happen, since open with 'w' doesn't raise
+            # FileNotFoundError, it creates it in case it doesn't exist.
+            # But just in case ...
+            print("ERROR: output file not found")
 
 
 if __name__ == "__main__":
@@ -275,17 +300,17 @@ if __name__ == "__main__":
 
         # Printing the entry point for example:
         print("Checking cells...")
-        print("State of cell 10,10 (15 means every wall closed, ...):", maze._cells[(10, 10)]._state)
+        print("State of cell 10,10 (15 means every wall closed, ...):", maze.get_cells()[(10, 10)]._state)
         print("Position in memory from 2,1:", maze.get_cells()[(2, 1)])
-        print("Position in memory from NORTH of 2,2:", maze.get_cells()[(2, 2)]._adyacent[NORTH])
+        print("Position in memory from NORTH of 2,2:", maze.get_cells()[(2, 2)].get_adyacent()[NORTH])
         print("They are the same :)")
 
         print("\nMoving the player...")
         player = maze.get_player()
         print("Player at cell:", maze.get_cell_position(player.get_cell()))
-        maze.move_player(NORTH)
         print("Can we go to NORTH?", player.get_cell().check_if_can_go(NORTH))
-        print("Player after moving to NORTH:", maze.get_cell_position(player.get_cell()))
+        print("Did we move?", maze.move_player(NORTH))
+        print("Player after trying to move NORTH:", maze.get_cell_position(player.get_cell()))
 
         print("\nTesting to check if moving is possible...")
         # 2 examples to see if a wall is closed or not
@@ -332,42 +357,5 @@ if __name__ == "__main__":
         print("Can we go to SOUTH?", player.get_cell().check_if_can_go(SOUTH))
         maze.move_player(SOUTH)
         print("Player after moving to SOUTH:", maze.get_cell_position(player.get_cell()))
-
-        # Moving the player randomly until it finds the exit...
-        print("\nMoving the player randomly...")
-        print("Player's position at the beginning:", maze.get_player())
-        print("======================================")
-        moves = 0
-        while maze.get_cell_position(player.get_cell()) != maze.get_exit() and moves < 1000000:
-            direction = random.choice(POSSIBLE_DIRECTIONS)
-            print("Direction chosen:", direction)
-            cell_to_move_to = player.get_cell()._adyacent[direction]
-            print("Cell state at player's position:", player.get_cell()._state)
-            print("Cell info at " + direction + ":", cell_to_move_to)
-            if cell_to_move_to is not None:
-                print("Cell state at " + direction + ":", cell_to_move_to._state)
-            print("Can go to " + direction + "?", player.get_cell().check_if_can_go(direction))
-            player.get_cell().open_direction(direction)
-            maze.move_player(direction)
-            print("Player's new position:", maze.get_cell_position(maze.get_player().get_cell()))
-            moves += 1
-            print("=================================")
-        print("Exit was at:", maze.get_exit())
-        print("Player last position is at:", maze.get_player())
-        print("Total moves:", moves)
-        print("\nPringing in the maze.txt the result (space not needed)...")
-        try:
-            with open(Maze.get_output_file(), "w") as f:
-                for height in range(1, maze.get_height() + 1):
-                    for width in range(1, maze.get_width() + 1):
-                        f.write(str(format(maze.get_cells()[(width, height)]._state, 'x')) + " ")
-                    f.write("\n")
-        except FileNotFoundError:
-            # This error should never happen, since open with 'w' doesn't raise
-            # FileNotFoundError, it creates it in case it doesn't exist.
-            # But just in case ...
-            print("ERROR: output file not found")
-        finally:
-            print("\nCOMMENT THE LAST WHILE TO SEE OTHER PART OF THE CODE!")
     except MazeError as e:
         print("ERROR:", e)
