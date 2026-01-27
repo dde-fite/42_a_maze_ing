@@ -3,6 +3,7 @@
 from typing import Optional
 # from __future__ import annotations  # Cell problem...
 from math import ceil
+import random
 
 
 class MazeError(Exception):
@@ -133,7 +134,7 @@ class Maze:
         self._player = Player(self._cells[entry])
         self._pathway: dict[int, tuple[int, int]] = {}
 
-    # WIDTH
+    # WIDTH -------------------------------------------------------------------
     def set_width(self, width: int) -> None:
         if width < 1:
             raise MazeError("WIDTH value can't be lower than 1!")
@@ -142,7 +143,7 @@ class Maze:
     def get_width(self) -> int:
         return self._width
 
-    # HEIGHT
+    # HEIGHT ------------------------------------------------------------------
     def set_height(self, height: int) -> None:
         if height < 1:
             raise MazeError("HEIGHT value can't be lower than 1!")
@@ -151,7 +152,7 @@ class Maze:
     def get_height(self) -> int:
         return self._height
 
-    # ENTRY
+    # ENTRY -------------------------------------------------------------------
     def set_entry(self, entry: tuple[int, int]) -> None:
         if entry[0] < 1 or entry[0] > self._width:
             raise MazeError("ENTRY point is not inside the maze!")
@@ -162,7 +163,7 @@ class Maze:
     def get_entry(self) -> tuple[int, int]:
         return self._entry
 
-    # EXIT
+    # EXIT --------------------------------------------------------------------
     def set_exit(self, exit: tuple[int, int]) -> None:
         if exit[0] < 1 or exit[0] > self._width:
             raise MazeError("EXIT point is not inside the maze!")
@@ -173,7 +174,7 @@ class Maze:
     def get_exit(self) -> tuple[int, int]:
         return self._exit
 
-    # CELLS
+    # CELLS -------------------------------------------------------------------
     def set_cells(self, cells: dict[tuple[int, int], Cell]) -> None:
         self._cells = cells
 
@@ -262,7 +263,7 @@ class Maze:
         # Generating 42 logo (the function checks if it can be done itself)
         self.__generate_ft_logo()
 
-    # PLAYER
+    # PLAYER ------------------------------------------------------------------
     def set_player(self, player: Player) -> None:
         self._player = player
 
@@ -280,7 +281,7 @@ class Maze:
     def get_player_coordinates(self) -> tuple[int, int]:
         return self.get_cell_position(self._player.get_cell())
 
-    # OUTPUT_FILE
+    # OUTPUT_FILE -------------------------------------------------------------
     @classmethod
     def get_output_file(cls) -> str:
         return cls.OUTPUT_FILE
@@ -290,7 +291,8 @@ class Maze:
             with open(Maze.get_output_file(), "w") as f:
                 for height in range(1, self._height + 1):
                     for width in range(1, self._width + 1):
-                        f.write(str(format(self._cells[(width, height)]._state, 'x')) + " ")
+                        f.write(str(format(self._cells[(width, height)]._state,
+                                           'x')) + " ")  # DELETE THE ' '
                     f.write("\n")
                 f.write("\n")
                 f.write(f"Entry point: ({self._entry[0]}, {self._entry[1]})\n")
@@ -306,6 +308,72 @@ class Maze:
             # But just in case ...
             print("ERROR: output file not found")
 
+    # RANDOM GENERATION ALGORITHM ---------------------------------------------
+    def random_generation(self):
+        def reset_directions() -> list[str]:
+            """
+            Function used to get all the possible directions.
+
+            :return: A list with all the directions NORTH, EAST,
+            SOUTH, WEST
+            :rtype: list[str]
+            """
+            return [NORTH, EAST, SOUTH, WEST]
+
+        passed_cells: dict[int, tuple[int, int]] = {}
+        i = 0
+        player = self.get_player()
+        player_cell = player.get_cell()
+        directions = reset_directions()
+        player_cell.set_visited(True)
+        passed_cells[i] = self.get_player_coordinates()
+        i += 1
+        # WITH THIS CODE WE GENERATE ALL THE MAZE WAYS
+        while True:
+            # Printing passed cells
+            # print("-------------")
+            # for move, cell in passed_cells.items():
+            #     print(f"Move num: {move}\nCell coords: {cell}")
+
+            # Algorithm...
+            direction = random.choice(directions)
+            player = self.get_player()
+            player_cell = player.get_cell()
+            adyacent = player_cell.get_adyacent()[direction]
+            # print("===============")
+            # print("PLAYER'S POSITION:", self.get_cell_position(player_cell))
+            # print("Cell at " + direction + ":", adyacent)
+            # Uncomment to see process
+            # if adyacent is not None:
+            #     print("Visited?", adyacent.is_visited())
+            #     print("Coordinates:", self.get_cell_position(adyacent))
+            #     print(f"Is {direction} fixed?", adyacent.is_fixed())
+            #     print(f"Is {direction} visited?", adyacent.is_visited())
+            if (adyacent is not None and
+                    not adyacent.is_visited() and not adyacent.is_fixed()):
+                player_cell.open_direction(direction)
+                move = self.move_player(direction)
+                # print("Did we move? ", move)
+                if move:
+                    player = self.get_player()
+                    player_cell = player.get_cell()
+                    player_cell.set_visited(True)
+                    passed_cells[i] = self.get_player_coordinates()
+                    if self.get_player_coordinates() == self.get_exit():
+                        self._pathway = passed_cells.copy()
+                    i += 1
+                    directions = reset_directions()
+            elif player.can_go_somewhere():
+                directions.remove(direction)
+                continue
+            elif len(passed_cells) > 1:
+                self.put_player_at(passed_cells[i - 2])
+                i -= 1
+                passed_cells.pop(i)
+                directions = reset_directions()
+            else:
+                break
+
 
 if __name__ == "__main__":
     print("\nCHECK COMMENTS IN CODE FOR ANY EXPLANATION!\n\n")
@@ -314,9 +382,11 @@ if __name__ == "__main__":
 
         # Printing the entry point for example:
         print("Checking cells...")
-        print("State of cell 10,10 (15 means every wall closed, ...):", maze.get_cells()[(10, 10)]._state)
+        print("State of cell 10,10 (15 means every wall closed, ...):",
+              maze.get_cells()[(10, 10)]._state)
         print("Position in memory from 2,1:", maze.get_cells()[(2, 1)])
-        print("Position in memory from NORTH of 2,2:", maze.get_cells()[(2, 2)].get_adyacent()[NORTH])
+        print("Position in memory from NORTH of 2,2:",
+              maze.get_cells()[(2, 2)].get_adyacent()[NORTH])
         print("They are the same :)")
 
         print("\nMoving the player...")
@@ -324,19 +394,24 @@ if __name__ == "__main__":
         print("Player at cell:", maze.get_cell_position(player.get_cell()))
         print("Can we go to NORTH?", player.get_cell().check_if_can_go(NORTH))
         print("Did we move?", maze.move_player(NORTH))
-        print("Player after trying to move NORTH:", maze.get_cell_position(player.get_cell()))
+        print("Player after trying to move NORTH:",
+              maze.get_cell_position(player.get_cell()))
 
         print("\nTesting to check if moving is possible...")
+
         # 2 examples to see if a wall is closed or not
         if 0b0000 & Maze.CLOSE_WALLS[NORTH]:  # NORTH = 0b0001
             print("North is closed")
         if 0b0001 & Maze.CLOSE_WALLS[NORTH]:
             print("North is closed")
+
         # This way we can see if some cell is closed in some direction
         if maze.get_cells()[(1, 2)]._state & Maze.CLOSE_WALLS[NORTH]:
             print("North direction is closed")
+
         # To open a cell wall, we can do this
-        maze.get_cells()[(3, 3)]._state -= maze.get_cells()[(3, 3)]._state & Maze.CLOSE_WALLS[NORTH]  # Consider making a function for this
+        maze.get_cells()[(3, 3)]._state -= (maze.get_cells()[(3, 3)]._state &
+                                            Maze.CLOSE_WALLS[NORTH])
         print(maze.get_cells()[(3, 3)]._state)
 
         # Opening a cell wall with the function
@@ -345,8 +420,10 @@ if __name__ == "__main__":
         print("Cell 2,3 state:", maze.get_cells()[(2, 2)]._state)
         print("OPENING SOUTH OF 2,2 ...")
         maze.get_cells()[(2, 2)].open_direction(SOUTH)
-        print("Cell 2,2 state after function:", maze.get_cells()[(2, 2)]._state)
-        print("Cell 2,3 state after function:", maze.get_cells()[(2, 3)]._state)
+        print("Cell 2,2 state after function:",
+              maze.get_cells()[(2, 2)]._state)
+        print("Cell 2,3 state after function:",
+              maze.get_cells()[(2, 3)]._state)
 
         # Checking if move is possible
         print("\nTesting going in different directions...")
@@ -361,15 +438,18 @@ if __name__ == "__main__":
 
         # Moving the player again
         print("\nMoving the player again...")
-        print("Player starting position:", maze.get_cell_position(player.get_cell()))
+        print("Player starting position:",
+              maze.get_cell_position(player.get_cell()))
         print("Player cell state:", player.get_cell()._state)
 
         print("Can we go to NORTH?", player.get_cell().check_if_can_go(NORTH))
         maze.move_player(NORTH)
-        print("Player after moving to NORTH:", maze.get_cell_position(player.get_cell()))
+        print("Player after moving to NORTH:",
+              maze.get_cell_position(player.get_cell()))
 
         print("Can we go to SOUTH?", player.get_cell().check_if_can_go(SOUTH))
         maze.move_player(SOUTH)
-        print("Player after moving to SOUTH:", maze.get_cell_position(player.get_cell()))
+        print("Player after moving to SOUTH:",
+              maze.get_cell_position(player.get_cell()))
     except MazeError as e:
         print("ERROR:", e)
