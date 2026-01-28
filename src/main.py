@@ -1,4 +1,4 @@
-from visualizer.src import MazeVisualizer
+from visualizer.src.maze_visualizer import MazeVisualizer
 
 # class MazeGenerator:
 #     def generate:
