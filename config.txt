@@ -1,2 +1,7 @@
-WIDTH=10
-HEIGHT=20
+# Spaces not allowed
+WIDTH=33
+HEIGHT=69
+ENTRY=33,6
+EXIT=1,1
+OUTPUT_FILE=ma/ze.txt
+PERFECT=True
