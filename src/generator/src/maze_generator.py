@@ -1,7 +1,8 @@
 #!/bin/env python3
 
 # QUICK EXAMPLE TO SEE THE GENERATION OF A RANDOM MAZE WITH THE MAZE CLASS
-from maze_class import (Maze, MazeError)
+from .maze import Maze
+from .exceptions import MazeError
 import sys
 
 

@@ -1,9 +1,7 @@
 #!/bin/env python3
 
-from .maze import Maze
-from .cell import Cell
-from .player import Player
-from .exceptions import MazeError
+from .src import Maze, Cell, Player, MazeError
+
 
 # So flake8 doesn't cry
 if __name__ == "__main__":
