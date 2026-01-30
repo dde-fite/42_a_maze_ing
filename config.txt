@@ -1,7 +1,7 @@
 # Spaces not allowed
-WIDTH=33
-HEIGHT=69
-ENTRY=33,6
+WIDTH=20
+HEIGHT=20
+ENTRY=10,6
 EXIT=1,2
-OUTPUT_FILE=ma/ze.txt
+OUTPUT_FILE=maze.txt
 PERFECT=True

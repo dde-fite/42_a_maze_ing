@@ -33,3 +33,16 @@ class Player:
                 return True
         # print("Can't go anywhere :(")
         return False
+
+    def can_move_somewhere(self) -> bool:
+        from .maze import POSSIBLE_DIRECTIONS
+        for dir in POSSIBLE_DIRECTIONS:
+            # print(f"Checking if we can go {dir}...")
+            adyacent = self.get_cell().get_adyacent()[dir]
+            if (adyacent is not None and adyacent.is_visited() is False and
+                    adyacent.is_fixed() is False and
+                    self.get_cell().check_if_can_go(dir)):
+                # print(f"WE CAN GO {dir}")
+                return True
+        # print("Can't go anywhere :(")
+        return False

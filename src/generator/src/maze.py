@@ -9,6 +9,7 @@ from .cell import Cell
 from math import ceil
 import random
 from typing import Optional
+import sys
 
 
 NORTH = "north"
@@ -38,6 +39,7 @@ class Maze:
         self.initiate_cells()
         self._player = Player(self._cells[entry])
         self._pathway: dict[int, tuple[int, int]] = {}
+        self._possible_pathways: list[dict[int, tuple[int, int]]] = {}
 
     # WIDTH -------------------------------------------------------------------
     def set_width(self, width: int) -> None:
@@ -136,6 +138,11 @@ class Maze:
                 raise MazeError("Unexpected error")
             else:
                 ft_cell.set_fixed(True)
+
+    def __reset_cells(self) -> None:
+        # Resets the 'visited' value of every Cell
+        for cell in self._cells.values():
+            cell.set_visited(False)
 
     def initiate_cells(self) -> None:
         # Initiates all cells, with all the walls on them closed
@@ -279,82 +286,94 @@ class Maze:
             else:
                 break
 
+    def open_random_walls(self):
+        for cell in self._cells.values():
+            if random.randrange(0, 20) == 0:
+                open = True
+            else:
+                open = False
+            if open:
+                direction = random.choice(POSSIBLE_DIRECTIONS)
+                if (cell._adyacent[direction] and
+                        not cell._adyacent[direction].is_fixed()):
+                    cell.open_direction(direction)
+
+    # PATHFINDER --------------------------------------------------------------
+    def find_pathways(self) -> set[dict[int, tuple[int, int]]]:
+        def reset_directions() -> list[str]:
+            """
+            Function used to get all the possible directions.
+
+            :return: A list with all the directions NORTH, EAST,
+            SOUTH, WEST
+            :rtype: list[str]
+            """
+            return [NORTH, EAST, SOUTH, WEST]
+        self.__reset_cells()
+        paths: set[dict[int, tuple[int, int]]] = set()
+        passed_cells: dict[int, tuple[int, int]] = {}
+        i = 0
+        player = self.get_player()
+        player_cell = player.get_cell()
+        directions = reset_directions()
+        player_cell.set_visited(True)
+        passed_cells[i] = self.get_player_coordinates()
+        back_counter = 0
+        removed_cells: list[Cell] = []
+        i += 1
+        while True:
+            print(back_counter)
+            print(removed_cells)
+            print()
+            direction = random.choice(directions)
+            player = self.get_player()
+            player_cell = player.get_cell()
+            adyacent = player_cell.get_adyacent()[direction]
+            if (adyacent is not None and not adyacent.is_visited()):
+                move = self.move_player(direction)
+            else:
+                move = False
+            if move:
+                back_counter = 0
+                removed_cells.clear()
+                directions = reset_directions()
+                player = self.get_player()
+                player_cell = player.get_cell()
+                player_cell.set_visited(True)
+                passed_cells[i] = self.get_player_coordinates()
+                if self.get_player_coordinates() == self.get_exit():
+                    print("EXIT COORDS:", self._exit)
+                    print("PATHWAY FOUND")
+                    paths.add(tuple(passed_cells.values()))
+                    self.put_player_at(i - 1)
+                i += 1
+            elif player.can_move_somewhere():
+                directions.remove(direction)
+                continue
+            elif len(passed_cells) > 1:
+                back_counter += 1
+                if back_counter > 1:
+                    removed_cells[0].set_visited(False)
+                    removed_cells.pop(0)
+                i -= 1
+                self.put_player_at(passed_cells[i - 1])
+                deleted_cell = self.get_cell(passed_cells.pop(i))
+                removed_cells.append(deleted_cell)
+                directions = reset_directions()
+            else:
+                break
+        return paths
+
 
 if __name__ == "__main__":
-    print("\nCHECK COMMENTS IN CODE FOR ANY EXPLANATION!\n\n")
+    # Generating a new perfect maze
+    print("\nGenerating a new perfect maze...")
     try:
-        maze = Maze(20, 20, (2, 2), (10, 10))
-
-        # Printing the entry point for example:
-        print("Checking cells...")
-        print("State of cell 10,10 (15 means every wall closed, ...):",
-              maze.get_cells()[(10, 10)]._state)
-        print("Position in memory from 2,1:", maze.get_cells()[(2, 1)])
-        print("Position in memory from NORTH of 2,2:",
-              maze.get_cells()[(2, 2)].get_adyacent()[NORTH])
-        print("They are the same :)")
-
-        print("\nMoving the player...")
-        player = maze.get_player()
-        print("Player at cell:", maze.get_cell_position(player.get_cell()))
-        print("Can we go to NORTH?", player.get_cell().check_if_can_go(NORTH))
-        print("Did we move?", maze.move_player(NORTH))
-        print("Player after trying to move NORTH:",
-              maze.get_cell_position(player.get_cell()))
-
-        print("\nTesting to check if moving is possible...")
-
-        # 2 examples to see if a wall is closed or not
-        if 0b0000 & Maze.CLOSE_WALLS[NORTH]:  # NORTH = 0b0001
-            print("North is closed")
-        if 0b0001 & Maze.CLOSE_WALLS[NORTH]:
-            print("North is closed")
-
-        # This way we can see if some cell is closed in some direction
-        if maze.get_cells()[(1, 2)]._state & Maze.CLOSE_WALLS[NORTH]:
-            print("North direction is closed")
-
-        # To open a cell wall, we can do this
-        maze.get_cells()[(3, 3)]._state -= (maze.get_cells()[(3, 3)]._state &
-                                            Maze.CLOSE_WALLS[NORTH])
-        print(maze.get_cells()[(3, 3)]._state)
-
-        # Opening a cell wall with the function
-        print("\nTesting opening walls...")
-        print("Cell 2,2 state:", maze.get_cells()[(2, 2)]._state)
-        print("Cell 2,3 state:", maze.get_cells()[(2, 2)]._state)
-        print("OPENING SOUTH OF 2,2 ...")
-        maze.get_cells()[(2, 2)].open_direction(SOUTH)
-        print("Cell 2,2 state after function:",
-              maze.get_cells()[(2, 2)]._state)
-        print("Cell 2,3 state after function:",
-              maze.get_cells()[(2, 3)]._state)
-
-        # Checking if move is possible
-        print("\nTesting going in different directions...")
-        print("Can we go SOUTH from 2,2? ",
-              maze.get_cells()[(2, 2)].check_if_can_go(SOUTH))
-        print("Can we go NORTH from 2,2? ",
-              maze.get_cells()[(2, 2)].check_if_can_go(NORTH))
-        print("Can we go SOUTH from 2,3? ",
-              maze.get_cells()[(2, 3)].check_if_can_go(SOUTH))
-        print("Can we go NORTH from 2,3? ",
-              maze.get_cells()[(2, 3)].check_if_can_go(NORTH))
-
-        # Moving the player again
-        print("\nMoving the player again...")
-        print("Player starting position:",
-              maze.get_cell_position(player.get_cell()))
-        print("Player cell state:", player.get_cell()._state)
-
-        print("Can we go to NORTH?", player.get_cell().check_if_can_go(NORTH))
-        maze.move_player(NORTH)
-        print("Player after moving to NORTH:",
-              maze.get_cell_position(player.get_cell()))
-
-        print("Can we go to SOUTH?", player.get_cell().check_if_can_go(SOUTH))
-        maze.move_player(SOUTH)
-        print("Player after moving to SOUTH:",
-              maze.get_cell_position(player.get_cell()))
+        maze = Maze(20, 20, (1, 1), (20, 20))
     except MazeError as e:
         print("ERROR:", e)
+        sys.exit(1)
+    maze.random_generation()
+    maze.print_output()
+    maze.open_random_walls()
+    print(maze.find_pathways())
