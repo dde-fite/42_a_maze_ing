@@ -1,1 +1,1 @@
-from .maze_class import MlxBridge, MazeVisualizer, MlxWindow  # noqa: F401
+from .maze_visualizer import MazeVisualizer  # noqa: F401

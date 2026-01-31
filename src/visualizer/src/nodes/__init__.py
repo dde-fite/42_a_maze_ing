@@ -1,1 +1,1 @@
-from .background import Background, BaseNode  # noqa: F401
+from .background import Background

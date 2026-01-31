@@ -9,7 +9,7 @@ class BaseNode:
     def __init__(self, name: str, pos: tuple[int, int], window: MlxWindow):
         self._name: str = name
         self._pos: tuple[int, int] = pos
-        self._components: list[Type[BaseComponent]]
+        self._components: list[Type[BaseComponent]] = []
         self._window: MlxWindow = window
 
     def get_name(self) -> str:

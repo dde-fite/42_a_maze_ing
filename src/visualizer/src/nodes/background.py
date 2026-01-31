@@ -1,6 +1,6 @@
 from pathlib import Path
-from ..components import SpriteRenderer
-from . import BaseNode
+from ..core.components import SpriteRenderer
+from ..core.nodes import BaseNode
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -12,4 +12,4 @@ class Background(BaseNode):
                  pos: tuple[int, int] = (0, 0)):
         super().__init__(name, pos, window)
         self.add_component(SpriteRenderer(
-            pos, Path("../sprites/background.xpm"), True, self._window))
+            pos, Path(__file__).resolve().parent.parent / "sprites" / "background.xpm", True, self._window))
