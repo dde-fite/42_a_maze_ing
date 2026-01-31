@@ -1,16 +1,21 @@
+from ..engine_manager import EngineManager
 from typing import Type, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .components import BaseComponent
-    from . import MlxWindow
 
 
 class BaseNode:
-    def __init__(self, name: str, pos: tuple[int, int], window: MlxWindow):
+    def __init__(self, name: str, pos: tuple[int, int],
+                 window: Window | None = None):
         self._name: str = name
         self._pos: tuple[int, int] = pos
         self._components: list[Type[BaseComponent]] = []
-        self._window: MlxWindow = window
+        self._window: Window
+        if not window:
+            self._window = EngineManager.get_main_window()
+        else:
+            self._window = window
 
     def get_name(self) -> str:
         return self.__name

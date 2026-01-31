@@ -1,10 +1,11 @@
 from mlx import Mlx
+from ctypes import c_void_p
 from ..exceptions import MlxException, MlxNotFound
 
 
 class MlxContext:
     __mlx: Mlx | None = None
-    __mlx_ptr: int | None = None
+    __mlx_ptr: c_void_p | None = None
 
     @classmethod
     def init(cls) -> None:
@@ -20,7 +21,7 @@ class MlxContext:
         return cls.__mlx
 
     @classmethod
-    def get_mlx_ptr(cls) -> int | None:
+    def get_mlx_ptr(cls) -> c_void_p | None:
         if not cls.__mlx or not cls.__mlx_ptr:
             raise MlxNotFound("Mlx is not initiated")
         return cls.__mlx_ptr

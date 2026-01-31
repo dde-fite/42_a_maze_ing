@@ -1,3 +1,4 @@
+from ctypes import c_void_p
 from .mlx import MlxContext
 from .exceptions import MlxException
 
@@ -6,7 +7,7 @@ class Window:
     def __init__(self, name: str, size: tuple[int, int]):
         self.__name = name
         self.__size: tuple[int, int] = size
-        self.__ptr: int = MlxContext.get_mlx().mlx_new_window(
+        self.__ptr: c_void_p = MlxContext.get_mlx().mlx_new_window(
                             MlxContext.get_mlx_ptr(), size[0], size[1],
                             name)
         if not self.__ptr:
@@ -18,8 +19,12 @@ class Window:
     def get_size(self) -> tuple[int, int]:
         return self.__size
 
-    def get_ptr(self) -> int:
+    def get_ptr(self) -> c_void_p:
         return self.__ptr
+
+    def draw_image(self, img_ptr: c_void_p, pos: tuple[int, int]) -> None:
+        MlxContext.get_mlx().mlx_put_image_to_window(
+            MlxContext.get_mlx_ptr(), self.__ptr, img_ptr, pos[0], pos[0])
 
     def clear_window(self) -> None:
         MlxContext.get_mlx().mlx_clear_window(MlxContext.get_mlx_ptr(),

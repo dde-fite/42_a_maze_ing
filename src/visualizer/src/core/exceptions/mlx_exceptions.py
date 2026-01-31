@@ -2,5 +2,5 @@ class MlxException(Exception):
     pass
 
 
-class MlxNotFound(Exception):
+class MlxNotFound(MlxException):
     pass
