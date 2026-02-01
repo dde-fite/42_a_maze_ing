@@ -17,6 +17,7 @@ class SpriteRenderer(BaseComponent):
                  is_active: bool):
         super().__init__(owner)
         self.__file_path: Path | None = None
+        self.__size: tuple[int, int] = (0, 0)
         self.__is_active: bool = False
         self.__ptr: c_void_p | None = None
         self.set_file_path(file_path)
@@ -43,6 +44,9 @@ class SpriteRenderer(BaseComponent):
         self.__file_path = file_path
         self.__load_sprite()
 
+    def get_size(self) -> tuple[int, int]:
+        return self.__size
+
     def get_active(self) -> bool:
         return self.__is_active
 
@@ -58,13 +62,15 @@ class SpriteRenderer(BaseComponent):
     def __load_sprite(self) -> None:
         if not self.__file_path:
             return
-        self.__ptr = MlxContext.get_mlx().mlx_xpm_file_to_image(
-            MlxContext.get_mlx_ptr(), str(self.__file_path))[0]
+        self.__ptr, size_x, size_y = MlxContext.get_mlx(
+            ).mlx_xpm_file_to_image(
+                MlxContext.get_mlx_ptr(), str(self.__file_path))
+        self.__size = (size_x, size_y)
         if not self.__ptr:
             raise MlxException(f"Error creating '{self.__file_path}' image")
 
     def __unload_sprite(self) -> None:
         if self.__ptr:
-            MlxContext.get_mlx().mlx_destroy_image(MlxContext.get_mlx_ptr,
+            MlxContext.get_mlx().mlx_destroy_image(MlxContext.get_mlx_ptr(),
                                                    self.__ptr)
         self.__ptr = None
