@@ -24,7 +24,8 @@ class Window:
 
     def draw_image(self, img_ptr: c_void_p, pos: tuple[int, int]) -> None:
         MlxContext.get_mlx().mlx_put_image_to_window(
-            MlxContext.get_mlx_ptr(), self.__ptr, img_ptr, pos[0], pos[0])
+            MlxContext.get_mlx_ptr(), self.__ptr, img_ptr,
+            int(pos[0]), int(pos[1]))
 
     def clear_window(self) -> None:
         MlxContext.get_mlx().mlx_clear_window(MlxContext.get_mlx_ptr(),
