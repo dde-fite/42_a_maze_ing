@@ -15,6 +15,14 @@ class MlxContext:
             raise MlxException("Error initiating Mlx")
 
     @classmethod
+    def close(cls) -> None:
+        if not cls.__mlx or not cls.__mlx_ptr:
+            raise MlxNotFound("Mlx is not initiated")
+        cls.__mlx.mlx_release(cls.__mlx_ptr)
+        del cls.__mlx_ptr
+        del cls.__mlx
+
+    @classmethod
     def get_mlx(cls) -> Mlx:
         if not cls.__mlx:
             raise MlxNotFound("Mlx is not initiated")

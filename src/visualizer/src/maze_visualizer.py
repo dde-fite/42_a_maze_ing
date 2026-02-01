@@ -1,18 +1,16 @@
-from typing import TYPE_CHECKING, Any
 from .core import EngineManager
 from .core.mlx import MlxContext
 from .nodes import Background
-
-# if TYPE_CHECKING:
-#     from src.generator.src.maze_class import Maze # Cell
+from .scenes import MainMaze
 
 
 class MazeVisualizer:
     # test
     @staticmethod
     def show_visualizer() -> None:
-        EngineManager.init_engine("a_maze_ing", (1920, 1080))
-        background = Background()
+        EngineManager.init("a_maze_ing",
+                           (1920, 1080),
+                           [MainMaze])
         # img = m.mlx_xpm_file_to_image(mlx_ptr, "sprites/background.xpm")
         # print(img)
         # print(m.mlx_mouse_get_pos(win_ptr))

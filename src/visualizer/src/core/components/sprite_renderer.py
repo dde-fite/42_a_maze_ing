@@ -1,33 +1,37 @@
 from pathlib import Path
 from ctypes import c_void_p
 from typing import TYPE_CHECKING
-from .. import EngineManager
 from ..mlx import MlxContext
 from ..exceptions import MlxException
 from .base_component import BaseComponent
+from ..nodes import BaseNode
+from .. import EngineManager
+
 
 if TYPE_CHECKING:
     from .. import Window
 
 
 class SpriteRenderer(BaseComponent):
-    def __init__(self, pos: tuple[int, int], file_path: Path,
-                 is_active: bool, window: Window | None = None):
-        super().__init__(pos)
+    def __init__(self, owner: BaseNode, file_path: Path,
+                 is_active: bool):
+        super().__init__(owner)
         self.__file_path: Path | None = None
         self.__is_active: bool = False
         self.__ptr: c_void_p | None = None
-        self.__window: Window
-        if not window:
-            self.__window = EngineManager.get_main_window()
-        else:
-            self.__window = window
         self.set_file_path(file_path)
         self.set_active(is_active)
-
-    def update(self) -> None:
         if self.__is_active and self.__ptr:
-            self.__window.draw_image(self.__ptr, self._pos)
+            self._owner.get_window().draw_image(
+                self.__ptr, self._owner.get_pos())
+
+    def on_update(self) -> None:
+        if self.__is_active and self.__ptr:
+            self._owner.get_window().draw_image(
+                self.__ptr, self._owner.get_pos())
+
+    def on_destroy(self) -> None:
+        self.__unload_sprite()
 
     def get_file_path(self) -> Path | None:
         return self.__file_path
@@ -50,9 +54,6 @@ class SpriteRenderer(BaseComponent):
 
     def set_window(self, window: Window) -> None:
         self.__window = window
-
-    def set_pos(self, pos: tuple[int, int]) -> None:
-        self._pos = pos
 
     def __load_sprite(self) -> None:
         if not self.__file_path:
