@@ -42,7 +42,7 @@ class EngineManager:
 
     @classmethod
     def __on_update(cls, param: None) -> None:
-        cls.__delta_time = time() - cls.__last_frame_time
+        cls.__delta_time = (time() - cls.__last_frame_time) * 10
         for w in cls.__windows:
             MlxContext.get_mlx().mlx_clear_window(
                 MlxContext.get_mlx_ptr(), w.get_ptr())
