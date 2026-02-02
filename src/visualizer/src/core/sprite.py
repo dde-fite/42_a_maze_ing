@@ -11,8 +11,8 @@ class SpriteManager:
     @classmethod
     def load_sprite(cls, file_path: Path, referenced_by: Any) -> Sprite:
         if not referenced_by:
-            raise EngineNotReference("It is obligatory a 'referenced by' value"
-                                     " for loading sprites")
+            raise EngineNoReference("It is obligatory a 'referenced by' value"
+                                    " for loading sprites")
         sprite = cls.get_sprite(file_path)
         if sprite:
             sprite.add_reference(referenced_by)
