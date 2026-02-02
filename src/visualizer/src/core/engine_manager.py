@@ -104,7 +104,7 @@ class EngineManager:
     @classmethod
     def __get_scene(cls, name: str) -> type[BaseScene]:
         for scene in cls.__scenes:
-            if type(scene).__name__ == name:
+            if scene.__mro__[0].__name__ == name:
                 return scene
         raise EngineElementNotFound(f"Scene '{name}' not found")
 
