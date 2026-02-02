@@ -438,9 +438,9 @@ class Generator:
             dir = random.choice(directions)
 
             # Stablishing adyacent
-            if cls.__get_adyacent_cells(point, width, height)[dir]:
-                adyacent = cells[cls.__get_adyacent_cells(
-                    point, width, height)[dir]]
+            adyacents = cls.__get_adyacent_cells(point, width, height)
+            if adyacents[dir]:
+                adyacent = cells[adyacents[dir]]
             else:
                 adyacent = None
 
@@ -480,7 +480,7 @@ if __name__ == "__main__":
     # Generating a new perfect maze
     print("\nGenerating a new perfect maze...")
     try:
-        maze = Maze(4, 4, (1, 1), (4, 4))
+        maze = Maze(200, 200, (1, 1), (4, 4))
     except MazeError as e:
         print("ERROR:", e)
         sys.exit(1)
@@ -488,4 +488,4 @@ if __name__ == "__main__":
     # maze.print_output()
 
     # DELETE MAZE FROM THE PARAMETERS
-    Generator.dfs_generation(maze, 4, 4, (1, 1), (4, 4))
+    Generator.dfs_generation(maze, 200, 200, (1, 1), (4, 4))
