@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import IntEnum
 """
 X Window System definitions for Python
 Converted from X11/X.h
@@ -8,7 +8,7 @@ This is a Python translation of the X11 protocol constants and definitions.
 """
 
 
-class X(Enum):
+class X(IntEnum):
     # Protocol version
     X_PROTOCOL = 11
     X_PROTOCOL_REVISION = 0
