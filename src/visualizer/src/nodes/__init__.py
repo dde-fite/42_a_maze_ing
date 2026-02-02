@@ -1,1 +1,2 @@
-from .background import Background
+from .background import Background  # noqa: F401
+from .player import Player  # noqa: F401
