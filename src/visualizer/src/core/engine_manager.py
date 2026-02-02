@@ -1,10 +1,12 @@
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 from time import time
 from .mlx import MlxContext
 from .window import Window
 from .exceptions import (EngineNotStarted,
                          EngineElementNotFound,
                          EngineElementConflict, MlxException)
+from .input import InputManager
+from .x11 import keysymdef
 
 if TYPE_CHECKING:
     from .scenes import BaseScene
@@ -54,17 +56,20 @@ class EngineManager:
             raise MlxException("Error creating the main window")
         cls.__scenes = scenes
         cls.load_scene_by_id(0)
+        MlxContext.get_mlx().mlx_do_key_autorepeatoff(MlxContext.get_mlx_ptr())
         MlxContext.get_mlx().mlx_loop_hook(
             MlxContext.get_mlx_ptr(),
             cls.__on_update,
             None)
+        InputManager.add_listener_on_press(keysymdef.XK_Escape, cls.exit)
         MlxContext.get_mlx().mlx_loop(MlxContext.get_mlx_ptr())
+        MlxContext.close()
 
+    @classmethod
     def exit(cls) -> None:
         if cls.__actual_scene:
             cls.__actual_scene.on_unload()
         MlxContext.get_mlx().mlx_loop_exit(MlxContext.get_mlx_ptr())
-        MlxContext.close()
 
     @classmethod
     def __on_update(cls, param: None) -> None:
@@ -72,6 +77,7 @@ class EngineManager:
         for w in cls.__windows:
             MlxContext.get_mlx().mlx_clear_window(
                 MlxContext.get_mlx_ptr(), w.get_ptr())
+        InputManager.on_update()
         if cls.__actual_scene:
             for n in cls.__actual_scene.get_nodes():
                 n.expose_update()()

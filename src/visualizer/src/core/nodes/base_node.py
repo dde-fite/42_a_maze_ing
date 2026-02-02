@@ -10,7 +10,7 @@ class BaseNode:
     def __init__(self, name: str, pos: tuple[int, int],
                  window: Window | None = None):
         self._name: str = name
-        self._pos: tuple[int, int] = pos
+        self._pos: tuple[float, float] = pos
         self._parent_node: BaseNode | None = None
         self._subnodes: list[BaseNode] = []
         self._components: list[BaseComponent] = []
@@ -27,17 +27,17 @@ class BaseNode:
     def set_name(self, name: str) -> None:
         self._name = name
 
-    def get_pos(self) -> tuple[int, int]:
+    def get_pos(self) -> tuple[float, float]:
         if self._parent_node:
             parent_x, parent_y = self._parent_node.get_pos()
             return (self._pos[0] + parent_x, self._pos[1] + parent_y)
         return self._pos
 
-    def get_rel_pos(self) -> tuple[int, int]:
+    def get_rel_pos(self) -> tuple[float, float]:
         return self._pos
 
-    def set_pos(self, pos: tuple[int, int]) -> None:
-        self._pos = pos
+    def set_pos(self, x: float, y: float) -> None:
+        self._pos = (x, y)
 
     def get_parent_node(self) -> BaseNode | None:
         return self._parent_node

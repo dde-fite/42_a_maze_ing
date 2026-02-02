@@ -2,6 +2,8 @@ from ctypes import c_void_p
 from .mlx import MlxContext
 from .exceptions import MlxException
 from .sprite import Sprite
+from .input import InputManager
+from .x11 import X
 
 
 class Window:
@@ -27,6 +29,12 @@ class Window:
                             name)
         if not self.__ptr:
             raise MlxException(f"Error creating '{name}' window")
+        MlxContext.get_mlx().mlx_hook(
+            self.__ptr, X.KeyPress, X.KeyPressMask,
+            InputManager.trigger_key_press, None)
+        MlxContext.get_mlx().mlx_hook(
+            self.__ptr, X.KeyRelease, X.KeyReleaseMask,
+            InputManager.trigger_key_release, None)
 
     def get_name(self) -> str:
         return self.__name
