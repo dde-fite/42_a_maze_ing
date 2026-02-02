@@ -12,3 +12,7 @@ class EngineElementNotFound(EngineException):
 
 class EngineElementConflict(EngineException):
     pass
+
+
+class EngineNoReference(EngineException):
+    pass

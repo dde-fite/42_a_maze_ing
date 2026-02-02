@@ -1,11 +1,8 @@
 from pathlib import Path
-from ctypes import c_void_p
 from typing import TYPE_CHECKING
-from ..mlx import MlxContext
-from ..exceptions import MlxException
 from .base_component import BaseComponent
 from ..nodes import BaseNode
-from .. import EngineManager
+from .. import SpriteManager, Sprite
 
 
 if TYPE_CHECKING:
@@ -17,19 +14,15 @@ class SpriteRenderer(BaseComponent):
                  is_active: bool):
         super().__init__(owner)
         self.__file_path: Path | None = None
-        self.__size: tuple[int, int] = (0, 0)
         self.__is_active: bool = False
-        self.__ptr: c_void_p | None = None
+        self.__sprite: Sprite | None = None
         self.set_file_path(file_path)
         self.set_active(is_active)
-        if self.__is_active and self.__ptr:
-            self._owner.get_window().draw_image(
-                self.__ptr, self._owner.get_pos())
 
     def on_update(self) -> None:
-        if self.__is_active and self.__ptr:
-            self._owner.get_window().draw_image(
-                self.__ptr, self._owner.get_pos())
+        if self.__is_active and self.__sprite:
+            self._owner.get_window().draw_sprite(
+                self.__sprite, self._owner.get_pos())
 
     def on_destroy(self) -> None:
         self.__unload_sprite()
@@ -45,7 +38,9 @@ class SpriteRenderer(BaseComponent):
         self.__load_sprite()
 
     def get_size(self) -> tuple[int, int]:
-        return self.__size
+        if self.__sprite:
+            return self.__sprite.get_size()
+        return (0, 0)
 
     def get_active(self) -> bool:
         return self.__is_active
@@ -62,15 +57,9 @@ class SpriteRenderer(BaseComponent):
     def __load_sprite(self) -> None:
         if not self.__file_path:
             return
-        self.__ptr, size_x, size_y = MlxContext.get_mlx(
-            ).mlx_xpm_file_to_image(
-                MlxContext.get_mlx_ptr(), str(self.__file_path))
-        self.__size = (size_x, size_y)
-        if not self.__ptr:
-            raise MlxException(f"Error creating '{self.__file_path}' image")
+        self.__sprite = SpriteManager.load_sprite(self.__file_path, self)
 
     def __unload_sprite(self) -> None:
-        if self.__ptr:
-            MlxContext.get_mlx().mlx_destroy_image(MlxContext.get_mlx_ptr(),
-                                                   self.__ptr)
-        self.__ptr = None
+        if self.__file_path and self.__sprite:
+            SpriteManager.unload_sprite(self.__file_path, self)
+        self.__sprite = None

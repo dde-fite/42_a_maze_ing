@@ -1,6 +1,7 @@
 from ctypes import c_void_p
 from .mlx import MlxContext
 from .exceptions import MlxException
+from .sprite import Sprite
 
 
 class Window:
@@ -25,6 +26,11 @@ class Window:
     def draw_image(self, img_ptr: c_void_p, pos: tuple[int, int]) -> None:
         MlxContext.get_mlx().mlx_put_image_to_window(
             MlxContext.get_mlx_ptr(), self.__ptr, img_ptr,
+            int(pos[0]), int(pos[1]))
+
+    def draw_sprite(self, sprite: Sprite, pos: tuple[int, int]) -> None:
+        MlxContext.get_mlx().mlx_put_image_to_window(
+            MlxContext.get_mlx_ptr(), self.__ptr, sprite.get_ptr(),
             int(pos[0]), int(pos[1]))
 
     def clear_window(self) -> None:
