@@ -5,8 +5,22 @@ from .sprite import Sprite
 
 
 class Window:
+    """Represents an Mlx Window, spawning a window when instantiated and \
+        closing it when not needed.
+
+    It also provides functions for easy handling of drawing processes.
+
+    Attributes:
+        __name (str): Name of the window in the title bar.
+        __size: (tuple[int, int]): Size of the window. It is not updated when \
+            resized.
+        __ptr: (c_void_p): Pointer to the Mlx window.
+
+    Raises:
+        MlxException: In case of an error from Mlx.
+    """
     def __init__(self, name: str, size: tuple[int, int]):
-        self.__name = name
+        self.__name: str = name
         self.__size: tuple[int, int] = size
         self.__ptr: c_void_p = MlxContext.get_mlx().mlx_new_window(
                             MlxContext.get_mlx_ptr(), size[0], size[1],

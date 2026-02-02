@@ -11,6 +11,32 @@ if TYPE_CHECKING:
 
 
 class EngineManager:
+    """When the program starts, it calls MlxContext to initialize the \
+        connection with Mlx and executes the loop that keeps it running.
+
+    It collects the update event and forwards it to the nodes of the loaded \
+        scene.
+    It also registers the input hook, which is later handled by Input class.
+
+    Contains the scene switching system and window creation/destruction.
+
+    Attributes:
+        __main_window (Window | None): Main window spawned at start.
+        __windows (list[Window]): List of window instances generated.
+        __actual_scene (BaseScene | None): Current scene loaded.
+        __scenes (list[type[BaseScene]]): List of scenes available.
+        __last_frame_time (float): Time when the last frame was generated.
+        __delta_time (float): Result of delta time calculation.
+
+    Raises:
+        EngineNotStarted: When trying to access an engine resource \
+            without initializing the engine first.
+        EngineElementConflict: For conflicts when there is a resource \
+            allocated with the same name or parameters.
+        EngineElementNotFound: In case of the user asks for a resource that \
+            does not exist.
+        MlxException: In case of an error from Mlx.
+    """
     __main_window: Window | None = None
     __windows: list[Window] = []
     __actual_scene: BaseScene | None = None
