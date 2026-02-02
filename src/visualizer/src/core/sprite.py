@@ -6,6 +6,28 @@ from .exceptions import MlxException, EngineNoReference
 
 
 class SpriteManager:
+    """Pool the on-demand sprite load in a unique way to avoid loading the \
+        same image multiple times.
+
+    Stores sprites in memory within classes and records who is using them.
+
+    When a SpriteRenderer or any other component needs a sprite, it can use \
+        load_sprite().
+    This function checks if it already exists in memory; if it does, it simply\
+        notes that it's in use by that entity, and if not, it loads it, also \
+            noting its usage.
+
+    When the sprite is no longer needed, the component will use \
+        unload_sprite() to communicate this.
+    The manager will remove that usage for the sprite, and if no one is using \
+        the sprite anymore, it will free it from memory.
+
+    Attributes:
+        __sprites (list[Sprite]): List that contains the loaded sprites.
+
+    Raises:
+        EngineNoReference: In case of passing None as a reference.
+    """
     __sprites: list[Sprite] = []
 
     @classmethod
@@ -40,10 +62,34 @@ class SpriteManager:
 
 
 class Sprite:
+    """Pool the on-demand sprite load in a unique way to avoid loading the \
+        same image multiple times.
+
+    Stores sprites in memory within classes and records who is using them.
+
+    When a SpriteRenderer or any other component needs a sprite, it can use \
+        load_sprite().
+    This function checks if it already exists in memory; if it does, it simply\
+        notes that it's in use, and if not, it loads it, also noting its usage.
+
+    When the sprite is no longer needed, the component will use \
+        unload_sprite() to communicate this.
+    The manager will remove that usage for the sprite, and if no one is using \
+        the sprite anymore, it will free it from memory.
+
+    Attributes:
+        __file_path (Path): Path to image file.
+        __references (list[Any]): List of entities using the sprite.
+        __size (tuple[int, int]): Size of the image in px.
+        __ptr: (c_void_p | None): Pointer to the image loaded by Mlx.
+
+    Raises:
+        FileNotFoundError: If an invalid route is passed as image path.
+    """
     def __init__(self, file_path: Path, reference: Any):
         if not file_path.is_file():
             raise FileNotFoundError(f"Can't found sprite '{file_path}'")
-        self.__file_path = file_path
+        self.__file_path: Path = file_path
         self.__references: list[Any] = []
         self.__size: tuple[int, int] = (0, 0)
         self.__ptr: c_void_p | None = None
