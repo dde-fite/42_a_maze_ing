@@ -1,7 +1,8 @@
 # Spaces not allowed
-WIDTH=20
-HEIGHT=20
+WIDTH=50
+HEIGHT=50
 ENTRY=10,6
 EXIT=1,2
 OUTPUT_FILE=maze.txt
 PERFECT=True
+FT_LOGO=True

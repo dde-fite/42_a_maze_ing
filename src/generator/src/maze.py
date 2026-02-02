@@ -3,6 +3,7 @@
 from .exceptions import MazeError
 from .player import Player
 from .cell import Cell
+from typing import Union
 
 
 # Other imports...
@@ -30,11 +31,13 @@ class Maze:
     MIN_FT_HEIGHT = 7
 
     def __init__(self, width: int, height: int,
-                 entry: tuple[int, int], exit: tuple[int, int]) -> None:
+                 entry: tuple[int, int], exit: tuple[int, int],
+                 ft_logo: bool = True) -> None:
         self.set_width(width)
         self.set_height(height)
         self.set_entry(entry)
         self.set_exit(exit)
+        self._ft_logo = ft_logo
         self._cells: dict[tuple[int, int], Cell] = {}
         self.initiate_cells()
         self._player = Player(self._cells[entry])
@@ -107,7 +110,7 @@ class Maze:
         if (self._width < Maze.MIN_FT_WIDTH
                 or self._height < Maze.MIN_FT_HEIGHT):
             return
-        ft_logo: tuple = (  # type: ignore
+        ft_logo: tuple[tuple[int, int]] = (  # type: ignore
                 (-1, 0),
                 (-2, 0),
                 (-3, 0),
@@ -173,7 +176,8 @@ class Maze:
                 else:
                     current_cell._adyacent[SOUTH] = self._cells[(x, y + 1)]
         # Generating 42 logo (the function checks if it can be done itself)
-        self.__generate_ft_logo()
+        if self._ft_logo:
+            self.__generate_ft_logo()
 
     # PLAYER ------------------------------------------------------------------
     def set_player(self, player: Player) -> None:
@@ -279,101 +283,209 @@ class Maze:
                 directions.remove(direction)
                 continue
             elif len(passed_cells) > 1:
-                self.put_player_at(passed_cells[i - 2])
                 i -= 1
+                self.put_player_at(passed_cells[i - 1])
                 passed_cells.pop(i)
                 directions = reset_directions()
             else:
                 break
 
+    # Not finished
     def open_random_walls(self):
-        for cell in self._cells.values():
-            if random.randrange(0, 20) == 0:
-                open = True
-            else:
-                open = False
-            if open:
-                direction = random.choice(POSSIBLE_DIRECTIONS)
-                if (cell._adyacent[direction] and
-                        not cell._adyacent[direction].is_fixed()):
-                    cell.open_direction(direction)
+        # for cell in self._cells.values():
+        #     if random.randrange(0, 10) == 0:
+        #         open = True
+        #     else:
+        #         open = False
+        #     if open:
+        #         direction = random.choice(POSSIBLE_DIRECTIONS)
+        #         if (cell._adyacent[direction] and
+        #                 not cell._adyacent[direction].is_fixed()):
+        #             cell.open_direction(direction)
+        pass
 
     # PATHFINDER --------------------------------------------------------------
-    def find_pathways(self) -> set[dict[int, tuple[int, int]]]:
-        def reset_directions() -> list[str]:
-            """
-            Function used to get all the possible directions.
+    def find_pathways(self) -> list[dict[int, tuple[int, int]]]:
+        pass
 
-            :return: A list with all the directions NORTH, EAST,
-            SOUTH, WEST
-            :rtype: list[str]
-            """
-            return [NORTH, EAST, SOUTH, WEST]
-        self.__reset_cells()
-        paths: set[dict[int, tuple[int, int]]] = set()
-        passed_cells: dict[int, tuple[int, int]] = {}
-        i = 0
-        player = self.get_player()
-        player_cell = player.get_cell()
-        directions = reset_directions()
-        player_cell.set_visited(True)
-        passed_cells[i] = self.get_player_coordinates()
-        back_counter = 0
-        removed_cells: list[Cell] = []
-        i += 1
+
+class Generator:
+
+    @staticmethod
+    def print_output_DELETE(
+            maze: Maze,
+            cells: dict[
+                tuple[int, int], dict[str, Union[int, bool, dict]]]) -> None:
+        try:
+            with open(Maze.get_output_file(), "w") as f:
+                for height in range(1, maze.get_height() + 1):
+                    for width in range(1, maze.get_height() + 1):
+                        f.write(str(format(cells[(width, height)]["state"],
+                                           'x')) + " ")  # DELETE THE ' '
+                    f.write("\n")
+                f.write("\n")
+                f.write(f"Entry point: {maze.get_entry()}\n")
+                f.write(f"Exit point: {maze.get_exit()}\n")
+                f.write("Player's position: "
+                        f"{maze.get_player_coordinates()}\n")
+                f.write("Pathway----------------------\n")
+                # for key, value in maze._pathway.items():
+                #     f.write(f"{key}: {value} | ")
+        except FileNotFoundError:
+            # This error should never happen, since open with 'w' doesn't raise
+            # FileNotFoundError, it creates it in case it doesn't exist.
+            # But just in case ...
+            print("ERROR: output file not found")
+
+    @staticmethod
+    def get_opposite_wall(wall: str) -> str:
+        if wall == NORTH:
+            return SOUTH
+        elif wall == EAST:
+            return WEST
+        elif wall == SOUTH:
+            return NORTH
+        elif wall == WEST:
+            return EAST
+        else:
+            raise ValueError("Wrong parameter")
+
+    @staticmethod
+    def get_ft_logo_cells(width: int, height: int) -> Optional[
+            list[tuple[int, int]]]:
+        if (width < Maze.MIN_FT_WIDTH
+                or height < Maze.MIN_FT_HEIGHT):
+            return
+        ft_logo: tuple[tuple[int, int]] = (  # type: ignore
+                (-1, 0),
+                (-2, 0),
+                (-3, 0),
+                (-3, -1),
+                (-3, -2),
+                (-1, 1),
+                (-1, 2),
+                (1, 0),
+                (2, 0),
+                (3, 0),
+                (3, -1),
+                (3, -2),
+                (2, -2),
+                (1, -2),
+                (1, 1),
+                (1, 2),
+                (2, 2),
+                (3, 2)
+            )
+        center_point = (ceil(width / 2),
+                        ceil(height / 2))
+        cells = []
+        for cell in ft_logo:
+            cells.append((center_point[0] + cell[0],
+                         center_point[1] + cell[1]))
+        return cells
+
+    @staticmethod
+    def __get_adyacent_cells(point: tuple[int, int],
+                             width: int, height: int) -> dict[
+                               str, Optional[tuple[int, int]]]:
+        adyacent_cells = {}
+        if point[0] == 1:
+            adyacent_cells[WEST] = None
+        else:
+            adyacent_cells[WEST] = (point[0] - 1, point[1])
+        if point[0] == width:
+            adyacent_cells[EAST] = None
+        else:
+            adyacent_cells[EAST] = (point[0] + 1, point[1])
+        if point[1] == 1:
+            adyacent_cells[NORTH] = None
+        else:
+            adyacent_cells[NORTH] = (point[0], point[1] - 1)
+        if point[1] == height:
+            adyacent_cells[SOUTH] = None
+        else:
+            adyacent_cells[SOUTH] = (point[0], point[1] + 1)
+        return adyacent_cells
+
+    @classmethod
+    def dfs_generation(cls, maze, width: int, height: int,
+                       entry: tuple[int, int], exit: tuple[int, int]) -> None:
+
+        # Initializing
+        cells: dict[tuple[int, int], dict[str, Union[int, bool, dict]]] = {}
+        ft_logo_cells = cls.get_ft_logo_cells(width, height)
+
+        # Generating base maze
+        for x in range(1, width + 1):
+            for y in range(1, height + 1):
+                cells[(x, y)] = {"state": 0b1111, "visited": False,
+                                 "fixed": False}
+
+        # Stablishing fixed cells
+        if ft_logo_cells:
+            for cell in ft_logo_cells:
+                cells[cell]["fixed"] = True
+
+        # Initializing other variables
+        point = entry
+        cells[point]["visited"] = True
+        directions = POSSIBLE_DIRECTIONS.copy()
+        passed_cells: list[tuple[int, int]] = [point]
+        exit_path = []
+
+        # Generating full maze
         while True:
-            print(back_counter)
-            print(removed_cells)
-            print()
-            direction = random.choice(directions)
-            player = self.get_player()
-            player_cell = player.get_cell()
-            adyacent = player_cell.get_adyacent()[direction]
-            if (adyacent is not None and not adyacent.is_visited()):
-                move = self.move_player(direction)
+            dir = random.choice(directions)
+
+            # Stablishing adyacent
+            if cls.__get_adyacent_cells(point, width, height)[dir]:
+                adyacent = cells[cls.__get_adyacent_cells(
+                    point, width, height)[dir]]
             else:
-                move = False
-            if move:
-                back_counter = 0
-                removed_cells.clear()
-                directions = reset_directions()
-                player = self.get_player()
-                player_cell = player.get_cell()
-                player_cell.set_visited(True)
-                passed_cells[i] = self.get_player_coordinates()
-                if self.get_player_coordinates() == self.get_exit():
-                    print("EXIT COORDS:", self._exit)
-                    print("PATHWAY FOUND")
-                    paths.add(tuple(passed_cells.values()))
-                    self.put_player_at(i - 1)
-                i += 1
-            elif player.can_move_somewhere():
-                directions.remove(direction)
-                continue
-            elif len(passed_cells) > 1:
-                back_counter += 1
-                if back_counter > 1:
-                    removed_cells[0].set_visited(False)
-                    removed_cells.pop(0)
-                i -= 1
-                self.put_player_at(passed_cells[i - 1])
-                deleted_cell = self.get_cell(passed_cells.pop(i))
-                removed_cells.append(deleted_cell)
-                directions = reset_directions()
+                adyacent = None
+
+            # Logic
+            if adyacent and not adyacent["visited"] and not adyacent["fixed"]:
+                # Changing current cell state
+                cells[point]["state"] = cells[
+                    point]["state"] - Maze.CLOSE_WALLS[dir]
+
+                # Changing adyacent cell state
+                adyacent["state"] = (
+                    adyacent["state"] -
+                    Maze.CLOSE_WALLS[cls.get_opposite_wall(dir)])
+                adyacent["visited"] = True
+
+                point = cls.__get_adyacent_cells(point, width, height)[dir]
+                passed_cells.append(point)
+                directions = POSSIBLE_DIRECTIONS.copy()
+                if point == exit:
+                    exit_path = passed_cells.copy()
             else:
+                directions.remove(dir)
+            if len(directions) == 0 and point == entry:
                 break
-        return paths
+            if len(directions) == 0:
+                point = passed_cells[-2]
+                if len(passed_cells) > 0:
+                    passed_cells.pop()  # Deleting last
+                directions = POSSIBLE_DIRECTIONS.copy()
+        # print(exit_path)
+        # print(len(exit_path))
+        cls.print_output_DELETE(maze, cells)
+        print(exit_path)
 
 
 if __name__ == "__main__":
     # Generating a new perfect maze
     print("\nGenerating a new perfect maze...")
     try:
-        maze = Maze(20, 20, (1, 1), (20, 20))
+        maze = Maze(4, 4, (1, 1), (4, 4))
     except MazeError as e:
         print("ERROR:", e)
         sys.exit(1)
-    maze.random_generation()
-    maze.print_output()
-    maze.open_random_walls()
-    print(maze.find_pathways())
+    # maze.random_generation()
+    # maze.print_output()
+
+    # DELETE MAZE FROM THE PARAMETERS
+    Generator.dfs_generation(maze, 4, 4, (1, 1), (4, 4))

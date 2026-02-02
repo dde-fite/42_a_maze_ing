@@ -15,6 +15,7 @@ class AvailableKeys(Enum):
     OUTPUT_FILE = "OUTPUT_FILE"
     PERFECT = "PERFECT"
     # Some extra keys could be added here
+    FT_LOGO = "FT_LOGO"
 
 
 class ConfigValidator:
@@ -106,7 +107,7 @@ class ConfigValidator:
     def __parse_perfect(cls, value: str) -> bool:
         if value != "True" and value != "False":
             raise ConfigError(f"Given value '{value}' doesn't "
-                              f"work for {AvailableKeys.OUTPUT_FILE}. "
+                              f"work for {AvailableKeys.OUTPUT_FILE.value}. "
                               "Only 'True' or 'False' are accepted values!")
         if value == "True":
             return True
@@ -115,7 +116,23 @@ class ConfigValidator:
         else:
             # This should never happen
             raise ConfigError(f"Given value '{value}' doesn't "
-                              f"work for {AvailableKeys.OUTPUT_FILE}. "
+                              f"work for {AvailableKeys.OUTPUT_FILE.value}. "
+                              "Only 'True' or 'False' are accepted values!")
+
+    @classmethod
+    def __parse_ft_logo(cls, value: str) -> bool:
+        if value != "True" and value != "False":
+            raise ConfigError(f"Given value '{value}' doesn't "
+                              f"work for {AvailableKeys.FT_LOGO.value}. "
+                              "Only 'True' or 'False' are accepted values!")
+        if value == "True":
+            return True
+        elif value == "False":
+            return False
+        else:
+            # This should never happen
+            raise ConfigError(f"Given value '{value}' doesn't "
+                              f"work for {AvailableKeys.FT_LOGO.value}. "
                               "Only 'True' or 'False' are accepted values!")
 
     @classmethod
@@ -139,6 +156,8 @@ class ConfigValidator:
                 result = cls.__parse_output_file(value)
             case AvailableKeys.PERFECT.value:
                 result = cls.__parse_perfect(value)
+            case AvailableKeys.FT_LOGO.value:
+                result = cls.__parse_ft_logo(value)
         return (key, result)
 
     @classmethod
@@ -178,8 +197,9 @@ if __name__ == "__main__":
     maze = Maze(config[AvailableKeys.WIDTH.value],
                 config[AvailableKeys.HEIGHT.value],
                 config[AvailableKeys.ENTRY.value],
-                config[AvailableKeys.EXIT.value])
+                config[AvailableKeys.EXIT.value],
+                config[AvailableKeys.FT_LOGO.value])
 
     # Generate the maze with the read config
-    # maze.random_generation()
-    # maze.print_output()
+    maze.random_generation()
+    maze.print_output()
