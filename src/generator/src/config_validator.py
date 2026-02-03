@@ -201,5 +201,4 @@ if __name__ == "__main__":
                 config[AvailableKeys.FT_LOGO.value])
 
     # Generate the maze with the read config
-    maze.random_generation()
     maze.print_output()

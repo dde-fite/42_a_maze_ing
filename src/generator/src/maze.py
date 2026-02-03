@@ -17,7 +17,7 @@ NORTH = "north"
 SOUTH = "south"
 EAST = "east"
 WEST = "west"
-POSSIBLE_DIRECTIONS = [NORTH, SOUTH, EAST, WEST]
+POSSIBLE_DIRECTIONS = [NORTH, EAST, SOUTH, WEST]
 
 
 class Maze:
@@ -43,6 +43,16 @@ class Maze:
         self._player = Player(self._cells[entry])
         self._pathway: dict[int, tuple[int, int]] = {}
         self._possible_pathways: list[dict[int, tuple[int, int]]] = {}
+
+        # Generating cells with the algorithm
+        cell_generation = Generator.dfs_generation(
+            self._width, self._height, self._entry, self._exit, self._ft_logo)
+        for y in range(1, self._height + 1):
+            for x in range(1, self._width + 1):
+                cell_generated = cell_generation[x, y]
+                self._cells[x, y].set_state(cell_generated["state"])
+                # self._cells[x, y].set_visited(cell_generated["visited"])
+                self._cells[x, y].set_fixed(cell_generated["fixed"])
 
     # WIDTH -------------------------------------------------------------------
     def set_width(self, width: int) -> None:
@@ -141,11 +151,6 @@ class Maze:
                 raise MazeError("Unexpected error")
             else:
                 ft_cell.set_fixed(True)
-
-    def __reset_cells(self) -> None:
-        # Resets the 'visited' value of every Cell
-        for cell in self._cells.values():
-            cell.set_visited(False)
 
     def initiate_cells(self) -> None:
         # Initiates all cells, with all the walls on them closed
@@ -306,28 +311,31 @@ class Maze:
 
     # PATHFINDER --------------------------------------------------------------
     def find_pathways(self) -> list[dict[int, tuple[int, int]]]:
+        # TODO: Create algorithm to find every possible way to the exit
         pass
 
 
 class Generator:
+    # TODO: Structure the class methods in a more clear and efficient way
 
     @staticmethod
     def print_output_DELETE(
-            maze: Maze,
+            width: int, height: int,
+            entry: tuple[int, int], exit: tuple[int, int],
             cells: dict[
                 tuple[int, int], dict[str, Union[int, bool, dict]]]) -> None:
         try:
             with open(Maze.get_output_file(), "w") as f:
-                for height in range(1, maze.get_height() + 1):
-                    for width in range(1, maze.get_height() + 1):
+                for height in range(1, height + 1):
+                    for width in range(1, width + 1):
                         f.write(str(format(cells[(width, height)]["state"],
                                            'x')) + " ")  # DELETE THE ' '
                     f.write("\n")
                 f.write("\n")
-                f.write(f"Entry point: {maze.get_entry()}\n")
-                f.write(f"Exit point: {maze.get_exit()}\n")
-                f.write("Player's position: "
-                        f"{maze.get_player_coordinates()}\n")
+                f.write(f"Entry point: {entry}\n")
+                f.write(f"Exit point: {exit}\n")
+                # f.write("Player's position: "
+                #         f"{maze.get_player_coordinates()}\n")
                 f.write("Pathway----------------------\n")
                 # for key, value in maze._pathway.items():
                 #     f.write(f"{key}: {value} | ")
@@ -348,15 +356,21 @@ class Generator:
         elif wall == WEST:
             return EAST
         else:
-            raise ValueError("Wrong parameter")
+            raise ValueError("Wrong parameter!")
 
     @staticmethod
     def get_ft_logo_cells(width: int, height: int) -> Optional[
             list[tuple[int, int]]]:
+        # TODO: Change the ft_logo related cells for the different sizes!
         if (width < Maze.MIN_FT_WIDTH
                 or height < Maze.MIN_FT_HEIGHT):
             return
-        ft_logo: tuple[tuple[int, int]] = (  # type: ignore
+        SIZE_1 = (Maze.MIN_FT_WIDTH, Maze.MIN_FT_HEIGHT)
+        SIZE_2 = (Maze.MIN_FT_WIDTH * 3, Maze.MIN_FT_HEIGHT * 3)
+        SIZE_3 = (Maze.MIN_FT_WIDTH * 9, Maze.MIN_FT_HEIGHT * 9)
+        # BIGGEST SIZE
+        if width > SIZE_3[0] and height > SIZE_3[1]:
+            ft_logo: tuple[tuple[int, int]] = (  # type: ignore
                 (-1, 0),
                 (-2, 0),
                 (-3, 0),
@@ -376,6 +390,52 @@ class Generator:
                 (2, 2),
                 (3, 2)
             )
+        # MEDIUM SIZE
+        elif width > SIZE_2[0] and height > SIZE_2[1]:
+            ft_logo: tuple[tuple[int, int]] = (  # type: ignore
+                (-1, 0),
+                (-2, 0),
+                (-3, 0),
+                (-3, -1),
+                (-3, -2),
+                (-1, 1),
+                (-1, 2),
+                (1, 0),
+                (2, 0),
+                (3, 0),
+                (3, -1),
+                (3, -2),
+                (2, -2),
+                (1, -2),
+                (1, 1),
+                (1, 2),
+                (2, 2),
+                (3, 2)
+            )
+        # SMALL SIZE
+        elif width > SIZE_1[0] and height > SIZE_1[1]:
+            ft_logo: tuple[tuple[int, int]] = (  # type: ignore
+                (-1, 0),
+                (-2, 0),
+                (-3, 0),
+                (-3, -1),
+                (-3, -2),
+                (-1, 1),
+                (-1, 2),
+                (1, 0),
+                (2, 0),
+                (3, 0),
+                (3, -1),
+                (3, -2),
+                (2, -2),
+                (1, -2),
+                (1, 1),
+                (1, 2),
+                (2, 2),
+                (3, 2)
+            )
+        else:
+            return
         center_point = (ceil(width / 2),
                         ceil(height / 2))
         cells = []
@@ -408,20 +468,25 @@ class Generator:
         return adyacent_cells
 
     @classmethod
-    def dfs_generation(cls, maze, width: int, height: int,
-                       entry: tuple[int, int], exit: tuple[int, int]) -> None:
+    def dfs_generation(cls, width: int, height: int,
+                       entry: tuple[int, int],
+                       exit: tuple[int, int],
+                       ft_logo: bool = True
+                       ) -> dict[tuple[int, int], dict[str, Union[int, bool]]]:
+        # TODO: Try to reduce functions usage and improve dictionary structures
 
-        # Initializing
-        cells: dict[tuple[int, int], dict[str, Union[int, bool, dict]]] = {}
-        ft_logo_cells = cls.get_ft_logo_cells(width, height)
-
-        # Generating base maze
+        # Initializing cells
+        cells: dict[tuple[int, int], dict[str, Union[int, bool]]] = {}
         for x in range(1, width + 1):
             for y in range(1, height + 1):
                 cells[(x, y)] = {"state": 0b1111, "visited": False,
                                  "fixed": False}
 
         # Stablishing fixed cells
+        if ft_logo:
+            ft_logo_cells = cls.get_ft_logo_cells(width, height)
+        else:
+            ft_logo_cells = None
         if ft_logo_cells:
             for cell in ft_logo_cells:
                 cells[cell]["fixed"] = True
@@ -429,7 +494,7 @@ class Generator:
         # Initializing other variables
         point = entry
         cells[point]["visited"] = True
-        directions = POSSIBLE_DIRECTIONS.copy()
+        directions = [NORTH, EAST, SOUTH, WEST]
         passed_cells: list[tuple[int, int]] = [point]
         exit_path = []
 
@@ -456,9 +521,10 @@ class Generator:
                     Maze.CLOSE_WALLS[cls.get_opposite_wall(dir)])
                 adyacent["visited"] = True
 
-                point = cls.__get_adyacent_cells(point, width, height)[dir]
+                point = adyacents[dir]
                 passed_cells.append(point)
-                directions = POSSIBLE_DIRECTIONS.copy()
+                # directions = POSSIBLE_DIRECTIONS.copy()
+                directions = [NORTH, EAST, SOUTH, WEST]
                 if point == exit:
                     exit_path = passed_cells.copy()
             else:
@@ -469,11 +535,13 @@ class Generator:
                 point = passed_cells[-2]
                 if len(passed_cells) > 0:
                     passed_cells.pop()  # Deleting last
-                directions = POSSIBLE_DIRECTIONS.copy()
+                # directions = POSSIBLE_DIRECTIONS.copy()
+                directions = [NORTH, EAST, SOUTH, WEST]
         # print(exit_path)
         # print(len(exit_path))
-        cls.print_output_DELETE(maze, cells)
+        # cls.print_output_DELETE(width, height, entry, exit, cells)
         print(exit_path)
+        return cells
 
 
 if __name__ == "__main__":
@@ -485,7 +553,7 @@ if __name__ == "__main__":
         print("ERROR:", e)
         sys.exit(1)
     # maze.random_generation()
-    # maze.print_output()
+    maze.print_output()
 
-    # DELETE MAZE FROM THE PARAMETERS
-    Generator.dfs_generation(maze, 200, 200, (1, 1), (4, 4))
+    # Generator.dfs_generation(200, 200, (1, 1), (4, 4))
+    # sys.exit(1)
