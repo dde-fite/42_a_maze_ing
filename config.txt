@@ -1,8 +1,23 @@
 # Spaces not allowed
-WIDTH=100
-HEIGHT=100
+# Comments in same line as key=value lines will be ignored
+
+# Width of the maze: int
+WIDTH=1000
+
+# Height of the maze: int
+HEIGHT=1000
+
+# Entry point coordinates of the maze: (int, int)
 ENTRY=10,6
+
+# Exit point coordinates of the maze: (int, int)
 EXIT=1,2
+
+# Output file name: str finished with .txt
 OUTPUT_FILE=maze.txt
+
+# Perfect maze: bool
 PERFECT=True
-FT_LOGO=False
+
+# Ft logo appearing in maze: bool
+FT_LOGO=True

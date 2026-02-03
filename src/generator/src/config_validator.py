@@ -7,25 +7,25 @@ from .maze import Maze
 from .exceptions import ConfigError
 
 
-class AvailableKeys(Enum):
-    WIDTH = "WIDTH"
-    HEIGHT = "HEIGHT"
-    ENTRY = "ENTRY"
-    EXIT = "EXIT"
-    OUTPUT_FILE = "OUTPUT_FILE"
-    PERFECT = "PERFECT"
-    # Some extra keys could be added here
-    FT_LOGO = "FT_LOGO"
-
-
 class ConfigValidator:
+
+    class AvailableKeys(Enum):
+        WIDTH = "WIDTH"
+        HEIGHT = "HEIGHT"
+        ENTRY = "ENTRY"
+        EXIT = "EXIT"
+        OUTPUT_FILE = "OUTPUT_FILE"
+        PERFECT = "PERFECT"
+        # Some extra keys could be added here
+        FT_LOGO = "FT_LOGO"
+
     @classmethod
     def __parse_width(cls, value: str) -> int:
         try:
             width = int(value)
         except ValueError:
             raise ConfigError(f"Given value '{value}' doesn't work for"
-                              f"{AvailableKeys.WIDTH.value}. Only single "
+                              f"{cls.AvailableKeys.WIDTH.value}. Only single "
                               "integers are accepted!")
         return width
 
@@ -35,7 +35,7 @@ class ConfigValidator:
             height = int(value)
         except ValueError:
             raise ConfigError(f"Given value '{value}' doesn't work for"
-                              f"{AvailableKeys.HEIGHT.value}. Only single "
+                              f"{cls.AvailableKeys.HEIGHT.value}. Only single "
                               "integers are accepted!")
         return height
 
@@ -45,14 +45,15 @@ class ConfigValidator:
             split = value.split(",")
             if len(split) != 2:
                 raise ValueError(f"Given value '{value}' doesn't work "
-                                 f"for {AvailableKeys.ENTRY.value}. There can "
+                                 f"for {cls.AvailableKeys.ENTRY.value}. "
+                                 "There can "
                                  "be only one ',' in the value!")
             try:
                 x = int(split[0])
                 y = int(split[1])
             except ValueError:
                 raise ConfigError(f"Given value '{value}' doesn't "
-                                  f"work for {AvailableKeys.ENTRY.value}. "
+                                  f"work for {cls.AvailableKeys.ENTRY.value}. "
                                   "Only integers are accepted as possible "
                                   "values for the coordinates!")
         except Exception as e:
@@ -65,16 +66,17 @@ class ConfigValidator:
             split = value.split(",")
             if len(split) != 2:
                 raise ValueError(f"Given value '{value}' doesn't work "
-                                 f"for {AvailableKeys.EXIT.value}. There can "
+                                 f"for {cls.AvailableKeys.EXIT.value}. "
+                                 "There can "
                                  "be only one ',' in the value!")
             try:
                 x = int(split[0])
                 y = int(split[1])
             except ValueError:
                 raise ConfigError(f"Given value '{value}' doesn't "
-                                  f"work for {AvailableKeys.EXIT.value}. Only "
-                                  "integers are accepted as possible values "
-                                  "for the coordinates!")
+                                  f"work for {cls.AvailableKeys.EXIT.value}. "
+                                  "Only integers are accepted as possible "
+                                  "values for the coordinates!")
         except Exception as e:
             raise ConfigError(e)
         return (x, y)
@@ -83,31 +85,31 @@ class ConfigValidator:
     def __parse_output_file(cls, value: str) -> str:
         # 'file_name.a', 'file_name', ... case
         if not value.endswith(".txt"):
-            raise ConfigError(f"Given value '{value}' doesn't "
-                              f"work for {AvailableKeys.OUTPUT_FILE.value}. "
+            raise ConfigError(f"Given value '{value}' doesn't work for "
+                              f"{cls.AvailableKeys.OUTPUT_FILE.value}. "
                               "The output file must be a .txt!")
         # 'file name.txt' case
         if ' ' in value:
-            raise ConfigError(f"Given value '{value}' doesn't "
-                              f"work for {AvailableKeys.OUTPUT_FILE.value}. "
+            raise ConfigError(f"Given value '{value}' doesn't work for "
+                              f"{cls.AvailableKeys.OUTPUT_FILE.value}. "
                               "No spaces are allowed in the name!")
         # 'file..name....txt', 'file.....name.txt', ... case
         if ".." in value:
-            raise ConfigError(f"Given value '{value}' doesn't "
-                              f"work for {AvailableKeys.OUTPUT_FILE.value}. No"
+            raise ConfigError(f"Given value '{value}' doesn't work for "
+                              f"{cls.AvailableKeys.OUTPUT_FILE.value}. No"
                               " consecutive dots are allowed for a file name!")
         # '.txt' case
         if len(value) == 4:
-            raise ConfigError(f"Given value '{value}' doesn't "
-                              f"work for {AvailableKeys.OUTPUT_FILE.value}. "
+            raise ConfigError(f"Given value '{value}' doesn't work for"
+                              f"{cls.AvailableKeys.OUTPUT_FILE.value}. "
                               "Only extension file type was given!")
         return value
 
     @classmethod
     def __parse_perfect(cls, value: str) -> bool:
         if value != "True" and value != "False":
-            raise ConfigError(f"Given value '{value}' doesn't "
-                              f"work for {AvailableKeys.OUTPUT_FILE.value}. "
+            raise ConfigError(f"Given value '{value}' doesn't work for "
+                              f"{cls.AvailableKeys.OUTPUT_FILE.value}. "
                               "Only 'True' or 'False' are accepted values!")
         if value == "True":
             return True
@@ -115,15 +117,15 @@ class ConfigValidator:
             return False
         else:
             # This should never happen
-            raise ConfigError(f"Given value '{value}' doesn't "
-                              f"work for {AvailableKeys.OUTPUT_FILE.value}. "
+            raise ConfigError(f"Given value '{value}' doesn't work for "
+                              f"{cls.AvailableKeys.OUTPUT_FILE.value}. "
                               "Only 'True' or 'False' are accepted values!")
 
     @classmethod
     def __parse_ft_logo(cls, value: str) -> bool:
         if value != "True" and value != "False":
-            raise ConfigError(f"Given value '{value}' doesn't "
-                              f"work for {AvailableKeys.FT_LOGO.value}. "
+            raise ConfigError(f"Given value '{value}' doesn't work for "
+                              f"{cls.AvailableKeys.FT_LOGO.value}. "
                               "Only 'True' or 'False' are accepted values!")
         if value == "True":
             return True
@@ -132,31 +134,31 @@ class ConfigValidator:
         else:
             # This should never happen
             raise ConfigError(f"Given value '{value}' doesn't "
-                              f"work for {AvailableKeys.FT_LOGO.value}. "
+                              f"work for {cls.AvailableKeys.FT_LOGO.value}. "
                               "Only 'True' or 'False' are accepted values!")
 
     @classmethod
     def __parse_config(cls, key: str, value: str) -> (
             tuple[str, Union[int, str, tuple[int, int], bool]]):
-        if key not in AvailableKeys.__members__:
+        if key not in cls.AvailableKeys.__members__:
             raise ValueError(f"Given key '{key}' is not available!")
         if ' ' in value:
             raise ConfigError("NO SPACES")
         value = value.rstrip("\n")  # We substract the '\n'
         match key:
-            case AvailableKeys.WIDTH.value:
+            case cls.AvailableKeys.WIDTH.value:
                 result = cls.__parse_width(value)
-            case AvailableKeys.HEIGHT.value:
+            case cls.AvailableKeys.HEIGHT.value:
                 result = cls.__parse_height(value)
-            case AvailableKeys.ENTRY.value:
+            case cls.AvailableKeys.ENTRY.value:
                 result = cls.__parse_entry(value)
-            case AvailableKeys.EXIT.value:
+            case cls.AvailableKeys.EXIT.value:
                 result = cls.__parse_exit(value)
-            case AvailableKeys.OUTPUT_FILE.value:
+            case cls.AvailableKeys.OUTPUT_FILE.value:
                 result = cls.__parse_output_file(value)
-            case AvailableKeys.PERFECT.value:
+            case cls.AvailableKeys.PERFECT.value:
                 result = cls.__parse_perfect(value)
-            case AvailableKeys.FT_LOGO.value:
+            case cls.AvailableKeys.FT_LOGO.value:
                 result = cls.__parse_ft_logo(value)
         return (key, result)
 
@@ -164,22 +166,29 @@ class ConfigValidator:
     def read_config(cls, config_file: str = "config.txt"
                     ) -> dict[str, Union[int, str, tuple[int, int], bool]]:
         available_keys = {}
-        for key in AvailableKeys:
+        for key in cls.AvailableKeys:
             available_keys[key.value] = 0
         try:
             with open(config_file, "r") as f:
                 config_file_line = f.readline()
                 while (config_file_line):
                     # print("Read line:", config_file_line)
-                    if config_file_line.startswith("#"):
+                    if config_file_line.strip(' ').startswith("#"):
+                        # Comment
+                        config_file_line = f.readline()
+                        continue
+                    if config_file_line.strip(' ') == "\n":
+                        # Empty line
                         config_file_line = f.readline()
                         continue
                     if '=' not in config_file_line:
+                        # Not key=value line
                         raise ValueError("Incorrect config 1!")
                     split = config_file_line.split("=")
                     if len(split) != 2 or split[1] == '\n':
+                        # Not just key=value line or key='\n' line
                         raise ValueError("Incorrect config 2!")
-                    result = ConfigValidator.__parse_config(split[0], split[1])
+                    result = cls.__parse_config(split[0], split[1])
                     available_keys[result[0]] = result[1]
                     # print(available_keys)
                     config_file_line = f.readline()
@@ -194,11 +203,11 @@ if __name__ == "__main__":
     config = ConfigValidator.read_config(config_file)
     print("\nAvailable keys:")
     print(config)
-    maze = Maze(config[AvailableKeys.WIDTH.value],
-                config[AvailableKeys.HEIGHT.value],
-                config[AvailableKeys.ENTRY.value],
-                config[AvailableKeys.EXIT.value],
-                config[AvailableKeys.FT_LOGO.value])
+    maze = Maze(config[ConfigValidator.AvailableKeys.WIDTH.value],
+                config[ConfigValidator.AvailableKeys.HEIGHT.value],
+                config[ConfigValidator.AvailableKeys.ENTRY.value],
+                config[ConfigValidator.AvailableKeys.EXIT.value],
+                config[ConfigValidator.AvailableKeys.FT_LOGO.value])
 
     # Generate the maze with the read config
     maze.print_output()

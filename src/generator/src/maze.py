@@ -8,7 +8,7 @@ from typing import Union
 
 # Other imports...
 from math import ceil
-import random
+from random import choice
 from typing import Optional
 import sys
 
@@ -17,7 +17,9 @@ NORTH = "north"
 SOUTH = "south"
 EAST = "east"
 WEST = "west"
-POSSIBLE_DIRECTIONS = [NORTH, EAST, SOUTH, WEST]
+POSSIBLE_DIRECTIONS = (NORTH, EAST, SOUTH, WEST)
+OPPOSITE_DIRECTIONS = {NORTH: SOUTH, EAST: WEST,
+                       SOUTH: NORTH, WEST: EAST}
 
 
 class Maze:
@@ -44,7 +46,7 @@ class Maze:
         self._pathway: dict[int, tuple[int, int]] = {}
         self._possible_pathways: list[dict[int, tuple[int, int]]] = {}
 
-        # Generating cells with the algorithm
+        # Generating cells with the algorithm in the Generator class
         cell_generation = Generator.dfs_generation(
             self._width, self._height, self._entry, self._exit, self._ft_logo)
         for y in range(1, self._height + 1):
@@ -53,6 +55,9 @@ class Maze:
                 self._cells[x, y].set_state(cell_generated["state"])
                 # self._cells[x, y].set_visited(cell_generated["visited"])
                 self._cells[x, y].set_fixed(cell_generated["fixed"])
+        # Generator.path_finder(self._width, self._height,
+        #                       self._entry, self._exit,
+        #                       cell_generation)
 
     # WIDTH -------------------------------------------------------------------
     def set_width(self, width: int) -> None:
@@ -257,7 +262,7 @@ class Maze:
             #     print(f"Move num: {move}\nCell coords: {cell}")
 
             # Algorithm...
-            direction = random.choice(directions)
+            direction = choice(directions)  # From random package
             player = self.get_player()
             player_cell = player.get_cell()
             adyacent = player_cell.get_adyacent()[direction]
@@ -319,47 +324,7 @@ class Generator:
     # TODO: Structure the class methods in a more clear and efficient way
 
     @staticmethod
-    def print_output_DELETE(
-            width: int, height: int,
-            entry: tuple[int, int], exit: tuple[int, int],
-            cells: dict[
-                tuple[int, int], dict[str, Union[int, bool, dict]]]) -> None:
-        try:
-            with open(Maze.get_output_file(), "w") as f:
-                for height in range(1, height + 1):
-                    for width in range(1, width + 1):
-                        f.write(str(format(cells[(width, height)]["state"],
-                                           'x')) + " ")  # DELETE THE ' '
-                    f.write("\n")
-                f.write("\n")
-                f.write(f"Entry point: {entry}\n")
-                f.write(f"Exit point: {exit}\n")
-                # f.write("Player's position: "
-                #         f"{maze.get_player_coordinates()}\n")
-                f.write("Pathway----------------------\n")
-                # for key, value in maze._pathway.items():
-                #     f.write(f"{key}: {value} | ")
-        except FileNotFoundError:
-            # This error should never happen, since open with 'w' doesn't raise
-            # FileNotFoundError, it creates it in case it doesn't exist.
-            # But just in case ...
-            print("ERROR: output file not found")
-
-    @staticmethod
-    def get_opposite_wall(wall: str) -> str:
-        if wall == NORTH:
-            return SOUTH
-        elif wall == EAST:
-            return WEST
-        elif wall == SOUTH:
-            return NORTH
-        elif wall == WEST:
-            return EAST
-        else:
-            raise ValueError("Wrong parameter!")
-
-    @staticmethod
-    def get_ft_logo_cells(width: int, height: int) -> Optional[
+    def __get_ft_logo_cells(width: int, height: int) -> Optional[
             list[tuple[int, int]]]:
         # TODO: Change the ft_logo related cells for the different sizes!
         if (width < Maze.MIN_FT_WIDTH
@@ -484,12 +449,10 @@ class Generator:
 
         # Stablishing fixed cells
         if ft_logo:
-            ft_logo_cells = cls.get_ft_logo_cells(width, height)
-        else:
-            ft_logo_cells = None
-        if ft_logo_cells:
-            for cell in ft_logo_cells:
-                cells[cell]["fixed"] = True
+            ft_logo_cells = cls.__get_ft_logo_cells(width, height)
+            if ft_logo_cells:
+                for cell in ft_logo_cells:
+                    cells[cell]["fixed"] = True
 
         # Initializing other variables
         point = entry
@@ -497,10 +460,11 @@ class Generator:
         directions = [NORTH, EAST, SOUTH, WEST]
         passed_cells: list[tuple[int, int]] = [point]
         exit_path = []
+        op = OPPOSITE_DIRECTIONS
 
         # Generating full maze
         while True:
-            dir = random.choice(directions)
+            dir = choice(directions)  # From random package
 
             # Stablishing adyacent
             adyacents = cls.__get_adyacent_cells(point, width, height)
@@ -512,15 +476,13 @@ class Generator:
             # Logic
             if adyacent and not adyacent["visited"] and not adyacent["fixed"]:
                 # Changing current cell state
-                cells[point]["state"] = cells[
-                    point]["state"] - Maze.CLOSE_WALLS[dir]
+                cells[point]["state"] -= Maze.CLOSE_WALLS[dir]
 
                 # Changing adyacent cell state
-                adyacent["state"] = (
-                    adyacent["state"] -
-                    Maze.CLOSE_WALLS[cls.get_opposite_wall(dir)])
+                adyacent["state"] -= Maze.CLOSE_WALLS[op[dir]]
                 adyacent["visited"] = True
 
+                # Updating variables
                 point = adyacents[dir]
                 passed_cells.append(point)
                 # directions = POSSIBLE_DIRECTIONS.copy()
@@ -528,32 +490,84 @@ class Generator:
                 if point == exit:
                     exit_path = passed_cells.copy()
             else:
+                # Not being able to move that direction
                 directions.remove(dir)
-            if len(directions) == 0 and point == entry:
+            if point == entry and len(directions) == 0:
+                # Finishing the algorithm
                 break
             if len(directions) == 0:
+                # Running out of possible directions
                 point = passed_cells[-2]
                 if len(passed_cells) > 0:
                     passed_cells.pop()  # Deleting last
                 # directions = POSSIBLE_DIRECTIONS.copy()
                 directions = [NORTH, EAST, SOUTH, WEST]
-        # print(exit_path)
-        # print(len(exit_path))
-        # cls.print_output_DELETE(width, height, entry, exit, cells)
         print(exit_path)
         return cells
+
+    @classmethod
+    def path_finder(cls, width: int, height: int,
+                    entry: tuple[int, int], exit: tuple[int, int],
+                    cells:
+                    dict[tuple[int, int], dict[
+                        str, Union[int, bool]]]) -> list[tuple[int, int]]:
+        points = []
+        point = {"pos": entry}
+        points.append(point)
+
+        directions = [NORTH, EAST, SOUTH, WEST]
+        pathways = []
+        passed_cells = [point["pos"]]
+
+        while True:
+            dir = choice(directions)
+
+            # Stablishing adyacent
+            adyacents = cls.__get_adyacent_cells(point["pos"], width, height)
+            if adyacents[dir]:
+                adyacent = cells[adyacents[dir]]
+            else:
+                adyacent = None
+
+            print(point)
+            # Checking if we can move that direction
+            if adyacent is None:
+                directions.remove(dir)
+                if len(directions) == 0:
+                    directions = [NORTH, EAST, SOUTH, WEST]
+                    point["pos"] = passed_cells[-2]
+                    passed_cells.pop()
+            elif cells[point["pos"]]["state"] & Maze.CLOSE_WALLS[dir]:
+                # We can't
+                directions.remove(dir)
+                if len(directions) == 0:
+                    directions = [NORTH, EAST, SOUTH, WEST]
+                    point["pos"] = passed_cells[-2]
+                    passed_cells.pop()
+            elif adyacents[dir] in passed_cells:
+                directions.remove(dir)
+                if len(directions) == 0:
+                    directions = [NORTH, EAST, SOUTH, WEST]
+                    point["pos"] = passed_cells[-2]
+                    passed_cells.pop()
+            else:
+                point["pos"] = adyacents[dir]
+                passed_cells.append(point["pos"])
+                directions = [NORTH, EAST, SOUTH, WEST]
+                if point["pos"] == exit:
+                    pathways.append(passed_cells.copy())
+                    break
+        print(pathways)
+        return pathways
 
 
 if __name__ == "__main__":
     # Generating a new perfect maze
     print("\nGenerating a new perfect maze...")
     try:
-        maze = Maze(200, 200, (1, 1), (4, 4))
+        maze = Maze(10, 10, (1, 1), (4, 4))
     except MazeError as e:
         print("ERROR:", e)
         sys.exit(1)
     # maze.random_generation()
     maze.print_output()
-
-    # Generator.dfs_generation(200, 200, (1, 1), (4, 4))
-    # sys.exit(1)
