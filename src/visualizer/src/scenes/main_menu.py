@@ -1,6 +1,6 @@
 from ..core.scenes import BaseScene
 from ..nodes import BgMenu
-from ..nodes.buttons import PlayButton
+from ..nodes.buttons import PlayButton, CloseButton
 
 
 class MainMenu(BaseScene):
@@ -8,4 +8,5 @@ class MainMenu(BaseScene):
         super().__init__([
             BgMenu(),
             PlayButton(),
+            CloseButton(),
         ])

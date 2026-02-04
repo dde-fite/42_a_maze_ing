@@ -3,8 +3,6 @@ from ..base_component import BaseComponent
 from .. import Input, SpriteRenderer
 from ...x11 import keysymdef
 
-# PENDING!!
-
 
 class Button(BaseComponent):
 
