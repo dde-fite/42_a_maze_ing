@@ -31,10 +31,16 @@ class Window:
             raise MlxException(f"Error creating '{name}' window")
         MlxContext.get_mlx().mlx_hook(
             self.__ptr, X.KeyPress, X.KeyPressMask,
-            InputManager.trigger_key_press, None)
+            InputManager.trigger_press, None)
         MlxContext.get_mlx().mlx_hook(
             self.__ptr, X.KeyRelease, X.KeyReleaseMask,
-            InputManager.trigger_key_release, None)
+            InputManager.trigger_release, None)
+        MlxContext.get_mlx().mlx_hook(
+            self.__ptr, X.ButtonPress, X.ButtonPressMask,
+            InputManager.trigger_button_press, None)
+        MlxContext.get_mlx().mlx_hook(
+            self.__ptr, X.ButtonRelease, X.ButtonReleaseMask,
+            InputManager.trigger_button_release, None)
 
     def get_name(self) -> str:
         return self.__name
@@ -45,12 +51,17 @@ class Window:
     def get_ptr(self) -> c_void_p:
         return self.__ptr
 
+    def get_mouse_pos(self) -> tuple[int, int]:
+        pos = MlxContext.get_mlx().mlx_mouse_get_pos(self.__ptr)
+        return (pos[1], pos[2])
+
     def draw_image(self, img_ptr: c_void_p, pos: tuple[int, int]) -> None:
         MlxContext.get_mlx().mlx_put_image_to_window(
             MlxContext.get_mlx_ptr(), self.__ptr, img_ptr,
             int(pos[0]), int(pos[1]))
 
-    def draw_sprite(self, sprite: Sprite, pos: tuple[int, int]) -> None:
+    def draw_sprite(self, sprite: Sprite,
+                    pos: tuple[int | float, int | float]) -> None:
         MlxContext.get_mlx().mlx_put_image_to_window(
             MlxContext.get_mlx_ptr(), self.__ptr, sprite.get_ptr(),
             int(pos[0]), int(pos[1]))
