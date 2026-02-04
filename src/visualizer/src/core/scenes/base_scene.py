@@ -18,7 +18,7 @@ class BaseScene(ABC):
         for n in self.__nodes:
             if n.get_name() == name:
                 return n
-        print(f"{name} not found in: {self.__name}")
+        print(f"{name} not found in: {self.__class__.__mro__[0].__name__}")
         return None
 
     def add_node(self, node: BaseNode) -> None:

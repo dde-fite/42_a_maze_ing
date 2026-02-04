@@ -30,12 +30,12 @@ class EventManager:
     def remove_listener(cls, event: str, callback: Callable[[], Any]) -> None:
         event_lis = cls.__listeners.get(event)
         if event_lis:
-            event_lis.remove(callback)
+            event_lis.discard(callback)
 
     @classmethod
     def trigger_event(cls, event: str) -> None:
         event_lis = cls.__listeners.get(event)
         if not event_lis:
             return
-        for listener in event_lis:
+        for listener in list(event_lis):
             listener()
