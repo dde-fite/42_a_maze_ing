@@ -49,21 +49,26 @@ class EngineManager:
     @classmethod
     def init(cls, program_name: str, resolution: tuple[int, int],
              scenes: list[type[BaseScene]]) -> None:
-        cls.__check_values(program_name, resolution, scenes)
-        MlxContext.init()
-        cls.__main_window = cls.create_window(program_name, resolution)
-        if not cls.__main_window:
-            raise MlxException("Error creating the main window")
-        cls.__scenes = scenes
-        cls.load_scene_by_id(0)
-        MlxContext.get_mlx().mlx_do_key_autorepeatoff(MlxContext.get_mlx_ptr())
-        MlxContext.get_mlx().mlx_loop_hook(
-            MlxContext.get_mlx_ptr(),
-            cls.__on_update,
-            None)
-        InputManager.add_listener_on_press(keysymdef.XK_Escape, cls.exit)
-        MlxContext.get_mlx().mlx_loop(MlxContext.get_mlx_ptr())
-        MlxContext.close()
+        try:
+            cls.__check_values(program_name, resolution, scenes)
+            MlxContext.init()
+            cls.__main_window = cls.create_window(program_name, resolution)
+            if not cls.__main_window:
+                raise MlxException("Error creating the main window")
+            cls.__scenes = scenes
+            cls.load_scene_by_id(0)
+            MlxContext.get_mlx().mlx_do_key_autorepeatoff(
+                MlxContext.get_mlx_ptr())
+            MlxContext.get_mlx().mlx_loop_hook(
+                MlxContext.get_mlx_ptr(),
+                cls.__on_update,
+                None)
+            InputManager.add_listener_on_press(keysymdef.XK_Escape, cls.exit)
+            MlxContext.get_mlx().mlx_loop(MlxContext.get_mlx_ptr())
+        except KeyboardInterrupt:
+            cls.exit()
+        finally:
+            MlxContext.close()
 
     @classmethod
     def exit(cls) -> None:
@@ -73,15 +78,18 @@ class EngineManager:
 
     @classmethod
     def __on_update(cls, param: None) -> None:
-        cls.__delta_time = (time() - cls.__last_frame_time) * 10
-        for w in cls.__windows:
-            MlxContext.get_mlx().mlx_clear_window(
-                MlxContext.get_mlx_ptr(), w.get_ptr())
-        InputManager.on_update()
-        if cls.__actual_scene:
-            for n in cls.__actual_scene.get_nodes():
-                n.expose_update()()
-        cls.__last_frame_time = time()
+        try:
+            cls.__delta_time = (time() - cls.__last_frame_time) * 10
+            for w in cls.__windows:
+                MlxContext.get_mlx().mlx_clear_window(
+                    MlxContext.get_mlx_ptr(), w.get_ptr())
+            InputManager.on_update()
+            if cls.__actual_scene:
+                for n in cls.__actual_scene.get_nodes():
+                    n.expose_update()()
+            cls.__last_frame_time = time()
+        except KeyboardInterrupt:
+            cls.exit()
 
     @classmethod
     def get_delta_time(cls) -> float:
@@ -95,13 +103,19 @@ class EngineManager:
     def load_scene(cls, name: str) -> None:
         if cls.__actual_scene:
             cls.__actual_scene.on_unload()
-        cls.__actual_scene = cls.__get_scene(name)()
+        to_load = cls.__get_scene(name)
+        if cls.__actual_scene.__class__ == to_load:
+            return
+        cls.__actual_scene = to_load()
 
     @classmethod
     def load_scene_by_id(cls, id: int) -> None:
         if cls.__actual_scene:
             cls.__actual_scene.on_unload()
-        cls.__actual_scene = cls.__get_scene_by_id(id)()
+        to_load = cls.__get_scene_by_id(id)
+        if cls.__actual_scene.__class__ == to_load:
+            return
+        cls.__actual_scene = to_load()
 
     @classmethod
     def create_window(cls, name: str, size: tuple[int, int]
