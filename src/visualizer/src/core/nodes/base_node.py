@@ -1,9 +1,12 @@
+from typing import Type, TYPE_CHECKING, Callable, TypeVar, Any
 from ..engine_manager import EngineManager
-from typing import Type, TYPE_CHECKING, Callable, Any
+from ..exceptions import EngineElementNotFound
 
 if TYPE_CHECKING:
     from ..components import BaseComponent
     from .. import Window
+
+TComponent = TypeVar('TComponent', bound='BaseComponent')
 
 
 class BaseNode:
@@ -62,18 +65,28 @@ class BaseNode:
             self._subnodes.remove(to_remove)
             to_remove.set_parent_node(None)
 
-    def get_component(self, component: Type[BaseComponent]
-                      ) -> BaseComponent | None:
+    def component(self, component: Type[TComponent]
+                  ) -> TComponent:
         for c in self._components:
             if isinstance(c, component):
                 return c
-        print(f"{component} not found in: {self._name}")
+        raise EngineElementNotFound("Component does not exist")
+
+    def get_component(self, component: Type[TComponent]
+                      ) -> TComponent | None:
+        for c in self._components:
+            if isinstance(c, component):
+                return c
         return None
 
-    def add_component(self, component: BaseComponent) -> None:
-        self._components.append(component)
+    def add_component(self, component: Type[BaseComponent], *args: Any
+                      ) -> None:
+        instance = component()
+        instance.set_owner(self)
+        self._components.append(instance)
+        instance.on_init(*args)
 
-    def remove_component(self, component: Type[BaseComponent]) -> None:
+    def remove_component(self, component: Type[TComponent]) -> None:
         to_remove = self.get_component(component)
         if to_remove:
             self._components.remove(to_remove)

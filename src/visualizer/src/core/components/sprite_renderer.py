@@ -1,7 +1,6 @@
 from pathlib import Path
 from typing import TYPE_CHECKING
 from .base_component import BaseComponent
-from ..nodes import BaseNode
 from .. import SpriteManager, Sprite
 
 
@@ -10,19 +9,15 @@ if TYPE_CHECKING:
 
 
 class SpriteRenderer(BaseComponent):
-    def __init__(self, owner: BaseNode, file_path: Path,
-                 is_active: bool):
-        super().__init__(owner)
+    def on_init(self, file_path: Path | None = None):
         self.__file_path: Path | None = None
-        self.__is_active: bool = False
         self.__sprite: Sprite | None = None
         self.set_file_path(file_path)
-        self.set_active(is_active)
 
     def on_update(self) -> None:
-        if self.__is_active and self.__sprite:
-            self._owner.get_window().draw_sprite(
-                self.__sprite, self._owner.get_pos())
+        if self.__sprite and self.owner:
+            self.owner.get_window().draw_sprite(
+                self.__sprite, self.owner.get_pos())
 
     def on_destroy(self) -> None:
         self.__unload_sprite()
@@ -30,7 +25,10 @@ class SpriteRenderer(BaseComponent):
     def get_file_path(self) -> Path | None:
         return self.__file_path
 
-    def set_file_path(self, file_path: Path) -> None:
+    def set_file_path(self, file_path: Path | None) -> None:
+        if file_path is None:
+            self.__unload_sprite()
+            return
         if not file_path.is_file():
             raise FileNotFoundError(f"Can't found sprite '{file_path}'")
         self.__unload_sprite()
@@ -41,12 +39,6 @@ class SpriteRenderer(BaseComponent):
         if self.__sprite:
             return self.__sprite.get_size()
         return (0, 0)
-
-    def get_active(self) -> bool:
-        return self.__is_active
-
-    def set_active(self, is_active: bool) -> None:
-        self.__is_active = is_active
 
     def get_window(self) -> Window:
         return self.__window
