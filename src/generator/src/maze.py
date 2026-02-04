@@ -8,7 +8,7 @@ from typing import Union
 
 # Other imports...
 from math import ceil
-from random import choice
+from random import choice, randrange, random
 from typing import Optional
 import sys
 
@@ -32,32 +32,41 @@ class Maze:
     MIN_FT_WIDTH = 9
     MIN_FT_HEIGHT = 7
 
+    WALL_OPENING_CHANCE = 1 / 10
+    PATH_ATTEMPTS = 5
+
     def __init__(self, width: int, height: int,
                  entry: tuple[int, int], exit: tuple[int, int],
-                 ft_logo: bool = True) -> None:
+                 ft_logo: bool = True, perfect: bool = True) -> None:
         self.set_width(width)
         self.set_height(height)
-        self.set_entry(entry)
-        self.set_exit(exit)
         self._ft_logo = ft_logo
+        self._perfect = perfect
         self._cells: dict[tuple[int, int], Cell] = {}
         self.initiate_cells()
+        self.set_entry(entry)
+        self.set_exit(exit)
         self._player = Player(self._cells[entry])
-        self._pathway: dict[int, tuple[int, int]] = {}
-        self._possible_pathways: list[dict[int, tuple[int, int]]] = {}
+        self._pathway: list[tuple[int, int]] = {}
+        self._possible_pathways: list[tuple[int, int]] = []
 
         # Generating cells with the algorithm in the Generator class
-        cell_generation = Generator.dfs_generation(
+        cell_generation, self._pathway = Generator.dfs_generation(
             self._width, self._height, self._entry, self._exit, self._ft_logo)
+        if not self._perfect:
+            cell_generation = Generator.open_random_walls(
+                cell_generation, self._width, self._height)
         for y in range(1, self._height + 1):
             for x in range(1, self._width + 1):
                 cell_generated = cell_generation[x, y]
                 self._cells[x, y].set_state(cell_generated["state"])
                 # self._cells[x, y].set_visited(cell_generated["visited"])
                 self._cells[x, y].set_fixed(cell_generated["fixed"])
-        # Generator.path_finder(self._width, self._height,
-        #                       self._entry, self._exit,
-        #                       cell_generation)
+        if not self._perfect:
+            self._possible_pathways = Generator.path_finder(
+                self._width, self._height,
+                self._entry, self._exit,
+                cell_generation)
 
     # WIDTH -------------------------------------------------------------------
     def set_width(self, width: int) -> None:
@@ -83,6 +92,8 @@ class Maze:
             raise MazeError("ENTRY point is not inside the maze!")
         if entry[1] < 1 or entry[1] > self._height:
             raise MazeError("ENTRY point is not inside the maze!")
+        if self._cells[entry]._fixed:
+            raise MazeError("ENTRY point is in a protected cell!")
         self._entry = entry
 
     def get_entry(self) -> tuple[int, int]:
@@ -94,6 +105,8 @@ class Maze:
             raise MazeError("EXIT point is not inside the maze!")
         if exit[1] < 1 or exit[1] > self._height:
             raise MazeError("EXIT point is not inside the maze!")
+        if self._cells[exit]._fixed:
+            raise MazeError("EXIT point is in a protected cell!")
         self._exit = exit
 
     def get_exit(self) -> tuple[int, int]:
@@ -207,6 +220,12 @@ class Maze:
     def get_player_coordinates(self) -> tuple[int, int]:
         return self.get_cell_position(self._player.get_cell())
 
+    # PATHFINDER --------------------------------------------------------------
+    def get_shortest_path(self) -> Optional[list[tuple[int, int]]]:
+        if len(self._possible_pathways) > 0:
+            return min(self._possible_pathways, key=len)
+        return None
+
     # OUTPUT_FILE -------------------------------------------------------------
     @classmethod
     def get_output_file(cls) -> str:
@@ -225,9 +244,23 @@ class Maze:
                 f.write(f"Exit point: ({self._exit[0]}, {self._exit[1]})\n")
                 f.write("Player's position: "
                         f"{self.get_player_coordinates()}\n")
-                f.write("Pathway----------------------\n")
-                for key, value in self._pathway.items():
-                    f.write(f"{key}: {value} | ")
+                f.write("Original Pathway----------------------\n")
+                for coord in self._pathway:
+                    f.write(f"{coord} | ")
+                f.write("\n")
+                f.write("Pathways found------------------------\n")
+                i = 0
+                for path in self._possible_pathways:
+                    f.write(f"=== {i} ===\n")
+                    for coord in path:
+                        f.write(f"{coord} | ")
+                    f.write("\n")
+                    i += 1
+                f.write("Shortest path-------------------------\n")
+                shortest_path = self.get_shortest_path()
+                if shortest_path:
+                    for coord in shortest_path:
+                        f.write(f"{coord} | ")
         except FileNotFoundError:
             # This error should never happen, since open with 'w' doesn't raise
             # FileNotFoundError, it creates it in case it doesn't exist.
@@ -302,22 +335,18 @@ class Maze:
 
     # Not finished
     def open_random_walls(self):
-        # for cell in self._cells.values():
-        #     if random.randrange(0, 10) == 0:
-        #         open = True
-        #     else:
-        #         open = False
-        #     if open:
-        #         direction = random.choice(POSSIBLE_DIRECTIONS)
-        #         if (cell._adyacent[direction] and
-        #                 not cell._adyacent[direction].is_fixed()):
-        #             cell.open_direction(direction)
-        pass
-
-    # PATHFINDER --------------------------------------------------------------
-    def find_pathways(self) -> list[dict[int, tuple[int, int]]]:
-        # TODO: Create algorithm to find every possible way to the exit
-        pass
+        # TODO: DELETE THIS FUNCTION IF NOT NEEDED. DEPRECATED
+        for cell in self._cells.values():
+            if randrange(0, 5) == 0:
+                open = True
+            else:
+                open = False
+            if open:
+                direction = choice(POSSIBLE_DIRECTIONS)
+                if (cell._adyacent[direction] and
+                        not cell._adyacent[direction].is_fixed()):
+                    print("Opened", direction)
+                    cell.open_direction(direction)
 
 
 class Generator:
@@ -437,7 +466,9 @@ class Generator:
                        entry: tuple[int, int],
                        exit: tuple[int, int],
                        ft_logo: bool = True
-                       ) -> dict[tuple[int, int], dict[str, Union[int, bool]]]:
+                       ) -> tuple[dict, list]:
+        # dict returned: dict[tuple[int, int], dict[str, Union[int, bool]]]
+        # list returned: list[tuple[int, int]]
         # TODO: Try to reduce functions usage and improve dictionary structures
 
         # Initializing cells
@@ -502,8 +533,7 @@ class Generator:
                     passed_cells.pop()  # Deleting last
                 # directions = POSSIBLE_DIRECTIONS.copy()
                 directions = [NORTH, EAST, SOUTH, WEST]
-        print(exit_path)
-        return cells
+        return (cells, exit_path)
 
     @classmethod
     def path_finder(cls, width: int, height: int,
@@ -511,61 +541,99 @@ class Generator:
                     cells:
                     dict[tuple[int, int], dict[
                         str, Union[int, bool]]]) -> list[tuple[int, int]]:
+        attempts = 0
         points = []
-        point = {"pos": entry}
+        point = entry
         points.append(point)
 
         directions = [NORTH, EAST, SOUTH, WEST]
         pathways = []
-        passed_cells = [point["pos"]]
+        passed_cells = [point]
+        wrong_cells: list[tuple[int, int]] = []
 
-        while True:
+        while attempts < Maze.PATH_ATTEMPTS:
             dir = choice(directions)
 
             # Stablishing adyacent
-            adyacents = cls.__get_adyacent_cells(point["pos"], width, height)
+            adyacents = cls.__get_adyacent_cells(point, width, height)
             if adyacents[dir]:
                 adyacent = cells[adyacents[dir]]
             else:
                 adyacent = None
 
-            print(point)
             # Checking if we can move that direction
             if adyacent is None:
                 directions.remove(dir)
                 if len(directions) == 0:
                     directions = [NORTH, EAST, SOUTH, WEST]
-                    point["pos"] = passed_cells[-2]
+                    point = passed_cells[-2]
+                    wrong_cells.append(passed_cells[-1])
                     passed_cells.pop()
-            elif cells[point["pos"]]["state"] & Maze.CLOSE_WALLS[dir]:
+            elif cells[point]["state"] & Maze.CLOSE_WALLS[dir]:
                 # We can't
                 directions.remove(dir)
                 if len(directions) == 0:
                     directions = [NORTH, EAST, SOUTH, WEST]
-                    point["pos"] = passed_cells[-2]
+                    point = passed_cells[-2]
+                    wrong_cells.append(passed_cells[-1])
                     passed_cells.pop()
-            elif adyacents[dir] in passed_cells:
+            elif (adyacents[dir] in passed_cells or
+                    adyacents[dir] in wrong_cells):
                 directions.remove(dir)
                 if len(directions) == 0:
                     directions = [NORTH, EAST, SOUTH, WEST]
-                    point["pos"] = passed_cells[-2]
+                    point = passed_cells[-2]
+                    wrong_cells.append(passed_cells[-1])
                     passed_cells.pop()
             else:
-                point["pos"] = adyacents[dir]
-                passed_cells.append(point["pos"])
+                point = adyacents[dir]
+                passed_cells.append(point)
                 directions = [NORTH, EAST, SOUTH, WEST]
-                if point["pos"] == exit:
-                    pathways.append(passed_cells.copy())
-                    break
-        print(pathways)
+                if point == exit:
+                    if passed_cells not in pathways:
+                        pathways.append(passed_cells.copy())
+                        # print(f"Attempt {attempts}:", passed_cells)
+                    attempts += 1
+                    point = entry
+                    passed_cells.clear()
+                    passed_cells.append(point)
+        # print(pathways)
         return pathways
+
+    @classmethod
+    def open_random_walls(cls, cells: dict[tuple[int, int], dict[
+                            str, Union[int, bool]]],
+                          width: int,
+                          height: int):
+        op = OPPOSITE_DIRECTIONS
+        for y in range(1, height + 1):
+            for x in range(1, width + 1):
+                if cells[(x, y)]["fixed"]:
+                    continue
+                dir = choice(POSSIBLE_DIRECTIONS)
+                # result = randrange(0, 10)
+                # if result == 0:
+                if random() < Maze.WALL_OPENING_CHANCE:
+                    adyacents = cls.__get_adyacent_cells((x, y), width, height)
+                    if (adyacents[dir] and
+                            not cells[adyacents[dir]]["fixed"] and
+                            cells[(x, y)]["state"] & Maze.CLOSE_WALLS[dir]):
+                        # If adyacent exists and has the wall to open:
+
+                        # Changing current cell state
+                        cells[(x, y)]["state"] -= Maze.CLOSE_WALLS[dir]
+
+                        # Changing adyacent cell state
+                        cells[adyacents[dir]]["state"] -= (
+                            Maze.CLOSE_WALLS[op[dir]])
+        return cells
 
 
 if __name__ == "__main__":
     # Generating a new perfect maze
     print("\nGenerating a new perfect maze...")
     try:
-        maze = Maze(10, 10, (1, 1), (4, 4))
+        maze = Maze(100, 100, (1, 1), (15, 15))
     except MazeError as e:
         print("ERROR:", e)
         sys.exit(1)

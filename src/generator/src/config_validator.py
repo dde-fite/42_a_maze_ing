@@ -207,7 +207,8 @@ if __name__ == "__main__":
                 config[ConfigValidator.AvailableKeys.HEIGHT.value],
                 config[ConfigValidator.AvailableKeys.ENTRY.value],
                 config[ConfigValidator.AvailableKeys.EXIT.value],
-                config[ConfigValidator.AvailableKeys.FT_LOGO.value])
+                config[ConfigValidator.AvailableKeys.FT_LOGO.value],
+                False)
 
     # Generate the maze with the read config
     maze.print_output()
