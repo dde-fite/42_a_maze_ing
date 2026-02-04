@@ -1,9 +1,10 @@
 from ..core.scenes import BaseScene
-from ..nodes import Background
+from ..nodes import BgMaze, Player
 
 
-class MainMaze(BaseScene):
+class Maze(BaseScene):
     def __init__(self) -> None:
         super().__init__([
-            Background(),
+            BgMaze(),
+            Player()
         ])

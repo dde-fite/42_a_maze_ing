@@ -3,12 +3,10 @@ from ..core.components import SpriteRenderer
 from ..core.nodes import BaseNode
 
 
-class Background(BaseNode):
+class BgMaze(BaseNode):
     def __init__(self, name: str = "Background",
                  pos: tuple[int, int] = (0, 0)):
         super().__init__(name, pos)
         super().add_component(
-            SpriteRenderer(
-                self,
-                Path(__file__).resolve().parent.parent / "sprites" / "background.xpm",
-                True),)
+            SpriteRenderer,
+            Path(__file__).resolve().parent.parent / "sprites" / "bg_maze.xpm")
