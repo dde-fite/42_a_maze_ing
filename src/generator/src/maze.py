@@ -4,7 +4,7 @@ from .exceptions import MazeError
 from .player import Player
 from .cell import Cell
 from typing import Union
-
+import threading
 
 # Other imports...
 from math import ceil
@@ -32,7 +32,7 @@ class Maze:
     MIN_FT_WIDTH = 9
     MIN_FT_HEIGHT = 7
 
-    WALL_OPENING_CHANCE = 1 / 10
+    WALL_OPENING_CHANCE = 1 / 100
     PATH_ATTEMPTS = 5
 
     def __init__(self, width: int, height: int,
@@ -53,20 +53,39 @@ class Maze:
         # Generating cells with the algorithm in the Generator class
         cell_generation, self._pathway = Generator.dfs_generation(
             self._width, self._height, self._entry, self._exit, self._ft_logo)
+
+        # If not perfect:
         if not self._perfect:
+
+            # Open walls
             cell_generation = Generator.open_random_walls(
                 cell_generation, self._width, self._height)
+
+            # Find paths
+            # threads: list[threading.Thread] = []
+            # for _ in range(0, Maze.PATH_ATTEMPTS):
+            #     threads.append(threading.Thread(
+            #         target=Generator.path_finder,
+            #         args=(self._width, self._height,
+            #               self._entry, self._exit,
+            #               cell_generation)))
+            # for t in threads:
+            #     t.start()
+            # for t in threads:
+            #     t.join()
+            self._possible_pathways = Generator.path_finder(
+                self._width, self._height,
+                self._entry, self._exit,
+                cell_generation)
+            # self._possible_pathways = Generator.PATHS
+
+        # Stablishing the values for each cell
         for y in range(1, self._height + 1):
             for x in range(1, self._width + 1):
                 cell_generated = cell_generation[x, y]
                 self._cells[x, y].set_state(cell_generated["state"])
                 # self._cells[x, y].set_visited(cell_generated["visited"])
                 self._cells[x, y].set_fixed(cell_generated["fixed"])
-        if not self._perfect:
-            self._possible_pathways = Generator.path_finder(
-                self._width, self._height,
-                self._entry, self._exit,
-                cell_generation)
 
     # WIDTH -------------------------------------------------------------------
     def set_width(self, width: int) -> None:
@@ -352,6 +371,8 @@ class Maze:
 class Generator:
     # TODO: Structure the class methods in a more clear and efficient way
 
+    PATHS = []
+
     @staticmethod
     def __get_ft_logo_cells(width: int, height: int) -> Optional[
             list[tuple[int, int]]]:
@@ -536,6 +557,78 @@ class Generator:
         return (cells, exit_path)
 
     @classmethod
+    def path_finder_mutex(cls, width: int, height: int,
+                          entry: tuple[int, int], exit: tuple[int, int],
+                          cells:
+                          dict[tuple[int, int], dict[
+                          str, Union[int, bool]]]) -> list[tuple[int, int]]:
+        mutex = threading.Lock()
+
+        points = []
+        point = entry
+        points.append(point)
+
+        directions = [NORTH, EAST, SOUTH, WEST]
+        pathways = []
+        passed_cells = [point]
+        wrong_cells: list[tuple[int, int]] = []
+
+        # while attempts < Maze.PATH_ATTEMPTS:
+        while True:
+            dir = choice(directions)
+
+            # Stablishing adyacent
+            adyacents = cls.__get_adyacent_cells(point, width, height)
+            if adyacents[dir]:
+                adyacent = cells[adyacents[dir]]
+            else:
+                adyacent = None
+
+            # Checking if we can move that direction
+            if adyacent is None:
+                directions.remove(dir)
+                if len(directions) == 0:
+                    directions = [NORTH, EAST, SOUTH, WEST]
+                    point = passed_cells[-2]
+                    wrong_cells.append(passed_cells[-1])
+                    passed_cells.pop()
+            elif cells[point]["state"] & Maze.CLOSE_WALLS[dir]:
+                # We can't
+                directions.remove(dir)
+                if len(directions) == 0:
+                    directions = [NORTH, EAST, SOUTH, WEST]
+                    point = passed_cells[-2]
+                    wrong_cells.append(passed_cells[-1])
+                    passed_cells.pop()
+            elif (adyacents[dir] in passed_cells or
+                    adyacents[dir] in wrong_cells):
+                directions.remove(dir)
+                if len(directions) == 0:
+                    directions = [NORTH, EAST, SOUTH, WEST]
+                    point = passed_cells[-2]
+                    wrong_cells.append(passed_cells[-1])
+                    passed_cells.pop()
+            else:
+                point = adyacents[dir]
+                passed_cells.append(point)
+                directions = [NORTH, EAST, SOUTH, WEST]
+                if point == exit:
+                    with mutex:
+                        print("Hilo iniciado")
+                        # if passed_cells not in pathways:
+                        if passed_cells not in cls.PATHS:
+                            pathways.append(passed_cells.copy())
+                            cls.PATHS.append(passed_cells)
+                        # print(f"Attempt {attempts}:", passed_cells)
+                    break
+                    # attempts += 1
+                    # point = entry
+                    # passed_cells.clear()
+                    # passed_cells.append(point)
+        # print(pathways)
+        return pathways
+
+    @classmethod
     def path_finder(cls, width: int, height: int,
                     entry: tuple[int, int], exit: tuple[int, int],
                     cells:
@@ -592,7 +685,7 @@ class Generator:
                 if point == exit:
                     if passed_cells not in pathways:
                         pathways.append(passed_cells.copy())
-                        # print(f"Attempt {attempts}:", passed_cells)
+                    # print(f"Attempt {attempts}:", passed_cells)
                     attempts += 1
                     point = entry
                     passed_cells.clear()
