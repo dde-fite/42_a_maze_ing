@@ -32,12 +32,13 @@ class Maze:
     MIN_FT_WIDTH = 9
     MIN_FT_HEIGHT = 7
 
-    WALL_OPENING_CHANCE = 1 / 100
+    WALL_OPENING_CHANCE = 1 / 10
     PATH_ATTEMPTS = 5
 
     def __init__(self, width: int, height: int,
                  entry: tuple[int, int], exit: tuple[int, int],
-                 ft_logo: bool = True, perfect: bool = True) -> None:
+                 ft_logo: bool = True, perfect: bool = True,
+                 thread_logic: bool = False) -> None:
         self.set_width(width)
         self.set_height(height)
         self._ft_logo = ft_logo
@@ -62,22 +63,28 @@ class Maze:
                 cell_generation, self._width, self._height)
 
             # Find paths
-            # threads: list[threading.Thread] = []
-            # for _ in range(0, Maze.PATH_ATTEMPTS):
-            #     threads.append(threading.Thread(
-            #         target=Generator.path_finder,
-            #         args=(self._width, self._height,
-            #               self._entry, self._exit,
-            #               cell_generation)))
-            # for t in threads:
-            #     t.start()
-            # for t in threads:
-            #     t.join()
-            self._possible_pathways = Generator.path_finder(
-                self._width, self._height,
-                self._entry, self._exit,
-                cell_generation)
-            # self._possible_pathways = Generator.PATHS
+
+            # Threads
+            if thread_logic:
+                threads: list[threading.Thread] = []
+                for _ in range(0, Maze.PATH_ATTEMPTS):
+                    threads.append(threading.Thread(
+                        target=Generator.path_finder_mutex,
+                        args=(self._width, self._height,
+                              self._entry, self._exit,
+                              cell_generation)))
+                for t in threads:
+                    t.start()
+                for t in threads:
+                    t.join()
+                self._possible_pathways = Generator.PATHS
+
+            # Recursive
+            else:
+                self._possible_pathways = Generator.path_finder(
+                    self._width, self._height,
+                    self._entry, self._exit,
+                    cell_generation)
 
         # Stablishing the values for each cell
         for y in range(1, self._height + 1):
@@ -556,22 +563,21 @@ class Generator:
                 directions = [NORTH, EAST, SOUTH, WEST]
         return (cells, exit_path)
 
+    MUTEX_WRONG_CELLS: set = set()
+
     @classmethod
     def path_finder_mutex(cls, width: int, height: int,
                           entry: tuple[int, int], exit: tuple[int, int],
                           cells:
                           dict[tuple[int, int], dict[
-                          str, Union[int, bool]]]) -> list[tuple[int, int]]:
+                            str, Union[int, bool]]]) -> list[tuple[int, int]]:
         mutex = threading.Lock()
-
-        points = []
         point = entry
-        points.append(point)
 
         directions = [NORTH, EAST, SOUTH, WEST]
         pathways = []
         passed_cells = [point]
-        wrong_cells: list[tuple[int, int]] = []
+        # wrong_cells: list[tuple[int, int]] = []
 
         # while attempts < Maze.PATH_ATTEMPTS:
         while True:
@@ -590,7 +596,8 @@ class Generator:
                 if len(directions) == 0:
                     directions = [NORTH, EAST, SOUTH, WEST]
                     point = passed_cells[-2]
-                    wrong_cells.append(passed_cells[-1])
+                    # wrong_cells.append(passed_cells[-1])
+                    Generator.MUTEX_WRONG_CELLS.add(passed_cells[-1])
                     passed_cells.pop()
             elif cells[point]["state"] & Maze.CLOSE_WALLS[dir]:
                 # We can't
@@ -598,15 +605,18 @@ class Generator:
                 if len(directions) == 0:
                     directions = [NORTH, EAST, SOUTH, WEST]
                     point = passed_cells[-2]
-                    wrong_cells.append(passed_cells[-1])
+                    # wrong_cells.append(passed_cells[-1])
+                    Generator.MUTEX_WRONG_CELLS.add(passed_cells[-1])
                     passed_cells.pop()
             elif (adyacents[dir] in passed_cells or
-                    adyacents[dir] in wrong_cells):
+                    # adyacents[dir] in wrong_cells
+                    adyacents[dir] in Generator.MUTEX_WRONG_CELLS):
                 directions.remove(dir)
                 if len(directions) == 0:
                     directions = [NORTH, EAST, SOUTH, WEST]
                     point = passed_cells[-2]
-                    wrong_cells.append(passed_cells[-1])
+                    # wrong_cells.append(passed_cells[-1])
+                    Generator.MUTEX_WRONG_CELLS.add(passed_cells[-1])
                     passed_cells.pop()
             else:
                 point = adyacents[dir]
@@ -614,7 +624,7 @@ class Generator:
                 directions = [NORTH, EAST, SOUTH, WEST]
                 if point == exit:
                     with mutex:
-                        print("Hilo iniciado")
+                        print("Path found!")
                         # if passed_cells not in pathways:
                         if passed_cells not in cls.PATHS:
                             pathways.append(passed_cells.copy())
