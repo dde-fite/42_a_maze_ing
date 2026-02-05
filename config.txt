@@ -2,10 +2,10 @@
 # Comments in same line as key=value lines will be ignored
 
 # Width of the maze: int
-WIDTH=300
+WIDTH=100
 
 # Height of the maze: int
-HEIGHT=300
+HEIGHT=100
 
 # Entry point coordinates of the maze: (int, int)
 ENTRY=20,20
