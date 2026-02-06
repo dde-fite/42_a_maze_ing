@@ -41,7 +41,7 @@ class Cell:
     # False if it is not (can go through)
     def check_if_can_go(self, direction: str) -> bool:
         from .maze import Maze
-        if self._state & Maze.CLOSE_WALLS[direction]:
+        if self._state & Maze.WALLS[direction]:
             return False
         return True
 
@@ -53,16 +53,16 @@ class Cell:
         adyacent = self._adyacent[direction]
         if adyacent is None or adyacent._fixed:
             return
-        self._state -= self._state & Maze.CLOSE_WALLS[direction]
+        self._state -= self._state & Maze.WALLS[direction]
         if direction == NORTH:
             self._adyacent[NORTH]._state -= (self._adyacent[NORTH]._state &
-                                             Maze.CLOSE_WALLS[SOUTH])
+                                             Maze.WALLS[SOUTH])
         if direction == EAST:
             self._adyacent[EAST]._state -= (self._adyacent[EAST]._state &
-                                            Maze.CLOSE_WALLS[WEST])
+                                            Maze.WALLS[WEST])
         if direction == SOUTH:
             self._adyacent[SOUTH]._state -= (self._adyacent[SOUTH]._state &
-                                             Maze.CLOSE_WALLS[NORTH])
+                                             Maze.WALLS[NORTH])
         if direction == WEST:
             self._adyacent[WEST]._state -= (self._adyacent[WEST]._state &
-                                            Maze.CLOSE_WALLS[EAST])
+                                            Maze.WALLS[EAST])

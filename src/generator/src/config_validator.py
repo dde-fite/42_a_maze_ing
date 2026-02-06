@@ -16,8 +16,10 @@ class ConfigValidator:
         EXIT = "EXIT"
         OUTPUT_FILE = "OUTPUT_FILE"
         PERFECT = "PERFECT"
+        SEED = "SEED"
         # Some extra keys could be added here
         FT_LOGO = "FT_LOGO"
+        PATH_FINDER = "PATH_FINDER"
 
     @classmethod
     def __parse_width(cls, value: str) -> int:
@@ -122,6 +124,16 @@ class ConfigValidator:
                               "Only 'True' or 'False' are accepted values!")
 
     @classmethod
+    def __parse_seed(cls, value: str) -> int:
+        try:
+            seed = int(value)
+        except ValueError:
+            raise ConfigError(f"Given value '{value}' doesn't work for"
+                              f"{cls.AvailableKeys.SEED.value}. Only single "
+                              "integers are accepted!")
+        return seed
+
+    @classmethod
     def __parse_ft_logo(cls, value: str) -> bool:
         if value != "True" and value != "False":
             raise ConfigError(f"Given value '{value}' doesn't work for "
@@ -135,6 +147,23 @@ class ConfigValidator:
             # This should never happen
             raise ConfigError(f"Given value '{value}' doesn't "
                               f"work for {cls.AvailableKeys.FT_LOGO.value}. "
+                              "Only 'True' or 'False' are accepted values!")
+
+    @classmethod
+    def __parse_path_finder(cls, value: str) -> bool:
+        if value != "True" and value != "False":
+            raise ConfigError(f"Given value '{value}' doesn't work for "
+                              f"{cls.AvailableKeys.PATH_FINDER.value}. "
+                              "Only 'True' or 'False' are accepted values!")
+        if value == "True":
+            return True
+        elif value == "False":
+            return False
+        else:
+            # This should never happen
+            raise ConfigError(f"Given value '{value}' doesn't "
+                              "work for "
+                              f"{cls.AvailableKeys.PATH_FINDER.value}. "
                               "Only 'True' or 'False' are accepted values!")
 
     @classmethod
@@ -158,8 +187,12 @@ class ConfigValidator:
                 result = cls.__parse_output_file(value)
             case cls.AvailableKeys.PERFECT.value:
                 result = cls.__parse_perfect(value)
+            case cls.AvailableKeys.SEED.value:
+                result = cls.__parse_seed(value)
             case cls.AvailableKeys.FT_LOGO.value:
                 result = cls.__parse_ft_logo(value)
+            case cls.AvailableKeys.PATH_FINDER.value:
+                result = cls.__parse_path_finder(value)
         return (key, result)
 
     @classmethod
@@ -198,18 +231,28 @@ class ConfigValidator:
         return available_keys
 
 
-if __name__ == "__main__":
+def main():
     config_file = "config.txt"
     config = ConfigValidator.read_config(config_file)
     print("\nAvailable keys:")
     print(config)
-    maze = Maze(config[ConfigValidator.AvailableKeys.WIDTH.value],
-                config[ConfigValidator.AvailableKeys.HEIGHT.value],
-                config[ConfigValidator.AvailableKeys.ENTRY.value],
-                config[ConfigValidator.AvailableKeys.EXIT.value],
-                config[ConfigValidator.AvailableKeys.FT_LOGO.value],
-                config[ConfigValidator.AvailableKeys.PERFECT.value],
-                True)
-
+    maze = Maze(width=config[ConfigValidator.AvailableKeys.WIDTH.value],
+                height=config[ConfigValidator.AvailableKeys.HEIGHT.value],
+                entry=config[ConfigValidator.AvailableKeys.ENTRY.value],
+                exit=config[ConfigValidator.AvailableKeys.EXIT.value],
+                output_file=config[
+                    ConfigValidator.AvailableKeys.OUTPUT_FILE.value],
+                ft_logo=config[ConfigValidator.AvailableKeys.FT_LOGO.value],
+                perfect=config[ConfigValidator.AvailableKeys.PERFECT.value],
+                seed_num=config[ConfigValidator.AvailableKeys.SEED.value],
+                path_finder=config[
+                    ConfigValidator.AvailableKeys.PATH_FINDER.value],
+                )
     # Generate the maze with the read config
     maze.print_output()
+
+
+if __name__ == "__main__":
+    # import cProfile
+    # cProfile.run("main()")
+    main()
