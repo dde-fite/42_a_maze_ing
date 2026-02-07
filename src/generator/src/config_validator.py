@@ -207,23 +207,24 @@ class ConfigValidator:
                 while (config_file_line):
                     # print("Read line:", config_file_line)
                     if config_file_line.strip(' ').startswith("#"):
-                        # Comment
+                        # Comment line case
                         config_file_line = f.readline()
                         continue
                     if config_file_line.strip(' ') == "\n":
-                        # Empty line
+                        # Empty line case
                         config_file_line = f.readline()
                         continue
                     if '=' not in config_file_line:
-                        # Not key=value line
-                        raise ValueError("Incorrect config 1!")
+                        # Not key=value line case
+                        raise ConfigError("Lines must follow 'key=value' "
+                                          "structure!")
                     split = config_file_line.split("=")
                     if len(split) != 2 or split[1] == '\n':
                         # Not just key=value line or key='\n' line
-                        raise ValueError("Incorrect config 2!")
+                        raise ConfigError("Lines must follow 'key=value' "
+                                          "structure!")
                     result = cls.__parse_config(split[0], split[1])
                     available_keys[result[0]] = result[1]
-                    # print(available_keys)
                     config_file_line = f.readline()
         except FileNotFoundError:
             print("File was not found")

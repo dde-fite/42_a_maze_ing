@@ -2,10 +2,10 @@
 # Comments in same line as key=value lines are not allowed
 
 # Width of the maze: int
-WIDTH=1000
+WIDTH=10
 
 # Height of the maze: int
-HEIGHT=1000
+HEIGHT=10
 
 # Entry point coordinates of the maze: (int, int)
 ENTRY=1,1
@@ -20,7 +20,7 @@ OUTPUT_FILE=maze.txt
 PERFECT=False
 
 # Seed used, 0 will be treat as random: int
-SEED=0
+SEED=2
 
 # Ft logo appearing in maze: bool
 FT_LOGO=True

@@ -17,10 +17,10 @@ Cell_State: TypeAlias = dict[str, Union[int, bool]]
 # Cell: TypeAlias = dict[Coords, Cell_State]
 Pathway: TypeAlias = list[Coords]
 
-NORTH = "north"
-SOUTH = "south"
-EAST = "east"
-WEST = "west"
+NORTH = 0b0001
+SOUTH = 0b0100
+EAST = 0b0010
+WEST = 0b1000
 POSSIBLE_DIRECTIONS = (NORTH, EAST, SOUTH, WEST)
 OPPOSITE_DIRECTIONS = {NORTH: SOUTH, EAST: WEST,
                        SOUTH: NORTH, WEST: EAST}
@@ -42,7 +42,8 @@ class Maze:
                  output_file: str = "maze.txt",
                  ft_logo: bool = True, perfect: bool = True,
                  path_finder: bool = False,
-                 seed_num: int = 0) -> None:
+                 seed_num: int = 0,
+                 instances: bool = False) -> None:
         # Bases init
         self.__base_fields_init(width, height, ft_logo, entry, exit)
         self._output_file = output_file
