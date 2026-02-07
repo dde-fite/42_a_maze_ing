@@ -6,63 +6,86 @@ class Cell:
         from .maze import NORTH, EAST, SOUTH, WEST
         self._visited = False   # To know if we already went through this cell
         self._state = 0b1111    # State of the walls from that cell
-        self._adyacent: dict[str, Cell | None] = {NORTH: None, EAST: None,
+        self._adjacent: dict[str, Cell | None] = {NORTH: None, EAST: None,
                                                   SOUTH: None, WEST: None}
         self._fixed = fixed     # To know if it is a modifiable cell
 
-    # VISITED
+    # VISITED -----------------------------------------------------------------
     def is_visited(self) -> bool:
         return self._visited
 
     def set_visited(self, value: bool) -> None:
         self._visited = value
 
-    # STATE
+    # STATE -------------------------------------------------------------------
     def get_state(self) -> int:
         return self._state
 
     def set_state(self, state: int) -> None:
         self._state = state
 
-    # ADYACENT CELLS
-    def get_adyacent(self) -> dict[str, "Cell | None"]:
-        return self._adyacent
+    # ADJACENT CELLS ----------------------------------------------------------
+    def get_adjacent(self) -> dict[str, "Cell | None"]:
+        return self._adjacent
 
-    # FIXED
+    # FIXED -------------------------------------------------------------------
     def is_fixed(self) -> bool:
         return self._fixed
 
     def set_fixed(self, fixed: bool) -> None:
         self._fixed = fixed
 
-    # Other functions
-    # Checks if a wall un the given direction is closed or not,
-    # returning True if it is closed (can't go through),
-    # False if it is not (can go through)
+    # OTHER FUNCTIONS ---------------------------------------------------------
     def check_if_can_go(self, direction: str) -> bool:
+        """
+        Checks if there is a wall in the given direction.
+
+        Parameters
+        ----------
+        direction: str
+            The direction to check.
+
+        Returns
+        -------
+        True
+            If there is no wall in the given direction.
+        False
+            If there is a wall in the given direction.
+        """
         from .maze import Maze
         if self._state & Maze.WALLS[direction]:
             return False
         return True
 
-    # We open the wall at the direction given if it is possible to do so.
-    # Also, if we do open it, we must open the opposite direction
-    # from the adyacent one.
     def open_direction(self, direction: str) -> None:
+        """
+        Opens the wall from the cell in the given direction if possible,
+        aswell as the opposite direction wall from the adjacent cell.
+
+        Parameters
+        ----------
+        direction: str
+            The direction where the wall to be broken is.
+
+        Notes
+        -----
+        If the cell in the given direction is fixed or doesn't exist,
+        the wall won't be opened.
+        """
         from .maze import Maze, NORTH, EAST, SOUTH, WEST
-        adyacent = self._adyacent[direction]
-        if adyacent is None or adyacent._fixed:
+        adjacent = self._adjacent[direction]
+        if adjacent is None or adjacent._fixed:
             return
         self._state -= self._state & Maze.WALLS[direction]
         if direction == NORTH:
-            self._adyacent[NORTH]._state -= (self._adyacent[NORTH]._state &
+            self._adjacent[NORTH]._state -= (self._adjacent[NORTH]._state &
                                              Maze.WALLS[SOUTH])
         if direction == EAST:
-            self._adyacent[EAST]._state -= (self._adyacent[EAST]._state &
+            self._adjacent[EAST]._state -= (self._adjacent[EAST]._state &
                                             Maze.WALLS[WEST])
         if direction == SOUTH:
-            self._adyacent[SOUTH]._state -= (self._adyacent[SOUTH]._state &
+            self._adjacent[SOUTH]._state -= (self._adjacent[SOUTH]._state &
                                              Maze.WALLS[NORTH])
         if direction == WEST:
-            self._adyacent[WEST]._state -= (self._adyacent[WEST]._state &
+            self._adjacent[WEST]._state -= (self._adjacent[WEST]._state &
                                             Maze.WALLS[EAST])

@@ -2,10 +2,10 @@
 # Comments in same line as key=value lines are not allowed
 
 # Width of the maze: int
-WIDTH=10
+WIDTH=1000
 
 # Height of the maze: int
-HEIGHT=10
+HEIGHT=1000
 
 # Entry point coordinates of the maze: (int, int)
 ENTRY=1,1
@@ -26,4 +26,4 @@ SEED=0
 FT_LOGO=True
 
 # Path finder status (not recommended for more that 10000 cells): bool
-PATH_FINDER=True
+PATH_FINDER=False

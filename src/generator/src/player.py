@@ -17,32 +17,24 @@ class Player:
         self._cell = cell
 
     def move_to(self, direction: str) -> bool:
+        """
+        Tries to move the player to the given direction.
+
+        Parameters
+        ----------
+        direction: str
+            The direction chosen to move the player to.
+
+        Returns
+        ----------
+        True
+            If the player moved to the given direction.
+        False
+            If the player didn't move to the given direction.
+        """
         if self._cell.check_if_can_go(direction):
-            self.set_cell(self._cell._adyacent[direction])
+            if self._cell._adjacent[direction] is None:
+                return False
+            self.set_cell(self._cell._adjacent[direction])
             return True
-        return False
-
-    def can_go_somewhere(self) -> bool:
-        from .maze import POSSIBLE_DIRECTIONS
-        for dir in POSSIBLE_DIRECTIONS:
-            # print(f"Checking if we can go {dir}...")
-            adyacent = self.get_cell().get_adyacent()[dir]
-            if (adyacent is not None and adyacent.is_visited() is False and
-                    adyacent.is_fixed() is False):
-                # print(f"WE CAN GO {dir}")
-                return True
-        # print("Can't go anywhere :(")
-        return False
-
-    def can_move_somewhere(self) -> bool:
-        from .maze import POSSIBLE_DIRECTIONS
-        for dir in POSSIBLE_DIRECTIONS:
-            # print(f"Checking if we can go {dir}...")
-            adyacent = self.get_cell().get_adyacent()[dir]
-            if (adyacent is not None and adyacent.is_visited() is False and
-                    adyacent.is_fixed() is False and
-                    self.get_cell().check_if_can_go(dir)):
-                # print(f"WE CAN GO {dir}")
-                return True
-        # print("Can't go anywhere :(")
         return False
