@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Type, TYPE_CHECKING, Callable, Any
+from typing import Type, TYPE_CHECKING, Any
 from ..engine_manager import EngineManager
 from ..exceptions import EngineElementNotFound
 
@@ -15,7 +15,7 @@ class BaseNode:
         self._pos: tuple[float, float] = pos
         self._parent_node: BaseNode | None = None
         self._subnodes: list[BaseNode] = []
-        self._components: list[BaseComponent[Any]] = []
+        self._components: list[BaseComponent] = []
         self._window: Window
 
         if window:
@@ -70,29 +70,29 @@ class BaseNode:
             self._subnodes.remove(to_remove)
             to_remove.set_parent_node(None)
 
-    def component(self, component: Type[BaseComponent[Any]]
-                  ) -> BaseComponent[Any]:
+    def component(self, component: Type[BaseComponent]
+                  ) -> BaseComponent:
         for c in self._components:
             if isinstance(c, component):
                 return c
         raise EngineElementNotFound("Component does not exist")
 
-    def get_component(self, component: Type[BaseComponent[Any]]
-                      ) -> BaseComponent[Any] | None:
+    def get_component(self, component: Type[BaseComponent]
+                      ) -> BaseComponent | None:
         for c in self._components:
             if isinstance(c, component):
                 return c
         return None
 
-    def add_component(self, component: Type[BaseComponent[Any]], *args: Any
-                      ) -> BaseComponent[Any]:
+    def add_component(self, component: Type[BaseComponent], *args: Any
+                      ) -> BaseComponent:
         instance = component()
         instance.set_owner(self)
         self._components.append(instance)
         instance.on_init(*args)
         return instance
 
-    def remove_component(self, component: Type[BaseComponent[Any]]) -> None:
+    def remove_component(self, component: Type[BaseComponent]) -> None:
         to_remove = self.get_component(component)
         if to_remove:
             self._components.remove(to_remove)

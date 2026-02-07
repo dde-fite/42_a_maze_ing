@@ -1,10 +1,9 @@
 from pathlib import Path
 from .base_component import BaseComponent
-from ..nodes import BaseNode
 from .. import SpriteManager, Sprite
 
 
-class SpriteRenderer(BaseComponent[BaseNode]):
+class SpriteRenderer(BaseComponent):
     def on_init(self, file_path: Path | None = None):
         self.__file_path: Path | None = None
         self.__sprite: Sprite | None = None
