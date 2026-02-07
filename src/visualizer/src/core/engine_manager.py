@@ -85,7 +85,7 @@ class EngineManager:
             InputManager.on_update()
             if cls.__actual_scene:
                 for n in cls.__actual_scene.get_nodes():
-                    n.expose_update()()
+                    n.on_update()
         except KeyboardInterrupt:
             cls.exit()
 

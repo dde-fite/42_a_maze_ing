@@ -1,10 +1,10 @@
 from pathlib import Path
-from typing import TYPE_CHECKING
 from .base_component import BaseComponent
+from ..nodes import BaseNode
 from .. import SpriteManager, Sprite
 
 
-class SpriteRenderer(BaseComponent):
+class SpriteRenderer(BaseComponent[BaseNode]):
     def on_init(self, file_path: Path | None = None):
         self.__file_path: Path | None = None
         self.__sprite: Sprite | None = None

@@ -1,12 +1,11 @@
-from typing import Type, TYPE_CHECKING, Callable, TypeVar, Any
+from __future__ import annotations
+from typing import Type, TYPE_CHECKING, Callable, Any
 from ..engine_manager import EngineManager
 from ..exceptions import EngineElementNotFound
 
 if TYPE_CHECKING:
     from ..components import BaseComponent
     from .. import Window
-
-TComponent = TypeVar('TComponent', bound='BaseComponent')
 
 
 class BaseNode:
@@ -16,13 +15,19 @@ class BaseNode:
         self._pos: tuple[float, float] = pos
         self._parent_node: BaseNode | None = None
         self._subnodes: list[BaseNode] = []
-        self._components: list[BaseComponent] = []
+        self._components: list[BaseComponent[Any]] = []
         self._window: Window
 
         if window:
             self._window = window
         else:
             self._window = EngineManager.get_main_window()
+
+    def on_update(self) -> None:
+        for c in self._components:
+            c.on_update()
+        for snode in self._subnodes:
+            snode.on_update()
 
     def get_name(self) -> str:
         return self._name
@@ -65,28 +70,29 @@ class BaseNode:
             self._subnodes.remove(to_remove)
             to_remove.set_parent_node(None)
 
-    def component(self, component: Type[TComponent]
-                  ) -> TComponent:
+    def component(self, component: Type[BaseComponent[Any]]
+                  ) -> BaseComponent[Any]:
         for c in self._components:
             if isinstance(c, component):
                 return c
         raise EngineElementNotFound("Component does not exist")
 
-    def get_component(self, component: Type[TComponent]
-                      ) -> TComponent | None:
+    def get_component(self, component: Type[BaseComponent[Any]]
+                      ) -> BaseComponent[Any] | None:
         for c in self._components:
             if isinstance(c, component):
                 return c
         return None
 
-    def add_component(self, component: Type[BaseComponent], *args: Any
-                      ) -> None:
+    def add_component(self, component: Type[BaseComponent[Any]], *args: Any
+                      ) -> BaseComponent[Any]:
         instance = component()
         instance.set_owner(self)
         self._components.append(instance)
         instance.on_init(*args)
+        return instance
 
-    def remove_component(self, component: Type[TComponent]) -> None:
+    def remove_component(self, component: Type[BaseComponent[Any]]) -> None:
         to_remove = self.get_component(component)
         if to_remove:
             self._components.remove(to_remove)
@@ -100,12 +106,3 @@ class BaseNode:
         self._components.clear()
         if self._parent_node:
             self._parent_node.remove_subnode(self._name)
-
-    def expose_update(self) -> Callable[[], None]:
-        return self.__on_update
-
-    def __on_update(self) -> None:
-        for c in self._components:
-            c.on_update()
-        for snode in self._subnodes:
-            snode.expose_update()()
