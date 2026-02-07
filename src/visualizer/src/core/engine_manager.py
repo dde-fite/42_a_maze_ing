@@ -44,7 +44,6 @@ class EngineManager:
     __actual_scene: BaseScene | None = None
     __scenes: list[type[BaseScene]]
     __last_frame_time: float = time()
-    __delta_time: float = 0.0
 
     @classmethod
     def init(cls, program_name: str, resolution: tuple[int, int],
@@ -79,7 +78,7 @@ class EngineManager:
     @classmethod
     def __on_update(cls, param: None) -> None:
         try:
-            cls.__delta_time = (time() - cls.__last_frame_time) * 10
+            cls.__last_frame_time = time()
             for w in cls.__windows:
                 MlxContext.get_mlx().mlx_clear_window(
                     MlxContext.get_mlx_ptr(), w.get_ptr())
@@ -87,13 +86,12 @@ class EngineManager:
             if cls.__actual_scene:
                 for n in cls.__actual_scene.get_nodes():
                     n.expose_update()()
-            cls.__last_frame_time = time()
         except KeyboardInterrupt:
             cls.exit()
 
     @classmethod
     def get_delta_time(cls) -> float:
-        return cls.__delta_time
+        return (time() - cls.__last_frame_time)
 
     @classmethod
     def get_actual_scene(cls) -> BaseScene | None:

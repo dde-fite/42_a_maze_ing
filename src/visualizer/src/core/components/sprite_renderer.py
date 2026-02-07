@@ -4,10 +4,6 @@ from .base_component import BaseComponent
 from .. import SpriteManager, Sprite
 
 
-if TYPE_CHECKING:
-    from .. import Window
-
-
 class SpriteRenderer(BaseComponent):
     def on_init(self, file_path: Path | None = None):
         self.__file_path: Path | None = None
@@ -39,12 +35,6 @@ class SpriteRenderer(BaseComponent):
         if self.__sprite:
             return self.__sprite.get_size()
         return (0, 0)
-
-    def get_window(self) -> Window:
-        return self.__window
-
-    def set_window(self, window: Window) -> None:
-        self.__window = window
 
     def __load_sprite(self) -> None:
         if not self.__file_path:
