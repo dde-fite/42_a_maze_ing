@@ -21,10 +21,12 @@ class Button(BaseComponent):
         if self.__callback:
             mouse = self.owner.get_window().get_mouse_pos()
             pos = self.owner.get_pos()
-            size = self.owner.component(SpriteRenderer).get_size()
-            if (pos[0] < mouse[0] < pos[0] + size[0] and
-                    pos[1] < mouse[1] < pos[1] + size[1]):
-                self.__callback()
+            sprite = self.owner.get_component(SpriteRenderer)
+            if sprite:
+                size = sprite.get_size()
+                if (pos[0] < mouse[0] < pos[0] + size[0] and
+                        pos[1] < mouse[1] < pos[1] + size[1]):
+                    self.__callback()
 
     def set_callback(self, callback: Callable[[], Any] | None):
         self.__callback = callback
