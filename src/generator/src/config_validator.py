@@ -1,10 +1,10 @@
 #!/bin/env python3
 
 from enum import Enum
-from typing import Union
 import sys
 from .maze import Maze
 from .exceptions import ConfigError
+from .types import Config_Value
 
 
 class ConfigValidator:
@@ -168,11 +168,11 @@ class ConfigValidator:
 
     @classmethod
     def __parse_config(cls, key: str, value: str) -> (
-            tuple[str, Union[int, str, tuple[int, int], bool]]):
+            tuple[str, Config_Value]):
         if key not in cls.AvailableKeys.__members__:
             raise ValueError(f"Given key '{key}' is not available!")
         if ' ' in value:
-            raise ConfigError("NO SPACES")
+            raise ConfigError("Spaces are not allowed in the line!")
         value = value.rstrip("\n")  # We substract the '\n'
         match key:
             case cls.AvailableKeys.WIDTH.value:
@@ -197,10 +197,10 @@ class ConfigValidator:
 
     @classmethod
     def read_config(cls, config_file: str = "config.txt"
-                    ) -> dict[str, Union[int, str, tuple[int, int], bool]]:
+                    ) -> dict[str, Config_Value]:
         available_keys = {}
         for key in cls.AvailableKeys:
-            available_keys[key.value] = 0
+            available_keys[key.value] = None
         try:
             with open(config_file, "r") as f:
                 config_file_line = f.readline()
@@ -254,6 +254,6 @@ def main():
 
 
 if __name__ == "__main__":
-    import cProfile
-    cProfile.run("main()")
-    # main()
+    # import cProfile
+    # cProfile.run("main()")
+    main()

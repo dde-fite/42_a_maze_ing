@@ -1,29 +1,33 @@
 # Spaces in key=value lines are not allowed
 # Comments in same line as key=value lines are not allowed
+# The 5 first keys (WIDTH, HEIGHT, ENTRY, EXIT, OUTPUT_FILE) are mandatory
 
 # Width of the maze: int
-WIDTH=10
+WIDTH=20
 
 # Height of the maze: int
-HEIGHT=10
+HEIGHT=20
 
 # Entry point coordinates of the maze: (int, int)
 ENTRY=1,1
 
 # Exit point coordinates of the maze: (int, int)
-EXIT=10,10
+EXIT=20,20
 
 # Output file name: str finished with .txt
 OUTPUT_FILE=maze.txt
 
-# Perfect maze: bool
-PERFECT=False
+# These are not needed keys
+# Not having one of them will set them to their default value
 
-# Seed used, 0 will be treat as random: int
-SEED=2
+# Perfect maze: bool = False
+PERFECT=True
 
-# Ft logo appearing in maze: bool
+# Seed used, 0 will be treat as random: int = 0
+SEED=0
+
+# Ft logo appearing in maze: bool = True
 FT_LOGO=True
 
-# Path finder status (not recommended for more that 10000 cells): bool
-PATH_FINDER=False
+# Path finder status (not recommended for more that 10000 cells): bool = False
+PATH_FINDER=True

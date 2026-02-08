@@ -3,7 +3,7 @@
 from .exceptions import MazeError
 from .player import Player
 from .cell import Cell
-from typing import TypeAlias, Union
+from .types import Coords, Cell_State, Pathway
 
 # Other imports...
 from math import ceil
@@ -11,16 +11,11 @@ from random import choice, random, shuffle, seed
 from typing import Optional
 import sys
 
-# Alias
-Coords: TypeAlias = tuple[int, int]
-Cell_State: TypeAlias = dict[str, Union[int, bool]]
-# Cell: TypeAlias = dict[Coords, Cell_State]
-Pathway: TypeAlias = list[Coords]
 
-NORTH = 0b0001
-SOUTH = 0b0100
-EAST = 0b0010
-WEST = 0b1000
+NORTH = "NORTH"
+SOUTH = "SOUTH"
+EAST = "EAST"
+WEST = "WEST"
 POSSIBLE_DIRECTIONS = (NORTH, EAST, SOUTH, WEST)
 OPPOSITE_DIRECTIONS = {NORTH: SOUTH, EAST: WEST,
                        SOUTH: NORTH, WEST: EAST}
@@ -40,10 +35,30 @@ class Maze:
     def __init__(self, width: int, height: int,
                  entry: Coords, exit: Coords,
                  output_file: str = "maze.txt",
-                 ft_logo: bool = True, perfect: bool = True,
+                 ft_logo: bool = True, perfect: bool = False,
                  path_finder: bool = False,
-                 seed_num: int = 0,
-                 instances: bool = False) -> None:
+                 seed_num: int = 0
+                 ) -> None:
+        # First checking
+        if not width:
+            raise MazeError("No width provided!")
+        if not height:
+            raise MazeError("No height provided!")
+        if not entry:
+            raise MazeError("No entry provided!")
+        if not exit:
+            raise MazeError("No exit provided!")
+        if not output_file:
+            raise MazeError("No output file provided!")
+        if not ft_logo:
+            ft_logo = True
+        if not perfect:
+            perfect = False
+        if not path_finder:
+            path_finder = False
+        if not seed_num:
+            seed_num = 0
+
         # Bases init
         self.__base_fields_init(width, height, ft_logo, entry, exit)
         self._output_file = output_file
@@ -57,9 +72,10 @@ class Maze:
         self._possible_pathways: list[Pathway] = []
 
         # Generating cells with the algorithm in the Generator class
-        if seed_num != 0:
+        if seed_num:
             seed(seed_num)
-        cell_generation, self._pathway = Generator.dfs_generation(self)
+        cell_generation, self._pathway, self._directions_followed = (
+            Generator.dfs_generation(self))
 
         # If not perfect:
         if not self._perfect:
@@ -71,6 +87,7 @@ class Maze:
             # Finding paths:
             # Recursive
             if path_finder:
+                print("Looking for paths...")
                 self._possible_pathways: list[Pathway] = (
                     Generator.path_finder(self, cell_generation))
 
@@ -338,11 +355,21 @@ class Maze:
                 for height in range(1, self._height + 1):
                     for width in range(1, self._width + 1):
                         f.write(str(format(self._cells[(width, height)]._state,
-                                           'x')) + " ")  # DELETE THE ' '
+                                           'X')) + " ")  # TODO: DELETE THE ' '
                     f.write("\n")
                 f.write("\n")
-                f.write(f"Entry point: ({self._entry[0]}, {self._entry[1]})\n")
-                f.write(f"Exit point: ({self._exit[0]}, {self._exit[1]})\n")
+                # Entry point
+                f.write(f"{self._entry[0]}, {self._entry[1]}\n")
+
+                # Exit point
+                f.write(f"{self._exit[0]}, {self._exit[1]}\n")
+
+                # Directions followed
+                for direction in self._directions_followed:
+                    f.write(direction)
+                f.write("\n")
+
+                # Optional ------------------------------------------
                 f.write("Player's position: "
                         f"{self.get_player_coordinates()}\n")
                 f.write("Original Pathway----------------------\n")
@@ -376,81 +403,22 @@ class Generator:
     @staticmethod
     def __get_ft_logo_cells(width: int, height: int) -> Optional[
             tuple[Coords]]:
-        # TODO: Change the ft_logo related cells for the different sizes!
-        if (width < Maze.MIN_FT_WIDTH
-                or height < Maze.MIN_FT_HEIGHT):
+        """
+        Calculates where the 42 logo should be placed.
+        If it can be placed, calculates where the center of the maze is and
+        returns a tuple with all the coordinates
+        for the 42 logo cells.
+
+        Notes
+        -----
+        If the logo can't be placed (not enough size), nothing will be done.
+        """
+        from .ft_logo_cells import Ft_Logo_Cells
+
+        scale = Ft_Logo_Cells.choose_logo_scale(width, height)
+        if scale == 0:
             return
-        SIZE_1 = (Maze.MIN_FT_WIDTH, Maze.MIN_FT_HEIGHT)
-        SIZE_2 = (Maze.MIN_FT_WIDTH * 3, Maze.MIN_FT_HEIGHT * 3)
-        SIZE_3 = (Maze.MIN_FT_WIDTH * 9, Maze.MIN_FT_HEIGHT * 9)
-        # BIGGEST SIZE
-        if width > SIZE_3[0] and height > SIZE_3[1]:
-            ft_logo: tuple[Coords] = (  # type: ignore
-                (-1, 0),
-                (-2, 0),
-                (-3, 0),
-                (-3, -1),
-                (-3, -2),
-                (-1, 1),
-                (-1, 2),
-                (1, 0),
-                (2, 0),
-                (3, 0),
-                (3, -1),
-                (3, -2),
-                (2, -2),
-                (1, -2),
-                (1, 1),
-                (1, 2),
-                (2, 2),
-                (3, 2)
-            )
-        # MEDIUM SIZE
-        elif width > SIZE_2[0] and height > SIZE_2[1]:
-            ft_logo: tuple[Coords] = (  # type: ignore
-                (-1, 0),
-                (-2, 0),
-                (-3, 0),
-                (-3, -1),
-                (-3, -2),
-                (-1, 1),
-                (-1, 2),
-                (1, 0),
-                (2, 0),
-                (3, 0),
-                (3, -1),
-                (3, -2),
-                (2, -2),
-                (1, -2),
-                (1, 1),
-                (1, 2),
-                (2, 2),
-                (3, 2)
-            )
-        # SMALL SIZE
-        elif width > SIZE_1[0] and height > SIZE_1[1]:
-            ft_logo: tuple[Coords] = (  # type: ignore
-                (-1, 0),
-                (-2, 0),
-                (-3, 0),
-                (-3, -1),
-                (-3, -2),
-                (-1, 1),
-                (-1, 2),
-                (1, 0),
-                (2, 0),
-                (3, 0),
-                (3, -1),
-                (3, -2),
-                (2, -2),
-                (1, -2),
-                (1, 1),
-                (1, 2),
-                (2, 2),
-                (3, 2)
-            )
-        else:
-            return
+        ft_logo = Ft_Logo_Cells.scale_logo(scale)
         center_point = (ceil(width / 2),
                         ceil(height / 2))
         cells: list[Coords] = []
@@ -495,7 +463,7 @@ class Generator:
 
     @classmethod
     def dfs_generation(cls, maze: Maze) -> tuple[
-                dict[Coords, Cell_State], Pathway]:
+                dict[Coords, Cell_State], Pathway, list[str]]:
         """
         Generate a perfect maze using a depth-first search (DFS) algorithm.
 
@@ -515,7 +483,8 @@ class Generator:
             Mapping of cell coordinates to their final state after generation.
         exit_path : Pathway or None
             Path from entry to exit if reachable, otherwise ``None``.
-
+        directions_followed: list[str]
+            List of every direction that was followed to reach the end.
         Notes
         -----
         This implementation uses an iterative DFS with backtracking and random
@@ -552,6 +521,7 @@ class Generator:
         cells[point]["visited"] = True
         directions = list(POSSIBLE_DIRECTIONS)
         passed_cells: Pathway = [point]
+        directions_followed: list[str] = []
         exit_path: Pathway | None = None
         op = OPPOSITE_DIRECTIONS
         adjacents = cls.__get_adjacent_cells(point, width, height)
@@ -583,6 +553,7 @@ class Generator:
                         # Updating stuff
                         point = adjacent_cell
                         passed_cells.append(point)
+                        directions_followed.append(dir[0])
                         if point == exit:
                             exit_path = passed_cells.copy()
 
@@ -597,7 +568,7 @@ class Generator:
                 passed_cells.pop()
                 point = passed_cells[-1]
                 adjacents = cls.__get_adjacent_cells(point, width, height)
-        return (cells, exit_path)
+        return (cells, exit_path, directions_followed)
 
     @classmethod
     def path_finder(cls, maze: Maze,
