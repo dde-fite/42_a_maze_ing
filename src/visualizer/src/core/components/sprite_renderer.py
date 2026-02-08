@@ -21,6 +21,8 @@ class SpriteRenderer(BaseComponent):
         return self.__file_path
 
     def set_file_path(self, file_path: Path | None) -> None:
+        if file_path == self.__file_path:
+            return
         if file_path is None:
             self.__unload_sprite()
             return
