@@ -3,10 +3,10 @@
 # The 5 first keys (WIDTH, HEIGHT, ENTRY, EXIT, OUTPUT_FILE) are mandatory
 
 # Width of the maze: int
-WIDTH=100
+WIDTH=1000
 
 # Height of the maze: int
-HEIGHT=100
+HEIGHT=1000
 
 # Entry point coordinates of the maze: (int, int)
 ENTRY=1,1
@@ -19,9 +19,6 @@ OUTPUT_FILE=maze.txt
 
 # These are not needed keys
 # Not having one of them will set them to their default value
-
-# Perfect maze: bool = False
-PERFECT=True
 
 # Seed used, 0 will be treat as random: int = 0
 SEED=0

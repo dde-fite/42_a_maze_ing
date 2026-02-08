@@ -4,7 +4,7 @@ from .types import Coords
 from .maze import Maze
 
 
-class Ft_Logo_Cells():
+class FtLogoCells():
 
     # These variables will only be used in this class
     __MIN_DIM_1 = 30
@@ -104,6 +104,6 @@ class Ft_Logo_Cells():
 
 
 if __name__ == "__main__":
-    print("Default cell coordinates:", Ft_Logo_Cells.DEFAULT_CELLS)
-    print("Scaling to 2:", Ft_Logo_Cells.scale_logo(2))
-    print("Scaling to 3:", Ft_Logo_Cells.scale_logo(3))
+    print("Default cell coordinates:", FtLogoCells.DEFAULT_CELLS)
+    print("Scaling to 2:", FtLogoCells.scale_logo(2))
+    print("Scaling to 3:", FtLogoCells.scale_logo(3))
