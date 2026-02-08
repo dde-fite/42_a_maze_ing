@@ -3,7 +3,7 @@
 class Cell:
 
     def __init__(self, fixed: bool = False):
-        from .maze import NORTH, EAST, SOUTH, WEST
+        from ..maze import NORTH, EAST, SOUTH, WEST
         self._visited = False   # To know if we already went through this cell
         self._state = 0b1111    # State of the walls from that cell
         self._adjacent: dict[str, Cell | None] = {NORTH: None, EAST: None,
@@ -52,7 +52,7 @@ class Cell:
         False
             If there is a wall in the given direction.
         """
-        from .maze import Maze
+        from ..maze import Maze
         if self._state & Maze.WALLS[direction]:
             return False
         return True
@@ -72,7 +72,7 @@ class Cell:
         If the cell in the given direction is fixed or doesn't exist,
         the wall won't be opened.
         """
-        from .maze import Maze, NORTH, EAST, SOUTH, WEST
+        from ..maze import Maze, NORTH, EAST, SOUTH, WEST
         adjacent = self._adjacent[direction]
         if adjacent is None or adjacent._fixed:
             return

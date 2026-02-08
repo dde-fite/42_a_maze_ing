@@ -3,16 +3,16 @@
 # The 5 first keys (WIDTH, HEIGHT, ENTRY, EXIT, OUTPUT_FILE) are mandatory
 
 # Width of the maze: int
-WIDTH=20
+WIDTH=100
 
 # Height of the maze: int
-HEIGHT=20
+HEIGHT=100
 
 # Entry point coordinates of the maze: (int, int)
 ENTRY=1,1
 
 # Exit point coordinates of the maze: (int, int)
-EXIT=20,20
+EXIT=10,10
 
 # Output file name: str finished with .txt
 OUTPUT_FILE=maze.txt
@@ -30,4 +30,4 @@ SEED=0
 FT_LOGO=True
 
 # Path finder status (not recommended for more that 10000 cells): bool = False
-PATH_FINDER=True
+PATH_FINDER=False
