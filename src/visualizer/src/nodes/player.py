@@ -9,7 +9,6 @@ class Player(BaseNode):
                  pos: tuple[int, int] = (960, 540)):
         super().__init__(name, pos)
         super().add_component(
-            SpriteRenderer,
-            Path(__file__).resolve().parent.parent / "sprites" / "player.xpm")
+            SpriteRenderer, Path(__file__).resolve().parent.parent / "sprites" / "player.png")
         super().add_component(Input)
         super().add_component(PlayerMovement)

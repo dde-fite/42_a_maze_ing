@@ -9,4 +9,4 @@ class BgMaze(BaseNode):
         super().__init__(name, pos)
         super().add_component(
             SpriteRenderer,
-            Path(__file__).resolve().parent.parent / "sprites" / "bg_maze.xpm")
+            Path(__file__).resolve().parent.parent / "sprites" / "bg_maze.png")

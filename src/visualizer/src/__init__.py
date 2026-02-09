@@ -1,1 +1,1 @@
-from .maze_visualizer import MazeVisualizer  # noqa: F401
+from .main import MazeVisualizer  # noqa: F401

@@ -1,3 +1,5 @@
 from .bg_maze import BgMaze  # noqa: F401
 from .bg_menu import BgMenu  # noqa: F401
 from .player import Player  # noqa: F401
+from .maze_root import MazeRoot  # noqa: F401
+from .cell_node import CellNode  # noqa: F401

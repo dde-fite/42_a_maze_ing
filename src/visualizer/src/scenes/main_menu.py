@@ -1,6 +1,6 @@
 from ..core.scenes import BaseScene
 from ..nodes import BgMenu
-from ..nodes.buttons import PlayButton, CloseButton
+from ..nodes.buttons import PlayButton, CloseButton, GithubButton
 
 
 class MainMenu(BaseScene):
@@ -9,4 +9,5 @@ class MainMenu(BaseScene):
             BgMenu(),
             PlayButton(),
             CloseButton(),
+            GithubButton()
         ])
