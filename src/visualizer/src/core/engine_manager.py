@@ -72,6 +72,10 @@ class EngineManager:
     def exit(cls) -> None:
         if cls.__actual_scene:
             cls.__actual_scene.on_unload()
+        for w in cls.__windows:
+            w.destroy_window()
+        MlxContext.get_mlx().mlx_do_key_autorepeaton(
+                MlxContext.get_mlx_ptr())
         MlxContext.get_mlx().mlx_loop_exit(MlxContext.get_mlx_ptr())
 
     @classmethod

@@ -32,11 +32,12 @@ class SpriteManager:
     __sprites: list[Sprite] = []
 
     @classmethod
-    def load_sprite(cls, file_path: Path, referenced_by: Any) -> Sprite:
+    def load_sprite(cls, file_path: Path, referenced_by: Any,
+                    scale: float = 1.0) -> Sprite:
         if not referenced_by:
             raise EngineNoReference("It is obligatory a 'referenced by' value"
                                     " for loading sprites")
-        sprite = cls.get_sprite(file_path)
+        sprite = cls.get_sprite(file_path, scale)
         if sprite:
             sprite.add_reference(referenced_by)
             return sprite
@@ -45,8 +46,12 @@ class SpriteManager:
         return sprite
 
     @classmethod
-    def unload_sprite(cls, file_path: Path, referenced_by: Any) -> None:
-        sprite = cls.get_sprite(file_path)
+    def unload_sprite(cls, file_path: Path, referenced_by: Any,
+                      scale: float = 1.0) -> None:
+        if not referenced_by:
+            raise EngineNoReference("It is obligatory a 'referenced by' value"
+                                    " for unloading sprites")
+        sprite = cls.get_sprite(file_path, scale)
         if not sprite:
             return
         sprite.remove_reference(referenced_by)
@@ -55,9 +60,9 @@ class SpriteManager:
             cls.__sprites.remove(sprite)
 
     @classmethod
-    def get_sprite(cls, file_path: Path) -> Sprite | None:
+    def get_sprite(cls, file_path: Path, scale: float = 1.0) -> Sprite | None:
         for s in cls.__sprites:
-            if s.get_file_path() == file_path:
+            if s.get_file_path() == file_path and s.get_scale() == scale:
                 return s
         return None
 
@@ -87,10 +92,12 @@ class Sprite:
     Raises:
         FileNotFoundError: If an invalid route is passed as image path.
     """
-    def __init__(self, file_path: Path, reference: Any):
+    def __init__(self, file_path: Path, reference: Any,
+                 scale: float = 1.0):
         if not file_path.is_file():
             raise FileNotFoundError(f"Can't found sprite '{file_path}'")
         self.__file_path: Path = file_path
+        self.__scale: float = scale
         self.__references: list[Any] = []
         self.__size: tuple[int, int] = (0, 0)
         if reference:
@@ -99,6 +106,9 @@ class Sprite:
 
     def get_file_path(self) -> Path:
         return self.__file_path
+
+    def get_scale(self) -> float:
+        return self.__scale
 
     def get_references(self) -> list[Any]:
         return self.__references.copy()
@@ -133,8 +143,13 @@ class Sprite:
         if img is None:
             raise EngineException("Error loading sprite at "
                                   f"{self.__file_path}")
-        self.__image: np.ndarray = img
         self.__size = tuple(reversed(self.__image.shape[:2]))
+        if self.__scale == 1:
+            self.__size = (self.__scale[0] * self.__scale,
+                           self.__scale[1] * self.__scale)
+            self.__image = cv2.resize(img, (self.__size[1], self.__size[0]))
+        else:
+            self.__image: np.ndarray = img
         if self.__image.shape[2] == 3 or not np.any(
                                                 self.__image[:, :, 3] != 255):
             self.__alpha = None

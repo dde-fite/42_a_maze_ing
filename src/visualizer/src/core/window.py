@@ -105,8 +105,8 @@ class Window:
             roi[:] = part.astype(np.uint8)
 
     def destroy_window(self) -> None:
-        del (self.__img_buffer)
         MlxContext.get_mlx().mlx_destroy_image(
             MlxContext.get_mlx_ptr(), self.__mlxbuffer)
         MlxContext.get_mlx().mlx_destroy_window(
-            MlxContext.get_mlx_ptr, self.__ptr)
+            MlxContext.get_mlx_ptr(), self.__ptr)
+        del (self.__img_buffer)

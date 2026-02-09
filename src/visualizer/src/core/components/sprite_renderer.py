@@ -4,7 +4,8 @@ from ..sprite import SpriteManager, Sprite
 
 
 class SpriteRenderer(BaseComponent):
-    def on_init(self, file_path: Path | None = None):
+    def on_init(self, file_path: Path | None = None,
+                scale: float = 1.0):
         self.__file_path: Path | None = None
         self.__sprite: Sprite | None = None
         self.set_file_path(file_path)
@@ -31,6 +32,14 @@ class SpriteRenderer(BaseComponent):
         self.__unload_sprite()
         self.__file_path = file_path
         self.__load_sprite()
+
+    @property
+    def scale(self) -> float:
+        return self.__scale
+
+    @scale.setter
+    def scale(self, scale: float = 1.0) -> None:
+        self.__scale = scale
 
     @property
     def size(self) -> tuple[int, int]:

@@ -6,7 +6,7 @@
 WIDTH=30
 
 # Height of the maze: int
-HEIGHT=30\deliimita a tu mama!
+HEIGHT=30
 
 # Entry point coordinates of the maze: (int, int)
 ENTRY=1,1
