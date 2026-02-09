@@ -1,10 +1,7 @@
 from ..core.nodes import BaseNode
 from ..core.components import SpriteRenderer
 from ..components import CellComponent
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from ....generator.src import Cell
+from ....generator import Cell
 
 
 class CellNode(BaseNode):

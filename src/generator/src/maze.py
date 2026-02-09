@@ -21,7 +21,7 @@ class Maze:
     MIN_FT_WIDTH = 9
     MIN_FT_HEIGHT = 7
 
-    WALL_OPENING_CHANCE = 1 / 5
+    WALL_OPENING_CHANCE = 1 / 100
     PATH_ATTEMPTS = 10
 
     def __init__(self, width: int, height: int,
@@ -44,13 +44,13 @@ class Maze:
             raise MazeError("No exit provided!")
         if not output_file:
             raise MazeError("No output file provided!")
-        if not ft_logo:
+        if ft_logo is None:
             ft_logo = True
-        if not perfect:
+        if perfect is None:
             perfect = False
-        if not path_finder:
+        if path_finder is None:
             path_finder = False
-        if not seed_num:
+        if seed_num is None:
             seed_num = 0
 
         # Seed that will be used
@@ -379,7 +379,7 @@ class Maze:
                     for width in range(1, self._width + 1):
                         f.write(
                             str(format(self._cells[(width, height)]["state"],
-                                'X')) + " ")  # TODO: DELETE THE ' '
+                                'X')))
                     f.write("\n")
                 f.write("\n")
                 # Entry point

@@ -1,6 +1,6 @@
 from pathlib import Path
 from .base_component import BaseComponent
-from .. import SpriteManager, Sprite
+from ..sprite import SpriteManager, Sprite
 
 
 class SpriteRenderer(BaseComponent):

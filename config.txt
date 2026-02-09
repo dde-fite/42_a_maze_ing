@@ -3,16 +3,16 @@
 # The 5 first keys (WIDTH, HEIGHT, ENTRY, EXIT, OUTPUT_FILE) are mandatory
 
 # Width of the maze: int
-WIDTH=1000
+WIDTH=30
 
 # Height of the maze: int
-HEIGHT=1000
+HEIGHT=30\deliimita a tu mama!
 
 # Entry point coordinates of the maze: (int, int)
 ENTRY=1,1
 
 # Exit point coordinates of the maze: (int, int)
-EXIT=10,10
+EXIT=8,8
 
 # Output file name: str finished with .txt
 OUTPUT_FILE=maze.txt
@@ -21,7 +21,7 @@ OUTPUT_FILE=maze.txt
 # Not having one of them will set them to their default value
 
 # Seed used, 0 will be treat as random: int = 0
-SEED=0
+SEED=1
 
 # Ft logo appearing in maze: bool = True
 FT_LOGO=True

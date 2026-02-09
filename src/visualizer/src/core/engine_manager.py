@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+# from typing import TYPE_CHECKING
 from time import time
 from .mlx import MlxContext
 from .window import Window
@@ -8,8 +8,7 @@ from .exceptions import (EngineNotStarted,
 from .input import InputManager
 from .x11 import keysymdef
 
-if TYPE_CHECKING:
-    from .scenes import BaseScene
+from .scenes import BaseScene
 
 
 class EngineManager:

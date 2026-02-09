@@ -1,6 +1,5 @@
 from __future__ import annotations
 from typing import Type, TYPE_CHECKING, Any, TypeVar
-from ..engine_manager import EngineManager
 from ..exceptions import EngineElementNotFound
 
 if TYPE_CHECKING:
@@ -13,6 +12,8 @@ TComponent = TypeVar('TComponent', bound='BaseComponent')
 class BaseNode:
     def __init__(self, name: str, pos: tuple[int, int],
                  window: Window | None = None):
+        from ..engine_manager import EngineManager
+
         self._name: str = name
         self._pos: tuple[float, float] = pos
         self._parent_node: BaseNode | None = None

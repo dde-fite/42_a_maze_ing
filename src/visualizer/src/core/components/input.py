@@ -1,9 +1,7 @@
 from typing import Callable, Any, TYPE_CHECKING
 from .base_component import BaseComponent
-from .. import InputManager
-
-if TYPE_CHECKING:
-    from ..x11 import keysymdef
+from ..input import InputManager
+from ..x11 import keysymdef
 
 
 class Input(BaseComponent):

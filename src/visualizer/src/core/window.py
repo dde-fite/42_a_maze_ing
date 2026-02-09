@@ -59,7 +59,8 @@ class Window:
 
     def on_update(self) -> None:
         if self.__mlxbuffer_data[2] == 1:
-            self.__img_buffer = cv2.cvtColor(self.__img_buffer, cv2.COLOR_BGRA2RGBA)
+            self.__img_buffer = cv2.cvtColor(self.__img_buffer,
+                                             cv2.COLOR_BGRA2RGBA)
         self.__mlxbuffer_data[0][:] = self.__img_buffer.tobytes()
         MlxContext.get_mlx().mlx_clear_window(
                     MlxContext.get_mlx_ptr(), self.__ptr)
