@@ -23,7 +23,7 @@ class Button(BaseComponent):
             pos = self.owner.get_pos()
             sprite = self.owner.get_component(SpriteRenderer)
             if sprite:
-                size = sprite.get_size()
+                size = sprite.size
                 if (pos[0] < mouse[0] < pos[0] + size[0] and
                         pos[1] < mouse[1] < pos[1] + size[1]):
                     self.__callback()

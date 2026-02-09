@@ -1,4 +1,6 @@
 from ctypes import c_void_p
+import cv2
+import numpy as np
 from .mlx import MlxContext
 from .exceptions import MlxException
 from .sprite import Sprite
@@ -41,6 +43,28 @@ class Window:
         MlxContext.get_mlx().mlx_hook(
             self.__ptr, X.ButtonRelease, X.ButtonReleaseMask,
             InputManager.trigger_button_release, None)
+        self.__mlxbuffer = MlxContext.get_mlx().mlx_new_image(
+            MlxContext.get_mlx_ptr(), self.__size[0], self.__size[1])
+        if not self.__mlxbuffer:
+            raise MlxException("Error creating the buffer")
+        self.__mlxbuffer_data = MlxContext.get_mlx().mlx_get_data_addr(
+                self.__mlxbuffer)
+
+        self.__img_buffer: np.ndarray = np.zeros(
+            (self.__size[1], self.__size[0], 4), np.uint8)
+        self.__img_buffer[:, :, 3] = 255
+
+    def on_pre_update(self) -> None:
+        self.__img_buffer[:, :, :3] = 0
+
+    def on_update(self) -> None:
+        if self.__mlxbuffer_data[2] == 1:
+            self.__img_buffer = cv2.cvtColor(self.__img_buffer, cv2.COLOR_BGRA2RGBA)
+        self.__mlxbuffer_data[0][:] = self.__img_buffer.tobytes()
+        MlxContext.get_mlx().mlx_clear_window(
+                    MlxContext.get_mlx_ptr(), self.__ptr)
+        MlxContext.get_mlx().mlx_put_image_to_window(
+            MlxContext.get_mlx_ptr(), self.__ptr, self.__mlxbuffer, 0, 0)
 
     def get_name(self) -> str:
         return self.__name
@@ -55,21 +79,33 @@ class Window:
         pos = MlxContext.get_mlx().mlx_mouse_get_pos(self.__ptr)
         return (pos[1], pos[2])
 
-    def draw_image(self, img_ptr: c_void_p, pos: tuple[int, int]) -> None:
-        MlxContext.get_mlx().mlx_put_image_to_window(
-            MlxContext.get_mlx_ptr(), self.__ptr, img_ptr,
-            int(pos[0]), int(pos[1]))
-
     def draw_sprite(self, sprite: Sprite,
-                    pos: tuple[int | float, int | float]) -> None:
-        MlxContext.get_mlx().mlx_put_image_to_window(
-            MlxContext.get_mlx_ptr(), self.__ptr, sprite.get_ptr(),
-            int(pos[0]), int(pos[1]))
+                    pos: tuple[int, int]) -> None:
+        x, y = int(pos[0]), int(pos[1])
+        size = sprite.size
 
-    def clear_window(self) -> None:
-        MlxContext.get_mlx().mlx_clear_window(MlxContext.get_mlx_ptr(),
-                                              self.__ptr)
+        dx1, dy1 = max(x, 0), max(y, 0)
+        dx2, dy2 = min(x + size[0], self.__size[0]), min(y + size[1],
+                                                         self.__size[1])
+        if dx1 >= dx2 or dy1 >= dy2:
+            return
+
+        sx1, sy1 = dx1 - x, dy1 - y
+        sx2, sy2 = sx1 + (dx2-dx1), sy1 + (dy2-dy1)
+
+        roi = self.__img_buffer[dy1:dy2, dx1:dx2, :3]
+        part = sprite.image[sy1:sy2, sx1:sx2, :3]
+
+        alpha = sprite.alpha
+        if alpha is not None:
+            a = alpha[sy1:sy2, sx1:sx2]
+            roi[:] = (a * part + (1-a) * roi).astype(np.uint8)
+        else:
+            roi[:] = part.astype(np.uint8)
 
     def destroy_window(self) -> None:
+        del (self.__img_buffer)
+        MlxContext.get_mlx().mlx_destroy_image(
+            MlxContext.get_mlx_ptr(), self.__mlxbuffer)
         MlxContext.get_mlx().mlx_destroy_window(
             MlxContext.get_mlx_ptr, self.__ptr)

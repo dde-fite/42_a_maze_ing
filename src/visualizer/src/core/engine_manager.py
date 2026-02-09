@@ -80,12 +80,13 @@ class EngineManager:
         try:
             cls.__last_frame_time = time()
             for w in cls.__windows:
-                MlxContext.get_mlx().mlx_clear_window(
-                    MlxContext.get_mlx_ptr(), w.get_ptr())
+                w.on_pre_update()
             InputManager.on_update()
             if cls.__actual_scene:
                 for n in cls.__actual_scene.get_nodes():
                     n.on_update()
+            for w in cls.__windows:
+                w.on_update()
         except KeyboardInterrupt:
             cls.exit()
 

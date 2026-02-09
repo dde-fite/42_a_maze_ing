@@ -78,4 +78,4 @@ class MlxContext:
             byref(width), byref(height))
         if img is not None:
             cls.__mlx._img_height[str(img)] = height.value
-        return (img, width.value, height.value)
+        return img

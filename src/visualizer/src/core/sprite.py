@@ -1,8 +1,9 @@
+from __future__ import annotations
 from typing import Any
 from pathlib import Path
-from ctypes import c_void_p
-from .mlx import MlxContext
-from .exceptions import MlxException, EngineNoReference
+import numpy as np
+import cv2
+from .exceptions import EngineNoReference, EngineException
 
 
 class SpriteManager:
@@ -92,7 +93,6 @@ class Sprite:
         self.__file_path: Path = file_path
         self.__references: list[Any] = []
         self.__size: tuple[int, int] = (0, 0)
-        self.__ptr: c_void_p | None = None
         if reference:
             self.__references.append(reference)
         self.__load_sprite()
@@ -109,25 +109,34 @@ class Sprite:
     def remove_reference(self, reference: Any) -> None:
         self.__references.remove(reference)
 
-    def get_size(self) -> tuple[int, int]:
+    @property
+    def size(self) -> tuple[int, int]:
         return self.__size
 
-    def get_ptr(self) -> c_void_p | None:
-        return self.__ptr
+    @property
+    def image(self) -> np.ndarray:
+        return self.__image
+
+    @property
+    def alpha(self) -> Any:
+        return self.__alpha
 
     def unload_sprite(self) -> None:
-        if self.__ptr:
-            MlxContext.get_mlx().mlx_destroy_image(MlxContext.get_mlx_ptr(),
-                                                   self.__ptr)
-        self.__ptr = None
+        del (self.__image)
         self.__references.clear()
 
     def __load_sprite(self) -> None:
         if not self.__file_path:
             return
-        self.__ptr, size_x, size_y = MlxContext.get_mlx(
-            ).mlx_xpm_file_to_image(
-                MlxContext.get_mlx_ptr(), str(self.__file_path))
-        self.__size = (size_x, size_y)
-        if not self.__ptr:
-            raise MlxException(f"Error creating '{self.__file_path}' image")
+        img = cv2.imread(
+            self.__file_path, flags=cv2.IMREAD_UNCHANGED)
+        if img is None:
+            raise EngineException("Error loading sprite at "
+                                  f"{self.__file_path}")
+        self.__image: np.ndarray = img
+        self.__size = tuple(reversed(self.__image.shape[:2]))
+        if self.__image.shape[2] == 3 or not np.any(
+                                                self.__image[:, :, 3] != 255):
+            self.__alpha = None
+        else:
+            self.__alpha = self.__image[:, :, 3:4] / 255.0

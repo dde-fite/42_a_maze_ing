@@ -32,9 +32,10 @@ class SpriteRenderer(BaseComponent):
         self.__file_path = file_path
         self.__load_sprite()
 
-    def get_size(self) -> tuple[int, int]:
+    @property
+    def size(self) -> tuple[int, int]:
         if self.__sprite:
-            return self.__sprite.get_size()
+            return self.__sprite.size
         return (0, 0)
 
     def __load_sprite(self) -> None:
