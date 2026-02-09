@@ -1,3 +1,3 @@
-#!/bin/env python3
+# flake8: noqa: F401
 
-from .src import Maze, Cell, Player, MazeError  # noqa: F401
+from .src import Maze, Cell, Player, ConfigValidator

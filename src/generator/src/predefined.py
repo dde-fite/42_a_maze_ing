@@ -1,0 +1,9 @@
+#!/bin/env python3
+
+NORTH = "N"
+SOUTH = "S"
+EAST = "E"
+WEST = "W"
+POSSIBLE_DIRECTIONS = (NORTH, EAST, SOUTH, WEST)
+OPPOSITE_DIRECTIONS = {NORTH: SOUTH, EAST: WEST,
+                       SOUTH: NORTH, WEST: EAST}

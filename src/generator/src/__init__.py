@@ -1,13 +1,6 @@
-#!/bin/env python3
+# flake8: noqa: F401
 
 from .maze import Maze
-from .cell import Cell
 from .player import Player
 from .exceptions import MazeError
-
-# So flake8 doesn't cry
-if __name__ == "__main__":
-    print(Maze.__name__)
-    print(Cell.__name__)
-    print(Player.__name__)
-    print(MazeError.__name__)
+from .config_validator import ConfigValidator
