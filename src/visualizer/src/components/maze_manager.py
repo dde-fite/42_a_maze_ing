@@ -1,5 +1,5 @@
 from ..core.components import BaseComponent
-from ....generator.src import Maze, Cell, Player, MazeError
+from ....generator.src import Maze, MazeError
 
 
 class MazeManager(BaseComponent):

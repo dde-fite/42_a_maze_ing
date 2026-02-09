@@ -1,5 +1,5 @@
-from visualizer.src import MazeVisualizer
-from generator import Maze, ConfigValidator
+from .visualizer.src import MazeVisualizer
+from .generator import Maze, ConfigValidator
 
 
 class MazeGenerator:

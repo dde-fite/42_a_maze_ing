@@ -6,6 +6,62 @@ import cv2
 from .exceptions import EngineNoReference, EngineException
 
 
+class SpriteManager:
+    """Pool the on-demand sprite load in a unique way to avoid loading the \
+        same image multiple times.
+
+    Stores sprites in memory within classes and records who is using them.
+
+    When a SpriteRenderer or any other component needs a sprite, it can use \
+        load_sprite().
+    This function checks if it already exists in memory; if it does, it simply\
+        notes that it's in use by that entity, and if not, it loads it, also \
+            noting its usage.
+
+    When the sprite is no longer needed, the component will use \
+        unload_sprite() to communicate this.
+    The manager will remove that usage for the sprite, and if no one is using \
+        the sprite anymore, it will free it from memory.
+
+    Attributes:
+        __sprites (list[Sprite]): List that contains the loaded sprites.
+
+    Raises:
+        EngineNoReference: In case of passing None as a reference.
+    """
+    __sprites: list[Sprite] = []
+
+    @classmethod
+    def load_sprite(cls, file_path: Path, referenced_by: Any) -> Sprite:
+        if not referenced_by:
+            raise EngineNoReference("It is obligatory a 'referenced by' value"
+                                    " for loading sprites")
+        sprite = cls.get_sprite(file_path)
+        if sprite:
+            sprite.add_reference(referenced_by)
+            return sprite
+        sprite = Sprite(file_path, referenced_by)
+        cls.__sprites.append(sprite)
+        return sprite
+
+    @classmethod
+    def unload_sprite(cls, file_path: Path, referenced_by: Any) -> None:
+        sprite = cls.get_sprite(file_path)
+        if not sprite:
+            return
+        sprite.remove_reference(referenced_by)
+        if len(sprite.get_references()) < 1:
+            sprite.unload_sprite()
+            cls.__sprites.remove(sprite)
+
+    @classmethod
+    def get_sprite(cls, file_path: Path) -> Sprite | None:
+        for s in cls.__sprites:
+            if s.get_file_path() == file_path:
+                return s
+        return None
+
+
 class Sprite:
     """Pool the on-demand sprite load in a unique way to avoid loading the \
         same image multiple times.

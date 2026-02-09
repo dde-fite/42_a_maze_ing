@@ -8,25 +8,26 @@ class CellComponent(BaseComponent):
     def on_init(self) -> None:
         from ..nodes import CellNode
         self.__owner_cell = cast(CellNode, self.owner)
-        self.__is_fixed = self.__owner_cell.cell_fixed
         self.__sprite_renderer = self.__owner_cell.component(SpriteRenderer)
         self.__walls_folder = Path(__file__).parent.parent / "sprites" / "walls"
-        self.__state = self.__owner_cell.cell_state
-        if self.__is_fixed:
+        self.__cell = self.__owner_cell.cell
+        self.__is_fixed: bool = False
+        if self.__cell["fixed"]:
+            self.__is_fixed = True
             self.__sprite_renderer.set_file_path(self.__walls_folder.joinpath("fixed.png"))
         else:
             self.__sprite_renderer.set_file_path(self.__walls_folder.joinpath("up-right-down-left.png"))
         pos_x, pos_y = self.__owner_cell.get_rel_pos()
         size_x, size_y = self.__sprite_renderer.size
         self.__owner_cell.set_pos(pos_x * size_x, pos_y * size_y)
+        self.__state = self.__cell["state"]
 
     def on_update(self) -> None:
         if self.__is_fixed:
             return
-        state = self.__owner_cell.cell_state
+        state = self.__cell["state"]
         if self.__state != state:
             return
-        self.__state = state
         if state == 0b0000:
             self.__sprite_renderer.set_file_path(None)
             return

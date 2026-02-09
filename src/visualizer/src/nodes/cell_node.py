@@ -17,9 +17,5 @@ class CellNode(BaseNode):
         super().add_component(CellComponent)
 
     @property
-    def cell_fixed(self) -> bool:
-        return self.__cell.is_fixed()
-
-    @property
-    def cell_state(self) -> int:
-        return self.__cell.get_state()
+    def cell(self) -> Cell:
+        return self.__cell
