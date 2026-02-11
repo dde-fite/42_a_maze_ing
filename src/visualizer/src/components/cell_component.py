@@ -1,7 +1,6 @@
 from typing import cast
 from pathlib import Path
 from ..core.components import BaseComponent, SpriteRenderer
-from ....generator.src import Cell, Player, MazeError
 
 
 class CellComponent(BaseComponent):

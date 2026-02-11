@@ -29,6 +29,7 @@ class Window:
         self.__ptr: c_void_p = MlxContext.get_mlx().mlx_new_window(
                             MlxContext.get_mlx_ptr(), size[0], size[1],
                             name)
+        self.__active: bool = True
         if not self.__ptr:
             raise MlxException(f"Error creating '{name}' window")
         MlxContext.get_mlx().mlx_hook(
@@ -58,6 +59,8 @@ class Window:
         self.__img_buffer[:, :, :3] = 0
 
     def on_update(self) -> None:
+        if not self.__active:
+            return
         if self.__mlxbuffer_data[2] == 1:
             self.__img_buffer = cv2.cvtColor(self.__img_buffer,
                                              cv2.COLOR_BGRA2RGBA)
@@ -105,6 +108,7 @@ class Window:
             roi[:] = part.astype(np.uint8)
 
     def destroy_window(self) -> None:
+        self.__active = False
         MlxContext.get_mlx().mlx_destroy_image(
             MlxContext.get_mlx_ptr(), self.__mlxbuffer)
         MlxContext.get_mlx().mlx_destroy_window(
