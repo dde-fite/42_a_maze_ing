@@ -24,6 +24,9 @@ class MazeGenerator:
                         ConfigValidator.AvailableKeys.SEED.value],
                     path_finder=config[
                         ConfigValidator.AvailableKeys.PATH_FINDER.value],
+                    ft_logo_scale=config[
+                        ConfigValidator.AvailableKeys.FT_LOGO_SCALE.value
+                        ]
                     )
         # maze.print_output()
         return maze

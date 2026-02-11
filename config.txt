@@ -3,10 +3,10 @@
 # The 5 first keys (WIDTH, HEIGHT, ENTRY, EXIT, OUTPUT_FILE) are mandatory
 
 # Width of the maze: int
-WIDTH=10
+WIDTH=40
 
 # Height of the maze: int
-HEIGHT=10
+HEIGHT=40
 
 # Entry point coordinates of the maze: (int, int)
 ENTRY=1,1
@@ -30,7 +30,7 @@ SEED=0
 FT_LOGO=True
 
 # Ft logo can be scaled: bool = False
-FT_LOGO_SCALE=False
+FT_LOGO_SCALE=True
 
 # Path finder status (not recommended for more that 10000 cells): bool = False
 PATH_FINDER=False
