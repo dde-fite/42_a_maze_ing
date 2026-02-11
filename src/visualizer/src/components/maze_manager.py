@@ -3,6 +3,7 @@ from ....generator.src import MazeError
 from ....generator import MazeGenerator
 from ..core.sprite import SpriteManager, Sprite
 from pathlib import Path
+import sys
 
 X0_WORKING_POS = 150
 X1_WORKING_POS = 1770
@@ -12,9 +13,10 @@ Y1_WORKING_POS = 972
 
 class MazeManager(BaseComponent):
     def on_init(self) -> None:
+        self.__maze_generated: bool = False
         from ..nodes import CellNode
         try:
-            self.__maze = MazeGenerator.generate("config.txt")
+            self.__maze = MazeGenerator.generate(sys.argv[1])
             self.__maze.print_output()
             sprite: Sprite = SpriteManager.load_sprite(Path(__file__).parent.parent / "sprites" / "walls" / "up-right-down-left.png", self)
             cells = (self.__maze.get_width(), self.__maze.get_height())
@@ -27,6 +29,7 @@ class MazeManager(BaseComponent):
                      (pos[1] - 1) * sprite_size[1]),
                     cell,
                     scale))
+            self.__maze_generated: bool = True
         except MazeError as e:
             print("ERROR:", e)
 
@@ -35,6 +38,12 @@ class MazeManager(BaseComponent):
 
     def on_destroy(self) -> None:
         pass
+
+    @property
+    def path(self) -> list[tuple[int, int]] | None:
+        if not self.__maze_generated:
+            return None
+        return self.__maze.get_pathway()
 
     def regenerate(self) -> None:
         for children in self.owner.subnodes:

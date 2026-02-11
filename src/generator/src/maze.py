@@ -375,6 +375,9 @@ class Maze:
             return min(self._possible_pathways, key=len)
         return None
 
+    def get_pathway(self) -> Pathway:
+        return self._pathway
+
     # OUTPUT_FILE -------------------------------------------------------------
     def get_output_file(self) -> str:
         return self._output_file

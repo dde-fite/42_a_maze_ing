@@ -1,6 +1,7 @@
 from pathlib import Path
 from ...core.nodes import SpriteButton
 from ...core import EngineManager
+from ...components import MazeManager
 
 
 class ShowPathButton(SpriteButton):
@@ -9,4 +10,6 @@ class ShowPathButton(SpriteButton):
         super().__init__(name, pos, Path(__file__).parent.parent.parent / "sprites" / "buttons" / "show_button.png", self.action)
 
     def action(self):
-        EngineManager.load_scene("MainMenu")
+        manager = EngineManager.get_actual_scene().node(
+            "MazeRoot").component(MazeManager)
+        manager.spawn_path()
