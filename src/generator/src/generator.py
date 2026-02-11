@@ -2,7 +2,7 @@
 
 # Main imports
 from .maze import Maze
-from .types import Coords, Cell, Pathway
+from .gen_types import Coords, Cell, Pathway
 from .exceptions import MazeError
 from .predefined import POSSIBLE_DIRECTIONS, OPPOSITE_DIRECTIONS
 

@@ -4,7 +4,7 @@ from enum import Enum
 import sys
 from .maze import Maze
 from .exceptions import ConfigError
-from .types import Config_Value
+from .gen_types import Config_Value
 
 
 class ConfigValidator:

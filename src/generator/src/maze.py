@@ -3,7 +3,7 @@
 from .exceptions import MazeError
 from .player import Player
 
-from .types import Coords, Cell, Pathway
+from .gen_types import Coords, Cell, Pathway
 from .predefined import NORTH, SOUTH, EAST, WEST
 
 # Other imports...

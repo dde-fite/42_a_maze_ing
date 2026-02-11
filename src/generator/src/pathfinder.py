@@ -2,7 +2,7 @@
 
 # Main imports
 from .maze import Maze
-from .types import Coords, Pathway
+from .gen_types import Coords, Pathway
 from .predefined import POSSIBLE_DIRECTIONS
 
 # Other imports

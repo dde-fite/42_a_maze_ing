@@ -1,6 +1,6 @@
 #!/bin/env python3
 
-from .types import Coords
+from .gen_types import Coords
 
 
 class Player:
