@@ -7,10 +7,11 @@ from ....generator import Cell
 class CellNode(BaseNode):
     def __init__(self, name: str,
                  pos: tuple[int, int],
-                 cell: Cell):
+                 cell: Cell,
+                 scale: float = 1.0):
         super().__init__(name, pos)
         self.__cell: Cell = cell
-        super().add_component(SpriteRenderer)
+        super().add_component(SpriteRenderer, None, scale)
         super().add_component(CellComponent)
 
     @property

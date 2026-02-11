@@ -15,11 +15,6 @@ class CellComponent(BaseComponent):
         if self.__cell["fixed"]:
             self.__is_fixed = True
             self.__sprite_renderer.set_file_path(self.__walls_folder.joinpath("fixed.png"))
-        else:
-            self.__sprite_renderer.set_file_path(self.__walls_folder.joinpath("up-right-down-left.png"))
-        pos_x, pos_y = self.__owner_cell.get_rel_pos()
-        size_x, size_y = self.__sprite_renderer.size
-        self.__owner_cell.set_pos(pos_x * size_x, pos_y * size_y)
         self.__state = self.__cell["state"]
 
     def on_update(self) -> None:
