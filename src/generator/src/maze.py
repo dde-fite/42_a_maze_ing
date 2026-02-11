@@ -308,13 +308,13 @@ class Maze:
         """
         from .ft_logo_cells import FtLogoCells
 
-        if self._ft_logo_scale:
-            scale = FtLogoCells.choose_logo_scale(self._width, self._height)
-        else:
-            scale = 1
+        scale = FtLogoCells.choose_logo_scale(self._width, self._height)
         if scale == 0:
             return
-        ft_logo = FtLogoCells.scale_logo(scale)
+        if self._ft_logo_scale:
+            ft_logo = FtLogoCells.scale_logo(scale)
+        else:
+            ft_logo = FtLogoCells.scale_logo(1)
         center_point = (ceil(self._width / 2),
                         ceil(self._height / 2))
         cells: list[Coords] = []
@@ -428,7 +428,7 @@ class Maze:
                 if shortest_path:
                     for coord in shortest_path:
                         f.write(f"{coord} | ")
-                print("")
+                # print("")
         except FileNotFoundError:
             # This error should never happen, since open with 'w' doesn't raise
             # FileNotFoundError, it creates it in case it doesn't exist.

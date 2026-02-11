@@ -3,19 +3,19 @@
 # The 5 first keys (WIDTH, HEIGHT, ENTRY, EXIT, OUTPUT_FILE) are mandatory
 
 # Width of the maze: int
-WIDTH=30
+WIDTH=10
 
 # Height of the maze: int
-HEIGHT=30
+HEIGHT=10
 
 # Entry point coordinates of the maze: (int, int)
 ENTRY=1,1
 
 # Exit point coordinates of the maze: (int, int)
-EXIT=30,30
+EXIT=5,5
 
 # Perfect maze (only one way from start to the end): bool
-PERFECT=False
+PERFECT=True
 
 # Output file name: str finished with .txt
 OUTPUT_FILE=maze.txt
