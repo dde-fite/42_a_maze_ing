@@ -102,9 +102,18 @@ class Sprite:
         self.__size: tuple[int, int] = (0, 0)
         self.__alpha: np.ndarray | None
         self.__image: np.ndarray
+        self.__parent_img: Sprite | None = None
         if reference:
             self.__references.append(reference)
-        self.__load_sprite()
+        if scale == 1:
+            self.__load_sprite()
+        else:
+            self.__parent_img = SpriteManager.load_sprite(
+                file_path, self)
+            self.__image = self.__parent_img.image.copy()
+            self.__size = self.__parent_img.size
+            self.__scale_sprite()
+        self.__calculate_alpha()
 
     def get_file_path(self) -> Path:
         return self.__file_path
@@ -134,6 +143,8 @@ class Sprite:
         return self.__alpha
 
     def unload_sprite(self) -> None:
+        if self.__parent_img:
+            SpriteManager.unload_sprite(self.__file_path, self)
         del (self.__image)
         self.__references.clear()
 
@@ -146,12 +157,20 @@ class Sprite:
             raise EngineException("Error loading sprite at "
                                   f"{self.__file_path}")
         self.__size = tuple(reversed(img.shape[:2]))
-        if self.__scale != 1:
-            self.__size = (int(self.__size[0] * self.__scale),
-                           int(self.__size[1] * self.__scale))
-            self.__image = cv2.resize(img, (self.__size[0], self.__size[1]))
+        self.__image = img
+        if self.__image.shape[2] == 3 or not np.any(
+                                                self.__image[:, :, 3] != 255):
+            self.__alpha = None
         else:
-            self.__image = img
+            self.__alpha = self.__image[:, :, 3:4] / 255.0
+
+    def __scale_sprite(self) -> None:
+        self.__size = (int(self.__size[0] * self.__scale),
+                       int(self.__size[1] * self.__scale))
+        self.__image = cv2.resize(self.__image, (self.__size[0],
+                                                 self.__size[1]))
+
+    def __calculate_alpha(self) -> None:
         if self.__image.shape[2] == 3 or not np.any(
                                                 self.__image[:, :, 3] != 255):
             self.__alpha = None
