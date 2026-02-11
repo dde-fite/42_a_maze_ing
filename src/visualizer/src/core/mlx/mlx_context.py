@@ -19,8 +19,8 @@ class MlxContext:
         MlxNotFound: For using a function without having initialized the \
             connection.
     """
-    __mlx: Mlx | None = None
-    __mlx_ptr: c_void_p | None = None
+    __mlx: Mlx
+    __mlx_ptr: c_void_p
 
     @classmethod
     def init(cls) -> None:
@@ -47,7 +47,7 @@ class MlxContext:
         return cls.__mlx
 
     @classmethod
-    def get_mlx_ptr(cls) -> c_void_p | None:
+    def get_mlx_ptr(cls) -> c_void_p:
         """Returns the pointer to Mlx"""
         if not cls.__mlx or not cls.__mlx_ptr:
             raise MlxNotFound("Mlx is not initiated")

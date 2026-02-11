@@ -43,12 +43,13 @@ class EngineManager:
     __actual_scene: BaseScene | None = None
     __scenes: list[type[BaseScene]]
     __last_frame_time: float = time()
+    __is_exiting: bool = False
 
     @classmethod
     def init(cls, program_name: str, resolution: tuple[int, int],
              scenes: list[type[BaseScene]]) -> None:
+        cls.__check_values(program_name, resolution, scenes)
         try:
-            cls.__check_values(program_name, resolution, scenes)
             MlxContext.init()
             cls.__main_window = cls.create_window(program_name, resolution)
             if not cls.__main_window:
@@ -70,6 +71,9 @@ class EngineManager:
 
     @classmethod
     def exit(cls) -> None:
+        if cls.__is_exiting:
+            return
+        cls.__is_exiting = True
         if cls.__actual_scene:
             cls.__actual_scene.on_unload()
         for w in cls.__windows:
