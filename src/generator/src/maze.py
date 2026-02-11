@@ -24,12 +24,15 @@ class Maze:
     WALL_OPENING_CHANCE = 1 / 100
     PATH_ATTEMPTS = 10
 
+    DEFAULT_OUTPUT_FILE = "maze.txt"
+
     def __init__(self, width: int, height: int,
                  entry: Coords, exit: Coords,
                  output_file: str = "maze.txt",
+                 seed_num: int = 0,
                  ft_logo: bool = True, perfect: bool = False,
                  path_finder: bool = False,
-                 seed_num: int = 0
+                 ft_logo_scale: bool = False
                  ) -> None:
         from .pathfinder import PathFinder
 
@@ -42,30 +45,35 @@ class Maze:
             raise MazeError("No entry provided!")
         if not exit:
             raise MazeError("No exit provided!")
+        if perfect is None:
+            raise MazeError("'Perfect' must be provided!")
         if not output_file:
             raise MazeError("No output file provided!")
+        if seed_num is None:
+            raise MazeError("Seed must be provided!")
         if ft_logo is None:
             ft_logo = True
-        if perfect is None:
-            perfect = False
         if path_finder is None:
             path_finder = False
-        if seed_num is None:
-            seed_num = 0
+        if ft_logo_scale is None:
+            ft_logo_scale = False
 
         # Seed that will be used
         if seed_num:
             seed(seed_num)
 
+        # Scaling logo
+        self._ft_logo_scale = ft_logo_scale
+
         # Bases init
         self.__base_fields_init(width, height, ft_logo, entry, exit)
         self._output_file = output_file
+        self._perfect = perfect
         self._pathway: Pathway
         self._directions_followed: list[str]
         # cell_generation: dict[Coords, Cell_State]
 
         # Extras init
-        self._perfect = perfect
         self._player = Player(self._cells[entry])
         self._possible_pathways: list[Pathway] = []
 
@@ -299,7 +307,10 @@ class Maze:
         """
         from .ft_logo_cells import FtLogoCells
 
-        scale = FtLogoCells.choose_logo_scale(self._width, self._height)
+        if self._ft_logo_scale:
+            scale = FtLogoCells.choose_logo_scale(self._width, self._height)
+        else:
+            scale = 1
         if scale == 0:
             return
         ft_logo = FtLogoCells.scale_logo(scale)
@@ -310,6 +321,9 @@ class Maze:
             cells.append((center_point[0] + cell[0],
                          center_point[1] + cell[1]))
         return tuple(cells)
+
+    def get_ft_logo_scale(self) -> bool:
+        return self._ft_logo_scale
 
     # PERFECT -----------------------------------------------------------------
     def get_perfect(self) -> bool:
