@@ -12,7 +12,7 @@ HEIGHT=30
 ENTRY=1,1
 
 # Exit point coordinates of the maze: (int, int)
-EXIT=8,8
+EXIT=30,30
 
 # Output file name: str finished with .txt
 OUTPUT_FILE=maze.txt
@@ -21,7 +21,7 @@ OUTPUT_FILE=maze.txt
 # Not having one of them will set them to their default value
 
 # Seed used, 0 will be treat as random: int = 0
-SEED=1
+SEED=0
 
 # Ft logo appearing in maze: bool = True
 FT_LOGO=True
