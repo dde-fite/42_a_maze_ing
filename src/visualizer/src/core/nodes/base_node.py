@@ -58,6 +58,10 @@ class BaseNode:
     def set_parent_node(self, node: BaseNode | None) -> None:
         self._parent_node = node
 
+    @property
+    def subnodes(self) -> list[BaseNode]:
+        return self._subnodes.copy()
+
     def get_subnode(self, name: str) -> BaseNode | None:
         for c in self._subnodes:
             if c.get_name() == name:
@@ -69,11 +73,9 @@ class BaseNode:
         self._subnodes.append(node)
         node.set_parent_node(self)
 
-    def remove_subnode(self, name: str) -> None:
-        to_remove = self.get_subnode(name)
-        if to_remove:
-            self._subnodes.remove(to_remove)
-            to_remove.set_parent_node(None)
+    def remove_subnode(self, node: BaseNode) -> None:
+        self._subnodes.remove(node)
+        node.set_parent_node(None)
 
     def component(self, component: Type[TComponent]
                   ) -> TComponent:

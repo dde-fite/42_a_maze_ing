@@ -13,7 +13,6 @@ Y1_WORKING_POS = 972
 class MazeManager(BaseComponent):
     def on_init(self) -> None:
         from ..nodes import CellNode
-        print("\nGenerating a new perfect maze...")
         try:
             self.__maze = MazeGenerator.generate("config.txt")
             self.__maze.print_output()
@@ -36,6 +35,12 @@ class MazeManager(BaseComponent):
 
     def on_destroy(self) -> None:
         pass
+
+    def regenerate(self) -> None:
+        for children in self.owner.subnodes:
+            self.owner.remove_subnode(children)
+            children.on_destroy()
+        self.on_init()
 
     def center_root(self, sprite_size: tuple[int, int],
                     cells: tuple[int, int]) -> None:

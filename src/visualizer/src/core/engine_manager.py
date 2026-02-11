@@ -102,7 +102,9 @@ class EngineManager:
         return (time() - cls.__last_frame_time)
 
     @classmethod
-    def get_actual_scene(cls) -> BaseScene | None:
+    def get_actual_scene(cls) -> BaseScene:
+        if not cls.__actual_scene:
+            raise EngineNotStarted("There is no scene loaded")
         return cls.__actual_scene
 
     @classmethod
