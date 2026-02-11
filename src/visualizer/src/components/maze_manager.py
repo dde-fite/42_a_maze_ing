@@ -15,13 +15,13 @@ class MazeManager(BaseComponent):
         from ..nodes import CellNode
         print("\nGenerating a new perfect maze...")
         try:
-            maze = MazeGenerator.generate("config.txt")
-            maze.print_output()
+            self.__maze = MazeGenerator.generate("config.txt")
+            self.__maze.print_output()
             sprite: Sprite = SpriteManager.load_sprite(Path(__file__).parent.parent / "sprites" / "walls" / "up-right-down-left.png", self)
-            cells = (maze.get_width(), maze.get_height())
+            cells = (self.__maze.get_width(), self.__maze.get_height())
             sprite_size, scale = self.calculate_size(sprite.size, cells)
             self.center_root(sprite_size, cells)
-            for pos, cell in maze.get_cells().items():
+            for pos, cell in self.__maze.get_cells().items():
                 self.owner.add_subnode(CellNode(
                     "Cell",
                     ((pos[0] - 1) * sprite_size[0],

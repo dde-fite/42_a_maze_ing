@@ -1,5 +1,7 @@
 from ..core.scenes import BaseScene
 from ..nodes import BgMaze, Player, MazeRoot
+from ..nodes.buttons import (BackButton, ShowPathButton, ColorButton,
+                             RegenButton)
 
 
 class Maze(BaseScene):
@@ -7,5 +9,9 @@ class Maze(BaseScene):
         super().__init__([
             BgMaze(),
             Player(),
-            MazeRoot()
+            MazeRoot(),
+            BackButton(),
+            ShowPathButton(),
+            ColorButton(),
+            RegenButton(),
         ])
