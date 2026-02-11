@@ -9,6 +9,7 @@ COLOR_LIGHT_GREEN       := \033[1;32m
 
 SRC_FOLDER = src
 PYTHON_VERSION = python3
+ENTRY_POINT = a_maze_ing.py
 
 DEFAULT_CONFIG_FILE = config.txt
 CACHE_FOLDERS = __pycache__ .pytest_cache .mypy_cache
@@ -45,7 +46,7 @@ install:
 
 run: $(SRC_FOLDER)
 	@echo "⚙️  $(COLOR_LIGHT_GREEN)Running the program...$(COLOR_RESET) ⚙️"
-	@$(PYTHON_VERSION) -m $(SRC_FOLDER) $(DEFAULT_CONFIG_FILE)
+	@$(PYTHON_VERSION) $(ENTRY_POINT) $(DEFAULT_CONFIG_FILE)
 
 lint:
 	pip install flake8
