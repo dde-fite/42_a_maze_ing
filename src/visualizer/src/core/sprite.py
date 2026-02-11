@@ -41,7 +41,7 @@ class SpriteManager:
         if sprite:
             sprite.add_reference(referenced_by)
             return sprite
-        sprite = Sprite(file_path, referenced_by)
+        sprite = Sprite(file_path, referenced_by, scale)
         cls.__sprites.append(sprite)
         return sprite
 
@@ -100,6 +100,8 @@ class Sprite:
         self.__scale: float = scale
         self.__references: list[Any] = []
         self.__size: tuple[int, int] = (0, 0)
+        self.__alpha: np.ndarray | None
+        self.__image: np.ndarray
         if reference:
             self.__references.append(reference)
         self.__load_sprite()
@@ -143,13 +145,13 @@ class Sprite:
         if img is None:
             raise EngineException("Error loading sprite at "
                                   f"{self.__file_path}")
-        self.__size = tuple(reversed(self.__image.shape[:2]))
-        if self.__scale == 1:
-            self.__size = (self.__scale[0] * self.__scale,
-                           self.__scale[1] * self.__scale)
-            self.__image = cv2.resize(img, (self.__size[1], self.__size[0]))
+        self.__size = tuple(reversed(img.shape[:2]))
+        if self.__scale != 1:
+            self.__size = (int(self.__size[0] * self.__scale),
+                           int(self.__size[1] * self.__scale))
+            self.__image = cv2.resize(img, (self.__size[0], self.__size[1]))
         else:
-            self.__image: np.ndarray = img
+            self.__image = img
         if self.__image.shape[2] == 3 or not np.any(
                                                 self.__image[:, :, 3] != 255):
             self.__alpha = None

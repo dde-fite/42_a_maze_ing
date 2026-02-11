@@ -8,6 +8,7 @@ class SpriteRenderer(BaseComponent):
                 scale: float = 1.0):
         self.__file_path: Path | None = None
         self.__sprite: Sprite | None = None
+        self.__scale: float = scale
         self.set_file_path(file_path)
 
     def on_update(self) -> None:
@@ -50,9 +51,10 @@ class SpriteRenderer(BaseComponent):
     def __load_sprite(self) -> None:
         if not self.__file_path:
             return
-        self.__sprite = SpriteManager.load_sprite(self.__file_path, self)
+        self.__sprite = SpriteManager.load_sprite(self.__file_path, self,
+                                                  self.__scale)
 
     def __unload_sprite(self) -> None:
         if self.__file_path and self.__sprite:
-            SpriteManager.unload_sprite(self.__file_path, self)
+            SpriteManager.unload_sprite(self.__file_path, self, self.__scale)
         self.__sprite = None
