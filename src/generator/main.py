@@ -1,4 +1,4 @@
-from .generator import Maze, ConfigValidator
+from .src import ConfigValidator, Maze
 
 
 class MazeGenerator:

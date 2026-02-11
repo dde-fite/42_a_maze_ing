@@ -89,7 +89,7 @@ class Generator:
 
         # Not being able to move any direction and being at the starting point
         # will mean that we already checked every possible way
-        print("Generating maze with dfs algorithm...")
+        # print("Generating maze with dfs algorithm...")
         while not (point == entry and not advanced):
             advanced = False
 

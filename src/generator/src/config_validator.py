@@ -34,7 +34,7 @@ class ConfigValidator:
         try:
             width = int(value)
         except ValueError:
-            raise ConfigError(f"Given value '{value}' doesn't work for"
+            raise ConfigError(f"Given value '{value}' doesn't work for "
                               f"{cls.AvailableKeys.WIDTH.value}. Only single "
                               "integers are accepted!")
         return width
@@ -44,7 +44,7 @@ class ConfigValidator:
         try:
             height = int(value)
         except ValueError:
-            raise ConfigError(f"Given value '{value}' doesn't work for"
+            raise ConfigError(f"Given value '{value}' doesn't work for "
                               f"{cls.AvailableKeys.HEIGHT.value}. Only single "
                               "integers are accepted!")
         return height
@@ -110,7 +110,7 @@ class ConfigValidator:
                               " consecutive dots are allowed for a file name!")
         # '.txt' case
         if len(value) == 4:
-            raise ConfigError(f"Given value '{value}' doesn't work for"
+            raise ConfigError(f"Given value '{value}' doesn't work for "
                               f"{cls.AvailableKeys.OUTPUT_FILE.value}. "
                               "Only extension file type was given!")
         return value
@@ -136,7 +136,7 @@ class ConfigValidator:
         try:
             seed = int(value)
         except ValueError:
-            raise ConfigError(f"Given value '{value}' doesn't work for"
+            raise ConfigError(f"Given value '{value}' doesn't work for "
                               f"{cls.AvailableKeys.SEED.value}. Only single "
                               "integers are accepted!")
         return seed
@@ -257,7 +257,7 @@ class ConfigValidator:
                     available_keys[result[0]] = result[1]
                     config_file_line = f.readline()
         except FileNotFoundError:
-            print("File was not found")
+            print(f"File '{config_file}' could not be found!")
             sys.exit(1)
         return available_keys
 

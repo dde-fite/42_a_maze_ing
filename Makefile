@@ -13,6 +13,7 @@ PDF_FILES := $(patsubst $(DOCS_SRC_DIR)/%.md,$(DOCS_DIR)/%.pdf,$(MD_FILES))
 
 # -----------------------------------------
 REQUIREMENTS_FILE = requirements.txt
+
 COLOR_GREEN             := \033[0;32m
 COLOR_RESET             := \033[0m
 COLOR_GRAY                      := \033[1;30m
@@ -24,6 +25,8 @@ SRC_FOLDER = src
 PYTHON_VERSION = python3
 
 PYCACHE_FOLDERS = __pycache__
+
+DEFAULT_CONFIG_FILE = config.txt
 # -----------------------------------------
 
 docs: $(PDF_FILES)
@@ -61,13 +64,13 @@ install:
 		pip install -r $(REQUIREMENTS_FILE); \
 		echo "✅ $(COLOR_GREEN)Installation was successful!$(COLOR_RESET)"; \
 	else \
-		echo "$(REQUIREMENTS_FILE) not found!"; \
+		echo "$(REQUIREMENTS_FILE) is missing!"; \
 		echo "❌ $(COLOR_RED)Installation failed$(COLOR_RESET)"; \
 	fi
 
 run: $(SRC_FOLDER)
 	@echo "⚙️  $(COLOR_LIGHT_GREEN)Running the program...$(COLOR_RESET) ⚙️"
-	@$(PYTHON_VERSION) -m $(SRC_FOLDER)
+	@$(PYTHON_VERSION) -m $(SRC_FOLDER) $(DEFAULT_CONFIG_FILE)
 
 lint:
 	pip install flake8

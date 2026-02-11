@@ -1,6 +1,6 @@
 from ..core.components import BaseComponent
 from ....generator.src import MazeError
-from ....maze_generator import MazeGenerator
+from ....generator import MazeGenerator
 from ..core.sprite import SpriteManager, Sprite
 from pathlib import Path
 

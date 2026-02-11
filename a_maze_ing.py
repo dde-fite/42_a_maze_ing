@@ -1,5 +1,4 @@
-from .visualizer import MazeVisualizer
-from .generator import MazeGenerator
+from src import MazeGenerator, MazeVisualizer
 import sys
 
 

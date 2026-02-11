@@ -92,14 +92,15 @@ class Maze:
             # Finding paths:
             # Recursive
             if path_finder:
-                print("Looking for paths...")
+                # print("Looking for paths...")
                 self._possible_pathways: list[Pathway] = (
                     PathFinder.path_finder_dfs(self))
-
+                return
             else:
-                print("No pathfinder added!")
+                # print("No pathfinder added!")
+                return
 
-        print("Maze successfully generated!")
+        # print("Maze successfully generated!")
 
     # BASE INITIATION ---------------------------------------------------------
     def __base_fields_init(self, width: int, height: int, ft_logo: bool,
@@ -386,7 +387,7 @@ class Maze:
         """
         # TODO: Finish description when project is fully finished.
         # Add the directions followed to the exit too.
-        print("Printing in the output file...")
+        # print("Printing in the output file...")
         try:
             with open(self._output_file, "w") as f:
                 for height in range(1, self._height + 1):
