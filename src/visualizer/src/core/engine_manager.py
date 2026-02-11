@@ -28,6 +28,7 @@ class EngineManager:
         __scenes (list[type[BaseScene]]): List of scenes available.
         __last_frame_time (float): Time when the last frame was generated.
         __delta_time (float): Result of delta time calculation.
+        __is_exiting (bool)
 
     Raises:
         EngineNotStarted: When trying to access an engine resource \
@@ -67,13 +68,17 @@ class EngineManager:
         except KeyboardInterrupt:
             cls.exit()
         finally:
-            if MlxContext.get_mlx():
-                for w in cls.__windows:
-                    w.destroy_window()
-                MlxContext.close()
+            # Clean up windows and close Mlx.
+            # I dont know why destroying the windows in
+            # exit funcion (inside the MLX loop) segfaults mlx, so at the
+            # the logic of window destroy will be here.
+            for w in cls.__windows:
+                w.destroy_window()
+            MlxContext.close()
 
     @classmethod
     def exit(cls) -> None:
+        """Safely exits the engine unloading scene and ending the loop."""
         if cls.__is_exiting:
             return
         cls.__is_exiting = True
@@ -102,6 +107,8 @@ class EngineManager:
     def get_delta_time(cls) -> float:
         return (time() - cls.__last_frame_time)
 
+    # -------------------- scene management --------------------
+
     @classmethod
     def get_actual_scene(cls) -> BaseScene:
         if not cls.__actual_scene:
@@ -125,6 +132,8 @@ class EngineManager:
         if cls.__actual_scene.__class__ == to_load:
             return
         cls.__actual_scene = to_load()
+
+    # -------------------- window management --------------------
 
     @classmethod
     def create_window(cls, name: str, size: tuple[int, int]
@@ -155,6 +164,8 @@ class EngineManager:
             raise EngineElementNotFound(f"Can not destroy '{name}' because is "
                                         "no instanciated")
         window.destroy_window()
+
+    # -------------------- internal helpers --------------------
 
     @classmethod
     def __get_scene(cls, name: str) -> type[BaseScene]:

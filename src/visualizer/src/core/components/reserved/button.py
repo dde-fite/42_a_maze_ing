@@ -8,7 +8,7 @@ class Button(BaseComponent):
 
     def on_init(self, callback: Callable[[], Any] | None):
         self.__callback: Callable[[], Any] | None = callback
-        self.owner.component(Input).on_release(
+        self.owner[Input].on_release(
             keysymdef.XK_Pointer_Button1, self.on_click)
 
     def on_update(self) -> None:

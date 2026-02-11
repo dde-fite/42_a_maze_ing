@@ -7,7 +7,7 @@ from ..core.x11 import keysymdef
 
 class PlayerMovement(BaseComponent):
     def on_init(self) -> None:
-        input_comp: Input = self.owner.component(Input)
+        input_comp: Input = self.owner[Input]
 
         input_comp.on_hold(keysymdef.XK_w, self.move_up)
         input_comp.on_hold(keysymdef.XK_s, self.move_down)
