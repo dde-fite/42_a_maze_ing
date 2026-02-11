@@ -67,6 +67,8 @@ class EngineManager:
         except KeyboardInterrupt:
             cls.exit()
         finally:
+            for w in cls.__windows:
+                w.destroy_window()
             MlxContext.close()
 
     @classmethod
@@ -76,8 +78,6 @@ class EngineManager:
         cls.__is_exiting = True
         if cls.__actual_scene:
             cls.__actual_scene.on_unload()
-        # for w in cls.__windows:
-        #     w.destroy_window()
         MlxContext.get_mlx().mlx_do_key_autorepeaton(
                 MlxContext.get_mlx_ptr())
         MlxContext.get_mlx().mlx_loop_exit(MlxContext.get_mlx_ptr())
