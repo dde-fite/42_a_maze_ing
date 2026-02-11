@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from ..nodes import BaseNode
+from ..exceptions import EngineElementNotFound
 
 
 class BaseScene(ABC):
@@ -13,6 +14,13 @@ class BaseScene(ABC):
 
     def get_nodes(self) -> list[BaseNode]:
         return self.__nodes
+
+    def node(self, name: str) -> BaseNode:
+        for n in self.__nodes:
+            if n.get_name() == name:
+                return n
+        raise EngineElementNotFound(f"{name} not found in: "
+                                    f"{self.__class__.__mro__[0].__name__}")
 
     def get_node(self, name: str) -> BaseNode | None:
         for n in self.__nodes:
