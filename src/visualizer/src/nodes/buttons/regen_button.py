@@ -11,5 +11,5 @@ class RegenButton(SpriteButton):
 
     def action(self):
         manager = EngineManager.get_actual_scene().node(
-            "MazeRoot").component(MazeManager)
+            "MazeRoot")[MazeManager]
         manager.regenerate()

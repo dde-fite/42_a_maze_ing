@@ -11,5 +11,5 @@ class ShowPathButton(SpriteButton):
 
     def action(self):
         manager = EngineManager.get_actual_scene().node(
-            "MazeRoot").component(MazeManager)
-        manager.spawn_path()
+            "MazeRoot")[MazeManager]
+        manager.spawn_footprints()

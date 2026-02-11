@@ -11,8 +11,8 @@ class CellNode(BaseNode):
                  scale: float = 1.0):
         super().__init__(name, pos)
         self.__cell: Cell = cell
-        super().add_component(SpriteRenderer, None, scale)
-        super().add_component(CellComponent)
+        self += (SpriteRenderer, None, scale)
+        self += (CellComponent)
 
     @property
     def cell(self) -> Cell:

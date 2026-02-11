@@ -7,7 +7,7 @@ class CellComponent(BaseComponent):
     def on_init(self) -> None:
         from ..nodes import CellNode
         self.__owner_cell = cast(CellNode, self.owner)
-        self.__sprite_renderer = self.__owner_cell.component(SpriteRenderer)
+        self.__sprite_renderer = self.__owner_cell[SpriteRenderer]
         self.__walls_folder = Path(__file__).parent.parent / "sprites" / "walls"
         self.__cell = self.__owner_cell.cell
         self.__is_fixed: bool = False

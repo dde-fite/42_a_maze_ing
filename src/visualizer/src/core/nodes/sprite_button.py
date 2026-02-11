@@ -12,6 +12,6 @@ class SpriteButton(BaseNode, ABC):
                  file_path: Path | None = None,
                  callback: Callable[[], Any] | None = None):
         super().__init__(name, pos)
-        super().add_component(SpriteRenderer, file_path)
-        super().add_component(Input)
-        super().add_component(Button, callback)
+        self += (SpriteRenderer, file_path)
+        self += (Input)
+        self += (Button, callback)
