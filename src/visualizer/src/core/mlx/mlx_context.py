@@ -19,13 +19,15 @@ class MlxContext:
         MlxNotFound: For using a function without having initialized the \
             connection.
     """
-    __mlx: Mlx
-    __mlx_ptr: c_void_p
+    __mlx: Mlx | None = None
+    __mlx_ptr: c_void_p | None = None
 
     @classmethod
     def init(cls) -> None:
         """Instanciates the wrapper and opens the connection with the MLX"""
         cls.__mlx = Mlx()
+        if not cls.__mlx:
+            raise MlxException("Error opening 'libmlx.so'")
         cls.__mlx_ptr = cls.__mlx.mlx_init()
         if not cls.__mlx_ptr:
             raise MlxException("Error initiating Mlx")

@@ -67,9 +67,10 @@ class EngineManager:
         except KeyboardInterrupt:
             cls.exit()
         finally:
-            for w in cls.__windows:
-                w.destroy_window()
-            MlxContext.close()
+            if MlxContext.get_mlx():
+                for w in cls.__windows:
+                    w.destroy_window()
+                MlxContext.close()
 
     @classmethod
     def exit(cls) -> None:

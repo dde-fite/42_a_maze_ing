@@ -1,4 +1,4 @@
-from src import MazeGenerator, MazeVisualizer
+from src import MazeVisualizer, MazeGenerator  # noqa: F401
 import sys
 
 
@@ -12,9 +12,7 @@ def check_environment() -> None:
         exit(1)
 
 
-if __name__ == "__main__":
-    # print(sys.prefix)
-    # print(sys.base_prefix)
+def main() -> None:
     check_environment()
 
     if len(sys.argv) < 2:
@@ -23,6 +21,10 @@ if __name__ == "__main__":
     elif len(sys.argv) > 2:
         raise Exception("Too many arguments were given! "
                         "Only config file is required.")
-    config_file = sys.argv[1]
-    maze = MazeGenerator.generate(config_file)
+    # config_file = sys.argv[1]
+    # maze = MazeGenerator.generate(config_file)
     MazeVisualizer.show_visualizer()
+
+
+if __name__ == "__main__":
+    main()
