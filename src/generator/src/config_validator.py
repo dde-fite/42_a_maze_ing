@@ -19,7 +19,15 @@ class ConfigValidator:
         SEED = "SEED"
         # Some extra keys could be added here
         FT_LOGO = "FT_LOGO"
+        FT_LOGO_SCALE = "FT_LOGO_SCALE"
         PATH_FINDER = "PATH_FINDER"
+
+        DEFAULT_VALUES = {WIDTH: 0, HEIGHT: 0,
+                          ENTRY: (0, 0), EXIT: (0, 0),
+                          OUTPUT_FILE: None,
+                          PERFECT: None, SEED: None,
+                          FT_LOGO: True, PATH_FINDER: False,
+                          FT_LOGO_SCALE: False}
 
     @classmethod
     def __parse_width(cls, value: str) -> int:
@@ -167,6 +175,23 @@ class ConfigValidator:
                               "Only 'True' or 'False' are accepted values!")
 
     @classmethod
+    def __parse_ft_logo_scale(cls, value: str) -> bool:
+        if value != "True" and value != "False":
+            raise ConfigError(f"Given value '{value}' doesn't work for "
+                              f"{cls.AvailableKeys.FT_LOGO_SCALE.value}. "
+                              "Only 'True' or 'False' are accepted values!")
+        if value == "True":
+            return True
+        elif value == "False":
+            return False
+        else:
+            # This should never happen
+            raise ConfigError(f"Given value '{value}' doesn't "
+                              "work for "
+                              f"{cls.AvailableKeys.FT_LOGO_SCALE.value}. "
+                              "Only 'True' or 'False' are accepted values!")
+
+    @classmethod
     def __parse_config(cls, key: str, value: str) -> (
             tuple[str, Config_Value]):
         if key not in cls.AvailableKeys.__members__:
@@ -193,6 +218,8 @@ class ConfigValidator:
                 result = cls.__parse_ft_logo(value)
             case cls.AvailableKeys.PATH_FINDER.value:
                 result = cls.__parse_path_finder(value)
+            case cls.AvailableKeys.FT_LOGO_SCALE.value:
+                result = cls.__parse_ft_logo_scale(value)
         return (key, result)
 
     @classmethod
@@ -200,7 +227,10 @@ class ConfigValidator:
                     ) -> dict[str, Config_Value]:
         available_keys = {}
         for key in cls.AvailableKeys:
-            available_keys[key.value] = None
+            if key is cls.AvailableKeys.DEFAULT_VALUES:
+                break
+            available_keys[key.value] = (
+                cls.AvailableKeys.DEFAULT_VALUES.value[key.value])
         try:
             with open(config_file, "r") as f:
                 config_file_line = f.readline()
@@ -248,6 +278,8 @@ def main():
                 seed_num=config[ConfigValidator.AvailableKeys.SEED.value],
                 path_finder=config[
                     ConfigValidator.AvailableKeys.PATH_FINDER.value],
+                ft_logo_scale=config[
+                    ConfigValidator.AvailableKeys.FT_LOGO_SCALE.value]
                 )
     # Generate the maze with the read config
     maze.print_output()

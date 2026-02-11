@@ -14,17 +14,23 @@ ENTRY=1,1
 # Exit point coordinates of the maze: (int, int)
 EXIT=30,30
 
+# Perfect maze (only one way from start to the end): bool
+PERFECT=False
+
 # Output file name: str finished with .txt
 OUTPUT_FILE=maze.txt
-
-# These are not needed keys
-# Not having one of them will set them to their default value
 
 # Seed used, 0 will be treat as random: int = 0
 SEED=0
 
+# These are not needed keys
+# Not having one of them will set them to their default value
+
 # Ft logo appearing in maze: bool = True
 FT_LOGO=True
+
+# Ft logo can be scaled: bool = False
+FT_LOGO_SCALE=False
 
 # Path finder status (not recommended for more that 10000 cells): bool = False
 PATH_FINDER=False
