@@ -35,6 +35,22 @@ GARBAGE := $(foreach d,$(CACHE_FOLDERS),$(shell find . -type d -name "$(d)"))
 all: install run
 
 install:
+	@read -p "Are you in the env? (yes/no) " answer; \
+	if [ -z "$$answer" ]; then \
+		echo "⛔ Answer was not provided. ⛔"; \
+		echo "$(COLOR_RED)Aborting...$(COLOR_RESET)"; \
+		exit 1; \
+	fi; \
+	if [ "$$answer" = "no" ]; then \
+		echo "📦 Make sure to be in the virtual environment before installing the packages. 📦"; \
+		echo "$(COLOR_RED)Aborting...$(COLOR_RESET)"; \
+		exit 1; \
+	fi; \
+	if [ ! "$$answer" = "yes" ]; then \
+		echo "🚩🚩🚩 Answer provided is not correct. 🚩🚩🚩"; \
+		echo "$(COLOR_RED)Aborting...$(COLOR_RESET)"; \
+		exit 1; \
+	fi;
 	@echo "⚒$(COLOR_GRAY) Installing required packages... $(COLOR_RESET)⚒"
 	@if [ -f "$(REQUIREMENTS_FILE)" ]; then \
 		pip install -r $(REQUIREMENTS_FILE); \
@@ -43,6 +59,9 @@ install:
 		echo "$(REQUIREMENTS_FILE) is missing!"; \
 		echo "❌ $(COLOR_RED)Installation failed$(COLOR_RESET)"; \
 	fi
+
+uninstall:
+	pip uninstall -r $(REQUIREMENTS_FILE) -y
 
 run: $(SRC_FOLDER)
 	@echo "⚙️  $(COLOR_LIGHT_GREEN)Running the program...$(COLOR_RESET) ⚙️"
