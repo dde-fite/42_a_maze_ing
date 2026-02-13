@@ -1,7 +1,7 @@
 from ..core.scenes import BaseScene
 from ..nodes import BgMaze, MazeRoot
 from ..nodes.buttons import (BackButton, ShowPathButton, ColorButton,
-                             RegenButton)
+                             RegenButton, StartButton)
 
 
 class Maze(BaseScene):
@@ -12,5 +12,6 @@ class Maze(BaseScene):
             BackButton(),
             ShowPathButton(),
             ColorButton(),
-            RegenButton()
+            RegenButton(),
+            StartButton()
         ])

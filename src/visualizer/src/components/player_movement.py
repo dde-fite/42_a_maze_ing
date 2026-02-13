@@ -1,4 +1,5 @@
-from ..core.components import BaseComponent, Input
+from pathlib import Path
+from ..core.components import BaseComponent, Input, SpriteRenderer
 from ..core import EngineManager
 from ..core.x11 import keysymdef
 from ....generator.src import Maze, Coords, NORTH, WEST, EAST, SOUTH
@@ -12,6 +13,14 @@ class PlayerMovement(BaseComponent):
         self.__maze: Maze = maze
         self.__cell_size: tuple[int, int] = cell_size
         self.__cell: Coords = maze.get_entry()
+        self.__sprites: dict[str, Path] = {
+            "neutral": Path(__file__).resolve().parent.parent / "sprites" / "player" / "neutral.png",
+            "up": Path(__file__).resolve().parent.parent / "sprites" / "player" / "up.png",
+            "down": Path(__file__).resolve().parent.parent / "sprites" / "player" / "down.png",
+            "left": Path(__file__).resolve().parent.parent / "sprites" / "player" / "left.png",
+            "right": Path(__file__).resolve().parent.parent / "sprites" / "player" / "right.png"
+        }
+        self.owner[SpriteRenderer].set_file_path(self.__sprites["neutral"])
         input_comp: Input = self.owner[Input]
 
         input_comp.on_press(keysymdef.XK_w, self.move_up)
@@ -37,16 +46,28 @@ class PlayerMovement(BaseComponent):
 
     def move_up(self) -> None:
         if self.__maze.check_if_can_go(self.__cell, NORTH):
+            self.owner[SpriteRenderer].set_file_path(self.__sprites["up"])
             self.__cell = (self.__cell[0], self.__cell[1] - 1)
+        else:
+            self.owner[SpriteRenderer].set_file_path(self.__sprites["neutral"])
 
     def move_down(self) -> None:
         if self.__maze.check_if_can_go(self.__cell, SOUTH):
+            self.owner[SpriteRenderer].set_file_path(self.__sprites["down"])
             self.__cell = (self.__cell[0], self.__cell[1] + 1)
+        else:
+            self.owner[SpriteRenderer].set_file_path(self.__sprites["neutral"])
 
     def move_left(self) -> None:
         if self.__maze.check_if_can_go(self.__cell, WEST):
+            self.owner[SpriteRenderer].set_file_path(self.__sprites["left"])
             self.__cell = (self.__cell[0] - 1, self.__cell[1])
+        else:
+            self.owner[SpriteRenderer].set_file_path(self.__sprites["neutral"])
 
     def move_right(self) -> None:
         if self.__maze.check_if_can_go(self.__cell, EAST):
+            self.owner[SpriteRenderer].set_file_path(self.__sprites["right"])
             self.__cell = (self.__cell[0] + 1, self.__cell[1])
+        else:
+            self.owner[SpriteRenderer].set_file_path(self.__sprites["neutral"])

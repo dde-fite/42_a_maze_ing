@@ -36,7 +36,6 @@ class MazeManager(BaseComponent):
                 cell,
                 self.__scale))
         self.__maze_generated: bool = True
-        self.spawn_player()
 
     def on_update(self) -> None:
         pass
@@ -45,9 +44,12 @@ class MazeManager(BaseComponent):
         pass
 
     def regenerate(self) -> None:
-        from ..nodes.buttons.show_path_button import ShowPathButton
+        from ..nodes.buttons import ShowPathButton, StartButton
         button = EngineManager.get_actual_scene()["ShowPathButton"]
         if isinstance(button, ShowPathButton):
+            button.reset()
+        button = EngineManager.get_actual_scene()["StartButton"]
+        if isinstance(button, StartButton):
             button.reset()
         for children in self.owner.subnodes:
             self.owner.remove_subnode(children)

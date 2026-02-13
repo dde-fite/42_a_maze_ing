@@ -1,7 +1,6 @@
 from ..nodes.footprint import Footprint
 from time import time
 from ..core.components import BaseComponent
-from .player_movement import PlayerMovement
 
 TIME_TO_FILL = 3
 
@@ -13,15 +12,11 @@ class FootprintsSpawner(BaseComponent):
         self.__scale: float = scale
         self.__pathway: list[tuple[int, int]] = list(reversed(pathway))
         self.__next_spawn = time()
-        self.__ply_controller: PlayerMovement | None = None
         self.__cooldown: float = TIME_TO_FILL / len(self.__pathway)
 
     def on_update(self) -> None:
         while len(self.__pathway) > 1 and time() >= self.__next_spawn:
             self.__next_spawn = self.__next_spawn + self.__cooldown
-            if not self.__ply_controller:
-                self.__ply_controller = self.owner.parent_node.subnode(
-                    "Player")[PlayerMovement]
             pos = self.__pathway.pop()
             pos = (self.__sprite_size[0] * (pos[0] - 1),
                    self.__sprite_size[1] * (pos[1] - 1))

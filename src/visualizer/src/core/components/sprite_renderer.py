@@ -27,6 +27,7 @@ class SpriteRenderer(BaseComponent):
             return
         if file_path is None:
             self.__unload_sprite()
+            self.__file_path = None
             return
         if not file_path.is_file():
             raise FileNotFoundError(f"Can't found sprite '{file_path}'")

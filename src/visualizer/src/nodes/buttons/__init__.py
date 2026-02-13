@@ -5,3 +5,4 @@ from .back_button import BackButton # noqa: F401
 from .color_button import ColorButton  # noqa: F401
 from .regen_button import RegenButton  # noqa: F401
 from .show_path_button import ShowPathButton  # noqa: F401
+from .start_button import StartButton  # noqa: F401

@@ -11,7 +11,7 @@ class Player(BaseNode):
                  scale: float):
         super().__init__("Player", (0, 0))
         self += (SpriteRenderer,
-                 Path(__file__).resolve().parent.parent / "sprites" / "player.png",
+                 None,
                  scale)
         self += Input
         self += (PlayerMovement, maze, cell_size)

@@ -129,14 +129,16 @@ class BaseNode:
         for c in self._components:
             if isinstance(c, component):
                 return c
-        raise EngineElementNotFound("Component does not exist")
+        if not self.__destroy:
+            raise EngineElementNotFound("Component does not exist")
 
     def component(self, component: Type[TComponent]
                   ) -> TComponent:
         for c in self._components:
             if isinstance(c, component):
                 return c
-        raise EngineElementNotFound("Component does not exist")
+        if not self.__destroy:
+            raise EngineElementNotFound("Component does not exist")
 
     def get_component(self, component: Type[TComponent]
                       ) -> TComponent | None:
