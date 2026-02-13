@@ -1,5 +1,5 @@
 from ..core.scenes import BaseScene
-from ..nodes import BgMenu
+from ..nodes.bg_menu import BgMenu
 from ..nodes.buttons import PlayButton, CloseButton, GithubButton
 
 

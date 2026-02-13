@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Type, TYPE_CHECKING, Any, TypeVar, Iterator, Self, overload
+from typing import Type, TYPE_CHECKING, Any, TypeVar, Iterator, overload
 from ..exceptions import EngineElementNotFound
 
 if TYPE_CHECKING:
@@ -80,10 +80,12 @@ class BaseNode:
 
     # -------------------- subnodes --------------------
 
-    def get_parent_node(self) -> BaseNode | None:
+    @property
+    def parent_node(self) -> BaseNode | None:
         return self._parent_node
 
-    def set_parent_node(self, node: BaseNode | None) -> None:
+    @parent_node.setter
+    def parent_node(self, node: BaseNode | None) -> None:
         self._parent_node = node
 
     def __iter__(self) -> Iterator[BaseNode]:
@@ -93,7 +95,7 @@ class BaseNode:
     def subnodes(self) -> list[BaseNode]:
         return self._subnodes.copy()
 
-    def subnode(self, name: str) -> BaseNode | None:
+    def subnode(self, name: str) -> BaseNode:
         for c in self._subnodes:
             if c.get_name() == name:
                 return c
@@ -107,11 +109,12 @@ class BaseNode:
 
     def add_subnode(self, node: BaseNode) -> None:
         self._subnodes.append(node)
-        node.set_parent_node(self)
+        node.parent_node = self
 
     def remove_subnode(self, node: BaseNode) -> None:
-        self._subnodes.remove(node)
-        node.set_parent_node(None)
+        if node in self._subnodes:
+            self._subnodes.remove(node)
+            node.on_destroy()
 
     # -------------------- components --------------------
 

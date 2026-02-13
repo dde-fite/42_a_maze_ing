@@ -27,7 +27,6 @@ class EngineManager:
         __actual_scene (BaseScene | None): Current scene loaded.
         __scenes (list[type[BaseScene]]): List of scenes available.
         __last_frame_time (float): Time when the last frame was generated.
-        __delta_time (float): Result of delta time calculation.
         __is_exiting (bool)
 
     Raises:
@@ -104,7 +103,7 @@ class EngineManager:
             cls.exit()
 
     @classmethod
-    def get_delta_time(cls) -> float:
+    def delta_time(cls) -> float:
         return (time() - cls.__last_frame_time)
 
     # -------------------- scene management --------------------

@@ -103,9 +103,9 @@ class Window:
         alpha = sprite.alpha
         if alpha is not None:
             a = alpha[sy1:sy2, sx1:sx2]
-            roi[:] = (a * part + (1-a) * roi).astype(np.uint8)
+            roi[:] = (a * part + (1-a) * roi)
         else:
-            roi[:] = part.astype(np.uint8)
+            roi[:] = part
 
     def destroy_window(self) -> None:
         self.__active = False

@@ -1,14 +1,17 @@
 from pathlib import Path
 from ..core.components import SpriteRenderer, Input
 from ..core.nodes import BaseNode
-from ..components import PlayerMovement
+from ..components.player_movement import PlayerMovement
+from ....generator.src import Maze
 
 
 class Player(BaseNode):
-    def __init__(self, name: str = "Player",
-                 pos: tuple[int, int] = (960, 540)):
-        super().__init__(name, pos)
+    def __init__(self, maze: Maze,
+                 cell_size: tuple[int, int],
+                 scale: float):
+        super().__init__("Player", (0, 0))
         self += (SpriteRenderer,
-                 Path(__file__).resolve().parent.parent / "sprites" / "player.png")
+                 Path(__file__).resolve().parent.parent / "sprites" / "player.png",
+                 scale)
         self += Input
-        self += PlayerMovement
+        self += (PlayerMovement, maze, cell_size)

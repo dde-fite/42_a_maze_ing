@@ -255,6 +255,33 @@ class Maze:
             return False
         return True
 
+    def check_if_can_go(self, coords: Coords, direction: str) -> bool:
+        """
+        Checks if there is a wall in the given direction from the
+        given coords.
+
+        Parameters
+        ----------
+        coords: Coords
+            Origin position.
+
+        direction: str
+            The direction to check.
+
+        Returns
+        -------
+        True
+            If there is no wall in the given direction.
+        False
+            If there is a wall in the given direction.
+        """
+        cell: Cell = self.get_cell(coords)
+        if not cell:
+            return False
+        if cell["state"] & Maze.WALLS[direction]:
+            return False
+        return True
+
     def move_player(self, direction: str) -> bool:
         """
         It will try to move the player to the given direction by using

@@ -1,3 +1,4 @@
+from __future__ import annotations
 from abc import ABC, abstractmethod
 from ..nodes import BaseNode
 from ..exceptions import EngineElementNotFound
@@ -11,6 +12,19 @@ class BaseScene(ABC):
             self.__nodes = nodes
         else:
             self.__nodes = []
+
+    def __contains__(self, name: str):
+        for n in self.__nodes:
+            if n.get_name() == name:
+                return True
+        return False
+
+    def __getitem__(self, name: str
+                    ) -> BaseNode:
+        for n in self.__nodes:
+            if n.get_name() == name:
+                return n
+        raise EngineElementNotFound("Component does not exist")
 
     def get_nodes(self) -> list[BaseNode]:
         return self.__nodes
