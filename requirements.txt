@@ -1,3 +1,4 @@
 ./lib/mlx-2.2-py3-none-any.whl
 numpy==2.4.2
 opencv-python==4.13.0.92
+build==1.4.0
