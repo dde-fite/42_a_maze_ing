@@ -14,13 +14,16 @@ class CellComponent(BaseComponent):
         if self.__cell["fixed"]:
             self.__is_fixed = True
             self.__sprite_renderer.set_file_path(self.__walls_folder.joinpath("fixed.png"))
+            return
         self.__state = self.__cell["state"]
+        self.__alt: str | None = None
 
     def on_update(self) -> None:
         if self.__is_fixed:
             return
         state = self.__cell["state"]
-        if self.__state != state:
+        alt = self.owner.parent_node.alt
+        if self.__state != state and self.__alt != alt:
             return
         if state == 0b0000:
             self.__sprite_renderer.set_file_path(None)
@@ -36,6 +39,8 @@ class CellComponent(BaseComponent):
             name = "-".join([name, "left"])
         name = name.removeprefix("-")
         name += ".png"
+        if alt:
+            name = f"{alt}_" + name
         self.__sprite_renderer.set_file_path(self.__walls_folder.joinpath(name))
 
     def on_destroy(self) -> None:

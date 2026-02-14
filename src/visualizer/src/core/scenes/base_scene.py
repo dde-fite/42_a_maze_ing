@@ -27,7 +27,7 @@ class BaseScene(ABC):
         raise EngineElementNotFound("Component does not exist")
 
     def get_nodes(self) -> list[BaseNode]:
-        return self.__nodes
+        return self.__nodes.copy()
 
     def node(self, name: str) -> BaseNode:
         for n in self.__nodes:

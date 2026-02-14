@@ -1,4 +1,3 @@
-from pathlib import Path
 from ..core.components import SpriteRenderer, Input
 from ..core.nodes import BaseNode
 from ..components.player_movement import PlayerMovement

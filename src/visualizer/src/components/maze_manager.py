@@ -18,16 +18,19 @@ class MazeManager(BaseComponent):
         from ..nodes import CellNode
         try:
             self.__maze = MazeGenerator.generate(sys.argv[1])
+            self.__maze.print_output()
         except MazeError:
             return
-        self.__maze.print_output()
-        closed_wall = Path(__file__).parent.parent / "sprites" / "walls" / "up-right-down-left.png"
-        sprite: Sprite = SpriteManager.load_sprite(closed_wall, self)
+        self.__alt_textures: list[str | None] = [None, "b", "c"]
+        self.__alt_iter = iter(self.__alt_textures)
+        self.owner.alt = next(self.__alt_iter)
+        def_wall = Path(__file__).parent.parent / "sprites" / "walls" / "up-right-down-left.png"
+        sprite: Sprite = SpriteManager.load_sprite(def_wall, self)
         cells = (self.__maze.get_width(), self.__maze.get_height())
-        self.__sprite_size, self.__scale = self.calculate_size(sprite.size, cells)
-        SpriteManager.unload_sprite(closed_wall, self)
-        self.center_root(self.__sprite_size, cells)
-        self.spawn_entry_exit()
+        self.__sprite_size, self.__scale = self.__calculate_size(sprite.size, cells)
+        SpriteManager.unload_sprite(def_wall, self)
+        self.__center_root(self.__sprite_size, cells)
+        self.__spawn_entry_exit()
         for pos, cell in self.__maze.get_cells().items():
             self.owner.add_subnode(CellNode(
                 f"Cell {pos}",
@@ -35,7 +38,7 @@ class MazeManager(BaseComponent):
                  (pos[1] - 1) * self.__sprite_size[1]),
                 cell,
                 self.__scale))
-        self.__maze_generated: bool = True
+        self.__maze_generated = True
 
     def on_update(self) -> None:
         pass
@@ -51,12 +54,38 @@ class MazeManager(BaseComponent):
         button = EngineManager.get_actual_scene()["StartButton"]
         if isinstance(button, StartButton):
             button.reset()
-        for children in self.owner.subnodes:
+        for children in list(self.owner.subnodes):
             self.owner.remove_subnode(children)
             children.on_destroy()
         self.on_init()
 
-    def center_root(self, sprite_size: tuple[int, int],
+    def change_textures(self) -> None:
+        try:
+            self.owner.alt = next(self.__alt_iter)
+        except StopIteration:
+            self.__alt_iter = iter(self.__alt_textures)
+            self.owner.alt = next(self.__alt_iter)
+
+    def spawn_player(self) -> None:
+        from ..nodes.player import Player
+        if not self.__maze_generated or self.owner.get_subnode("Player"):
+            return
+        self.owner.add_subnode(Player(self.__maze, self.__sprite_size, self.__scale))
+
+    def spawn_footprints(self) -> None:
+        from ..nodes.footprint_root import FootprintRoot
+        if not self.__maze_generated or \
+                self.owner.get_subnode("FootprintRoot"):
+            return
+        self.owner.add_subnode(FootprintRoot(self.__sprite_size, self.__scale,
+                                             self.__maze.get_pathway()))
+
+    def destroy_footprints(self) -> None:
+        footprints = self.owner.get_subnode("FootprintRoot")
+        if footprints:
+            self.owner.remove_subnode(footprints)
+
+    def __center_root(self, sprite_size: tuple[int, int],
                     cells: tuple[int, int]) -> None:
         window_x, window_y = self.owner.get_window().get_size()
         x1 = cells[0] * sprite_size[0]
@@ -65,7 +94,7 @@ class MazeManager(BaseComponent):
         root_y = (window_y - y1) / 2
         self.owner.set_pos(root_x, root_y)
 
-    def calculate_size(self, sprite_size: tuple[int, int],
+    def __calculate_size(self, sprite_size: tuple[int, int],
                        cells: tuple[int, int]
                        ) -> tuple[tuple[int, int], float]:
         x_expected_size = ((X1_WORKING_POS - X0_WORKING_POS) * sprite_size[0])\
@@ -78,7 +107,7 @@ class MazeManager(BaseComponent):
                            int(sprite_size[1] * scale))
         return (new_sprite_size, scale)
 
-    def spawn_entry_exit(self) -> None:
+    def __spawn_entry_exit(self) -> None:
         from ..nodes.exit_cell import ExitCell
         from ..nodes.start_cell import StartCell
         start_pos = self.__maze.get_entry()
@@ -91,20 +120,3 @@ class MazeManager(BaseComponent):
                                 ((start_pos[0] - 1) * self.__sprite_size[0],
                                  (start_pos[1] - 1) * self.__sprite_size[1]),
                                 self.__scale))
-
-    def spawn_player(self) -> None:
-        from ..nodes.player import Player
-        if not self.owner.get_subnode("Player"):
-            self.owner.add_subnode(Player(self.__maze, self.__sprite_size, self.__scale))
-
-    def spawn_footprints(self) -> None:
-        from ..nodes.footprint_root import FootprintRoot
-        if self.__maze_generated and self.owner.get_subnode("FootprintRoot"):
-            return
-        self.owner.add_subnode(FootprintRoot(self.__sprite_size, self.__scale,
-                                             self.__maze.get_pathway()))
-
-    def destroy_footprints(self) -> None:
-        footprints = self.owner.get_subnode("FootprintRoot")
-        if footprints:
-            self.owner.remove_subnode(footprints)
