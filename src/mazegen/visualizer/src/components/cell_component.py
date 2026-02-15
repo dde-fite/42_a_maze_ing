@@ -5,8 +5,7 @@ from ..core.components import BaseComponent, SpriteRenderer
 
 class CellComponent(BaseComponent):
     def on_init(self) -> None:
-        from ..nodes import CellNode, MazeRoot
-        self.__maze_root: MazeRoot = cast(MazeRoot, self.owner.parent_node)
+        from ..nodes.cell_node import CellNode
         self.__owner_cell = cast(CellNode, self.owner)
         self.__sprite_renderer = self.__owner_cell[SpriteRenderer]
         self.__walls_folder = Path(__file__).parent.parent / "sprites" / \
@@ -25,7 +24,10 @@ class CellComponent(BaseComponent):
         if self.__is_fixed:
             return
         state = self.__cell["state"]
-        alt = self.__maze_root.alt
+        from ..nodes.maze_root import MazeRoot
+        maze_root: MazeRoot = cast(MazeRoot, self.owner.parent_node)
+        if maze_root:
+            alt = maze_root.alt
         if self.__state != state and self.__alt != alt:
             return
         if state == 0b0000:
