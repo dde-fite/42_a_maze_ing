@@ -95,8 +95,7 @@ class EngineManager:
                 w.on_pre_update()
             InputManager.on_update()
             if cls.__actual_scene:
-                for n in cls.__actual_scene.get_nodes():
-                    n.on_update()
+                cls.__actual_scene.on_update()
             for w in cls.__windows:
                 w.on_update()
         except KeyboardInterrupt:

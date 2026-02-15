@@ -13,6 +13,10 @@ class BaseScene(ABC):
         else:
             self.__nodes = []
 
+    def on_update(self) -> None:
+        for n in self.__nodes:
+            n.on_update()
+
     def __contains__(self, name: str):
         for n in self.__nodes:
             if n.get_name() == name:
