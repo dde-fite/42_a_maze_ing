@@ -12,3 +12,6 @@ authors = [{ name="Juan Pablo Vizcaino Delgado", email="jvizcain@student.42madri
 license = { text = "MIT" }
 requires-python = ">=3.10"
 dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["src"]
