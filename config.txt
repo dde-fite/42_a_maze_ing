@@ -3,16 +3,16 @@
 # The 5 first keys (WIDTH, HEIGHT, ENTRY, EXIT, OUTPUT_FILE) are mandatory
 
 # Width of the maze: int
-WIDTH=100
+WIDTH=11
 
 # Height of the maze: int
-HEIGHT=100
+HEIGHT=11
 
 # Entry point coordinates of the maze: (int, int)
 ENTRY=1,1
 
 # Exit point coordinates of the maze: (int, int)
-EXIT=20,20
+EXIT=11,11
 
 # Perfect maze (only one way from start to the end): bool
 PERFECT=True
