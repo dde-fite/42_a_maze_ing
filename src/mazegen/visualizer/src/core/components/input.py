@@ -16,6 +16,15 @@ class Input(BaseComponent):
 
     def on_destroy(self) -> None:
         self.__unload_listeners()
+        self.__press_listeners.clear()
+        self.__hold_listeners.clear()
+        self.__release_listeners.clear()
+
+    def on_activate(self) -> None:
+        self.__load_listeners()
+
+    def on_deactivate(self) -> None:
+        self.__unload_listeners()
 
     def on_press(self, key: keysymdef, callback: Callable[[], Any]) -> None:
         InputManager.add_listener_on_press(key, callback)
@@ -46,8 +55,16 @@ class Input(BaseComponent):
 
     def __unload_listeners(self):
         for listener in self.__hold_listeners:
-            self.remove_listener_on_hold(*listener)
+            InputManager.remove_listener_on_hold(*listener)
         for listener in self.__press_listeners:
-            self.remove_listener_on_press(*listener)
+            InputManager.remove_listener_on_press(*listener)
         for listener in self.__release_listeners:
-            self.remove_listener_on_release(*listener)
+            InputManager.remove_listener_on_release(*listener)
+
+    def __load_listeners(self):
+        for listener in self.__hold_listeners:
+            InputManager.add_listener_on_hold(*listener)
+        for listener in self.__press_listeners:
+            InputManager.add_listener_on_press(*listener)
+        for listener in self.__release_listeners:
+            InputManager.add_listener_on_release(*listener)

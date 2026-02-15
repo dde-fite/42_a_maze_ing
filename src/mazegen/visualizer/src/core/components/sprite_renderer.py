@@ -12,7 +12,7 @@ class SpriteRenderer(BaseComponent):
         self.set_file_path(file_path)
 
     def on_update(self) -> None:
-        if self.__sprite and self.owner:
+        if self._active and self.__sprite and self.owner:
             self.owner.get_window().draw_sprite(
                 self.__sprite, self.owner.get_pos())
 

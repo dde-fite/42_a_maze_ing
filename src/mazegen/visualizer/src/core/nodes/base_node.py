@@ -33,19 +33,19 @@ class BaseNode:
     def on_update(self) -> None:
         if not self._active:
             return
-        if not self.__destroy:
-            for c in self._components:
-                c.on_update()
-            for snode in self._subnodes:
-                snode.on_update()
+        for c in self._components:
+            c.on_update()
+        for snode in self._subnodes:
+            snode.on_update()
 
     def on_destroy(self) -> None:
         self.__destroy = True
+        self._active = False
         for c in self._components:
             c.on_destroy()
         self._components.clear()
         if self._parent_node:
-            self._parent_node.remove_subnode(self._name)
+            self._parent_node.remove_subnode(self)
 
     # -------------------- properties --------------------
 
@@ -73,7 +73,15 @@ class BaseNode:
 
     @active.setter
     def active(self, active: bool) -> None:
-        self.active = active
+        if self.__destroy:
+            return
+        self._active = active
+        if active:
+            for c in self._components:
+                c.on_activate()
+        else:
+            for c in self._components:
+                c.on_deactivate()
 
     def get_window(self) -> Window:
         return self._window
