@@ -7,4 +7,4 @@ class MazeVisualizer:
     def show_visualizer() -> None:
         EngineManager.init("a_maze_ing",
                            (1920, 1080),
-                           [Maze])
+                           [MainMenu, Maze])

@@ -49,8 +49,6 @@ class PathFinder:
         dfs_generation : Maze generation using depth-first search.
         """
         # Initializing variables
-        width = maze.get_width()
-        height = maze.get_height()
         entry = maze.get_entry()
         exit = maze.get_exit()
         cells = maze.get_cells()
@@ -93,5 +91,5 @@ class PathFinder:
                 passed_cells.clear()
                 point = entry
                 passed_cells.append(entry)
-                adjacents = maze.get_adjacent_cells(point, width, height)
+                adjacents = maze.get_adjacent_cells(point)
         return pathways

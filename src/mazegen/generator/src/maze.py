@@ -21,7 +21,7 @@ class Maze:
     MIN_FT_WIDTH = 9
     MIN_FT_HEIGHT = 7
 
-    WALL_OPENING_CHANCE = 1 / 100
+    WALL_OPENING_CHANCE = 1 / 5
     PATH_ATTEMPTS = 10
 
     DEFAULT_OUTPUT_FILE = "maze.txt"
@@ -76,6 +76,7 @@ class Maze:
         # Extras init
         self._player = Player(self._cells[entry])
         self._possible_pathways: list[Pathway] = []
+        self._pathfinder = path_finder
 
         # Generating cells with the algorithm in the Generator class
         # if seed_num:
@@ -366,9 +367,13 @@ class Maze:
         width = self._width
         height = self._height
         op = OPPOSITE_DIRECTIONS
+        broke_last = False
 
         for y in range(1, height + 1):
             for x in range(1, width + 1):
+                if broke_last:
+                    broke_last = False
+                    continue
                 if cells[(x, y)]["fixed"]:
                     continue
                 dir = choice(POSSIBLE_DIRECTIONS)
@@ -385,6 +390,8 @@ class Maze:
                         # Changing adjacent cell state
                         cells[adjacents[dir]]["state"] -= (
                             Maze.WALLS[op[dir]])
+
+                        broke_last = True
         return cells
 
     # PATHFINDER --------------------------------------------------------------
@@ -438,27 +445,24 @@ class Maze:
                     f.write(direction)
                 f.write("\n")
 
-                # Optional ------------------------------------------
-                # f.write("Player's position: "
-                #         f"{self.get_player_coordinates()}\n")
-                f.write("Original Pathway----------------------\n")
-                for coord in self._pathway:
-                    f.write(f"{coord} | ")
-                f.write("\n")
-                f.write("Pathways found------------------------\n")
-                i = 0
-                for path in self._possible_pathways:
-                    f.write(f"=== {i} ===\n")
-                    for coord in path:
+                if not self._perfect and self._pathfinder:
+                    f.write("Original Pathway----------------------\n")
+                    for coord in self._pathway:
                         f.write(f"{coord} | ")
                     f.write("\n")
-                    i += 1
-                f.write("Shortest path-------------------------\n")
-                shortest_path = self.get_shortest_path()
-                if shortest_path:
-                    for coord in shortest_path:
-                        f.write(f"{coord} | ")
-                # print("")
+                    f.write("Pathways found------------------------\n")
+                    i = 0
+                    for path in self._possible_pathways:
+                        f.write(f"=== {i} ===\n")
+                        for coord in path:
+                            f.write(f"{coord} | ")
+                        f.write("\n")
+                        i += 1
+                    f.write("Shortest path-------------------------\n")
+                    shortest_path = self.get_shortest_path()
+                    if shortest_path:
+                        for coord in shortest_path:
+                            f.write(f"{coord} | ")
         except FileNotFoundError:
             # This error should never happen, since open with 'w' doesn't raise
             # FileNotFoundError, it creates it in case it doesn't exist.
