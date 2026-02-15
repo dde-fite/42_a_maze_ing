@@ -17,13 +17,13 @@ def main() -> None:
     check_environment()
 
     if len(sys.argv) < 2:
-        raise Exception("Not enough arguments were given! "
-                        "Config file is required.")
+        print("Not enough arguments were given! "
+              "Config file is required.")
+        return
     elif len(sys.argv) > 2:
-        raise Exception("Too many arguments were given! "
-                        "Only config file is required.")
-    # config_file = sys.argv[1]
-    # maze = MazeGenerator.generate(config_file)
+        print("Too many arguments were given! "
+              "Only config file is required.")
+        return
     MazeVisualizer.show_visualizer()
 
 
