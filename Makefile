@@ -88,7 +88,7 @@ lint-strict:
 clean:
 	@echo "🧹 $(COLOR_GRAY)Deleting temporary files... $(COLOR_RESET)🧹"
 	@rm -rf $(GARBAGE)
-	@echo -e "✨ $(COLOR_LIGHT_GREEN)Deleted $(CACHE_FOLDERS) folders successfully!$(COLOR_RESET)✨"
+	@echo "✨ $(COLOR_LIGHT_GREEN)Deleted $(CACHE_FOLDERS) folders successfully!$(COLOR_RESET)✨"
 
 fclean: clean
 	@echo "🧹 $(COLOR_GRAY)Deleting documentation PDFs... $(COLOR_RESET)🧹"
