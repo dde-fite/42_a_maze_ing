@@ -1,9 +1,10 @@
 from ..core.components import BaseComponent
-from ....generator.src import MazeError
+from ....generator.src import MazeError, ConfigError
 from ....generator import MazeGenerator
 from ..core.sprite import SpriteManager, Sprite
-from ..core.engine_manager import EngineManager
+from ..core import EngineManager, EventManager
 from ..nodes.error_message import ErrorMessage
+from ..nodes.win_message import WinMessage
 from pathlib import Path
 import sys
 
@@ -19,12 +20,20 @@ class MazeManager(BaseComponent):
         self.__alt_textures: list[str | None] = [None, "b", "c"]
         self.__alt_iter = iter(self.__alt_textures)
         self.owner.alt = next(self.__alt_iter)
+        EventManager.add_listener("win", self.win_event)
         from ..nodes import CellNode
         try:
             self.__maze = MazeGenerator.generate(sys.argv[1])
             self.__maze.print_output()
-        except MazeError:
-            EngineManager.get_actual_scene().add_node(ErrorMessage())
+        except MazeError as e:
+            self.owner.set_pos(0, 0)
+            self.owner.add_subnode(ErrorMessage())
+            print(f"ERROR: {e}")
+            return
+        except ConfigError as e:
+            self.owner.set_pos(0, 0)
+            self.owner.add_subnode(ErrorMessage())
+            print(f"ERROR: {e}")
             return
         def_wall = Path(__file__).parent.parent / "sprites" / "walls" / "up-right-down-left.png"
         sprite: Sprite = SpriteManager.load_sprite(def_wall, self)
@@ -70,9 +79,15 @@ class MazeManager(BaseComponent):
             self.__alt_iter = iter(self.__alt_textures)
             self.owner.alt = next(self.__alt_iter)
 
+    def win_event(self) -> None:
+        self.owner.add_subnode(WinMessage())
+        player = self.owner.get_subnode("Player")
+        if player:
+            self.owner.remove_subnode(player)
+
     def spawn_player(self) -> None:
         from ..nodes.player import Player
-        if not self.__maze_generated or self.owner.get_subnode("Player"):
+        if not self.__maze_generated or self.owner.get_subnode("win_event"):
             return
         self.owner.add_subnode(Player(self.__maze, self.__sprite_size, self.__scale))
 
@@ -90,7 +105,7 @@ class MazeManager(BaseComponent):
             self.owner.remove_subnode(footprints)
 
     def __center_root(self, sprite_size: tuple[int, int],
-                    cells: tuple[int, int]) -> None:
+                      cells: tuple[int, int]) -> None:
         window_x, window_y = self.owner.get_window().get_size()
         x1 = cells[0] * sprite_size[0]
         y1 = cells[1] * sprite_size[1]

@@ -1,6 +1,6 @@
 from pathlib import Path
 from ..core.components import BaseComponent, Input, SpriteRenderer
-from ..core import EngineManager
+from ..core import EngineManager, EventManager
 from ..core.x11 import keysymdef
 from ....generator.src import Maze, Coords, NORTH, WEST, EAST, SOUTH
 # from time import time
@@ -13,6 +13,7 @@ class PlayerMovement(BaseComponent):
         self.__maze: Maze = maze
         self.__cell_size: tuple[int, int] = cell_size
         self.__cell: Coords = maze.get_entry()
+        self.__exit_cell: Coords = maze.get_exit()
         self.__sprites: dict[str, Path] = {
             "neutral": Path(__file__).resolve().parent.parent / "sprites" / "player" / "neutral.png",
             "up": Path(__file__).resolve().parent.parent / "sprites" / "player" / "up.png",
@@ -48,6 +49,8 @@ class PlayerMovement(BaseComponent):
         if self.__maze.check_if_can_go(self.__cell, NORTH):
             self.owner[SpriteRenderer].set_file_path(self.__sprites["up"])
             self.__cell = (self.__cell[0], self.__cell[1] - 1)
+            if self.__cell == self.__exit_cell:
+                EventManager.trigger_event("win")
         else:
             self.owner[SpriteRenderer].set_file_path(self.__sprites["neutral"])
 
@@ -55,6 +58,8 @@ class PlayerMovement(BaseComponent):
         if self.__maze.check_if_can_go(self.__cell, SOUTH):
             self.owner[SpriteRenderer].set_file_path(self.__sprites["down"])
             self.__cell = (self.__cell[0], self.__cell[1] + 1)
+            if self.__cell == self.__exit_cell:
+                EventManager.trigger_event("win")
         else:
             self.owner[SpriteRenderer].set_file_path(self.__sprites["neutral"])
 
@@ -62,6 +67,8 @@ class PlayerMovement(BaseComponent):
         if self.__maze.check_if_can_go(self.__cell, WEST):
             self.owner[SpriteRenderer].set_file_path(self.__sprites["left"])
             self.__cell = (self.__cell[0] - 1, self.__cell[1])
+            if self.__cell == self.__exit_cell:
+                EventManager.trigger_event("win")
         else:
             self.owner[SpriteRenderer].set_file_path(self.__sprites["neutral"])
 
@@ -69,5 +76,7 @@ class PlayerMovement(BaseComponent):
         if self.__maze.check_if_can_go(self.__cell, EAST):
             self.owner[SpriteRenderer].set_file_path(self.__sprites["right"])
             self.__cell = (self.__cell[0] + 1, self.__cell[1])
+            if self.__cell == self.__exit_cell:
+                EventManager.trigger_event("win")
         else:
             self.owner[SpriteRenderer].set_file_path(self.__sprites["neutral"])

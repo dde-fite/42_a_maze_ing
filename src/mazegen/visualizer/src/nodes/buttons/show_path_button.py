@@ -1,7 +1,6 @@
 from pathlib import Path
 from ...core.nodes import SpriteButton
 from ...core import EngineManager
-from ...components import MazeManager
 from ...core.components.sprite_renderer import SpriteRenderer
 
 
@@ -16,6 +15,7 @@ class ShowPathButton(SpriteButton):
         self[SpriteRenderer].set_file_path(Path(__file__).parent.parent.parent / "sprites" / "buttons" / "show_button.png")
 
     def action(self):
+        from ...components import MazeManager
         if not self.__active:
             self.__active = True
             self[SpriteRenderer].set_file_path(Path(__file__).parent.parent.parent / "sprites" / "buttons" / "hide_button.png")

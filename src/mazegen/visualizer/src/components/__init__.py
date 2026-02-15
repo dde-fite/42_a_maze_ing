@@ -1,4 +1,7 @@
-from .player_movement import PlayerMovement  # noqa: F401
-from .maze_manager import MazeManager  # noqa: F401
-from .cell_component import CellComponent  # noqa: F401
-from .footprints_spawner import FootprintsSpawner  # noqa: F401
+# flake8: noqa: F401
+
+from .player_movement import PlayerMovement
+from .maze_manager import MazeManager
+from .cell_component import CellComponent
+from .footprints_spawner import FootprintsSpawner
+from .win_mess_controller import WinMessController
