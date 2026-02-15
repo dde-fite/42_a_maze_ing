@@ -3,6 +3,7 @@ from ....generator.src import MazeError
 from ....generator import MazeGenerator
 from ..core.sprite import SpriteManager, Sprite
 from ..core.engine_manager import EngineManager
+from ..nodes.error_message import ErrorMessage
 from pathlib import Path
 import sys
 
@@ -15,15 +16,16 @@ Y1_WORKING_POS = 972
 class MazeManager(BaseComponent):
     def on_init(self) -> None:
         self.__maze_generated: bool = False
+        self.__alt_textures: list[str | None] = [None, "b", "c"]
+        self.__alt_iter = iter(self.__alt_textures)
+        self.owner.alt = next(self.__alt_iter)
         from ..nodes import CellNode
         try:
             self.__maze = MazeGenerator.generate(sys.argv[1])
             self.__maze.print_output()
         except MazeError:
+            EngineManager.get_actual_scene().add_node(ErrorMessage())
             return
-        self.__alt_textures: list[str | None] = [None, "b", "c"]
-        self.__alt_iter = iter(self.__alt_textures)
-        self.owner.alt = next(self.__alt_iter)
         def_wall = Path(__file__).parent.parent / "sprites" / "walls" / "up-right-down-left.png"
         sprite: Sprite = SpriteManager.load_sprite(def_wall, self)
         cells = (self.__maze.get_width(), self.__maze.get_height())
@@ -60,6 +62,8 @@ class MazeManager(BaseComponent):
         self.on_init()
 
     def change_textures(self) -> None:
+        if not self.__alt_iter:
+            return
         try:
             self.owner.alt = next(self.__alt_iter)
         except StopIteration:
@@ -95,8 +99,8 @@ class MazeManager(BaseComponent):
         self.owner.set_pos(root_x, root_y)
 
     def __calculate_size(self, sprite_size: tuple[int, int],
-                       cells: tuple[int, int]
-                       ) -> tuple[tuple[int, int], float]:
+                         cells: tuple[int, int]
+                         ) -> tuple[tuple[int, int], float]:
         x_expected_size = ((X1_WORKING_POS - X0_WORKING_POS) * sprite_size[0])\
                 / (cells[0] * sprite_size[0])
         y_expected_size = ((Y1_WORKING_POS - Y0_WORKING_POS) * sprite_size[1])\

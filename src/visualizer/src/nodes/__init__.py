@@ -1,5 +1,8 @@
-from .bg_maze import BgMaze  # noqa: F401
-from .bg_menu import BgMenu  # noqa: F401
-from .player import Player  # noqa: F401
-from .maze_root import MazeRoot  # noqa: F401
-from .cell_node import CellNode  # noqa: F401
+# flake8: noqa: F401
+
+from .bg_maze import BgMaze
+from .bg_menu import BgMenu
+from .player import Player
+from .maze_root import MazeRoot
+from .cell_node import CellNode
+from .error_message import ErrorMessage
