@@ -25,6 +25,11 @@ class MazeManager(BaseComponent):
         try:
             self.__maze = MazeGenerator.generate(sys.argv[1])
             self.__maze.print_output()
+        except FileNotFoundError as e:
+            self.owner.set_pos(0, 0)
+            self.owner.add_subnode(ErrorMessage())
+            print(f"ERROR: {e}")
+            return
         except MazeError as e:
             self.owner.set_pos(0, 0)
             self.owner.add_subnode(ErrorMessage())

@@ -231,34 +231,30 @@ class ConfigValidator:
                 break
             available_keys[key.value] = (
                 cls.AvailableKeys.DEFAULT_VALUES.value[key.value])
-        try:
-            with open(config_file, "r") as f:
-                config_file_line = f.readline()
-                while (config_file_line):
-                    # print("Read line:", config_file_line)
-                    if config_file_line.strip(' ').startswith("#"):
-                        # Comment line case
-                        config_file_line = f.readline()
-                        continue
-                    if config_file_line.strip(' ') == "\n":
-                        # Empty line case
-                        config_file_line = f.readline()
-                        continue
-                    if '=' not in config_file_line:
-                        # Not key=value line case
-                        raise ConfigError("Lines must follow 'key=value' "
-                                          "structure!")
-                    split = config_file_line.split("=")
-                    if len(split) != 2 or split[1] == '\n':
-                        # Not just key=value line or key='\n' line
-                        raise ConfigError("Lines must follow 'key=value' "
-                                          "structure!")
-                    result = cls.__parse_config(split[0], split[1])
-                    available_keys[result[0]] = result[1]
+        with open(config_file, "r") as f:
+            config_file_line = f.readline()
+            while (config_file_line):
+                # print("Read line:", config_file_line)
+                if config_file_line.strip(' ').startswith("#"):
+                    # Comment line case
                     config_file_line = f.readline()
-        except FileNotFoundError:
-            print(f"File '{config_file}' could not be found!")
-            sys.exit(1)
+                    continue
+                if config_file_line.strip(' ') == "\n":
+                    # Empty line case
+                    config_file_line = f.readline()
+                    continue
+                if '=' not in config_file_line:
+                    # Not key=value line case
+                    raise ConfigError("Lines must follow 'key=value' "
+                                      "structure!")
+                split = config_file_line.split("=")
+                if len(split) != 2 or split[1] == '\n':
+                    # Not just key=value line or key='\n' line
+                    raise ConfigError("Lines must follow 'key=value' "
+                                      "structure!")
+                result = cls.__parse_config(split[0], split[1])
+                available_keys[result[0]] = result[1]
+                config_file_line = f.readline()
         return available_keys
 
 

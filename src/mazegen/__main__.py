@@ -18,11 +18,15 @@ def main() -> None:
 
     if len(sys.argv) < 2:
         print("Not enough arguments were given! "
-              "Config file is required.")
+              "Config file is required."
+              "\nUsage: a_maze_ing <config file>: python3 a_maze_ing.py "
+              "config.txt")
         return
     elif len(sys.argv) > 2:
         print("Too many arguments were given! "
-              "Only config file is required.")
+              "Only config file is required."
+              "\nUsage: a_maze_ing <config file>: python3 a_maze_ing.py "
+              "config.txt")
         return
     MazeVisualizer.show_visualizer()
 
