@@ -6,7 +6,7 @@ from ...x11 import keysymdef
 
 class Button(BaseComponent):
 
-    def on_init(self, callback: Callable[[], Any] | None):
+    def on_init(self, callback: Callable[[], Any] | None) -> None:
         self.__callback: Callable[[], Any] | None = callback
         self.owner[Input].on_release(
             keysymdef.XK_Pointer_Button1, self.on_click)
@@ -28,5 +28,5 @@ class Button(BaseComponent):
                         pos[1] < mouse[1] < pos[1] + size[1]):
                     self.__callback()
 
-    def set_callback(self, callback: Callable[[], Any] | None):
+    def set_callback(self, callback: Callable[[], Any] | None) -> None:
         self.__callback = callback

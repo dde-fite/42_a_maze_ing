@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Type, TYPE_CHECKING, Any, TypeVar, Iterator, overload
+from typing import Type, TYPE_CHECKING, Any, TypeVar, Iterator, Self, cast
 from ..exceptions import EngineElementNotFound
 
 if TYPE_CHECKING:
@@ -126,7 +126,7 @@ class BaseNode:
 
     # -------------------- components --------------------
 
-    def __contains__(self, component: Type[TComponent]):
+    def __contains__(self, component: Type[TComponent]) -> bool:
         for c in self._components:
             if isinstance(c, component):
                 return True
@@ -134,19 +134,21 @@ class BaseNode:
 
     def __getitem__(self, component: Type[TComponent]
                     ) -> TComponent:
+        if self.__destroy:
+            return cast(TComponent, None)
         for c in self._components:
             if isinstance(c, component):
                 return c
-        if not self.__destroy:
-            raise EngineElementNotFound("Component does not exist")
+        raise EngineElementNotFound("Component does not exist")
 
     def component(self, component: Type[TComponent]
                   ) -> TComponent:
+        if self.__destroy:
+            return cast(TComponent, None)
         for c in self._components:
             if isinstance(c, component):
                 return c
-        if not self.__destroy:
-            raise EngineElementNotFound("Component does not exist")
+        raise EngineElementNotFound("Component does not exist")
 
     def get_component(self, component: Type[TComponent]
                       ) -> TComponent | None:
@@ -155,18 +157,11 @@ class BaseNode:
                 return c
         return None
 
-    @overload
-    def __add__(self, component: Type[TComponent]) -> TComponent: ...
-
-    @overload
-    def __add__(
-        self, component: tuple[Type[TComponent], *tuple[Any, ...]]
-    ) -> TComponent: ...
-
     def __add__(
         self,
         component: Type[TComponent] | tuple[Type[TComponent], *tuple[Any, ...]]
     ) -> TComponent:
+        args: tuple[Any, ...]
         if isinstance(component, type):
             component_cls = component
             args = ()
@@ -182,7 +177,7 @@ class BaseNode:
     def __iadd__(
         self,
         component: Type[TComponent] | tuple[Type[TComponent], *tuple[Any, ...]]
-    ) -> BaseNode:
+    ) -> Self:
         self.__add__(component)
         return self
 

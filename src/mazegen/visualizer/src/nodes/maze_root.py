@@ -10,9 +10,9 @@ class MazeRoot(BaseNode):
         self += MazeManager
 
     @property
-    def alt(self):
+    def alt(self) -> str | None:
         return self.__alt
 
     @alt.setter
-    def alt(self, alt: str | None):
+    def alt(self, alt: str | None) -> None:
         self.__alt = alt

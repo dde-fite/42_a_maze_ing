@@ -1,7 +1,6 @@
 #!/bin/env python3
 
 from enum import Enum
-import sys
 from .maze import Maze
 from .exceptions import ConfigError
 from .gen_types import Config_Value

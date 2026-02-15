@@ -9,5 +9,6 @@ class WinMessage(BaseNode):
                  pos: tuple[int, int] = (10, 10)):
         super().__init__(name, pos)
         self += (SpriteRenderer,
-                 Path(__file__).resolve().parent.parent / "sprites" / "win.png")
+                 Path(__file__).resolve().parent.
+                 parent / "sprites" / "win.png")
         self += WinMessController

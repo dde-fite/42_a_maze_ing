@@ -8,4 +8,5 @@ class ErrorMessage(BaseNode):
                  pos: tuple[int, int] = (593, 486)):
         super().__init__(name, pos)
         self += (SpriteRenderer,
-                 Path(__file__).resolve().parent.parent / "sprites" / "error.png")
+                 Path(__file__).resolve().parent.
+                 parent / "sprites" / "error.png")

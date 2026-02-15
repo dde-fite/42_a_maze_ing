@@ -5,7 +5,7 @@ from ..sprite import SpriteManager, Sprite
 
 class SpriteRenderer(BaseComponent):
     def on_init(self, file_path: Path | None = None,
-                scale: float = 1.0):
+                scale: float = 1.0) -> None:
         self.__file_path: Path | None = None
         self.__sprite: Sprite | None = None
         self.__scale: float = scale

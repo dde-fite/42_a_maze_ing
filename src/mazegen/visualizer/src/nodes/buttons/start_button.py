@@ -7,14 +7,18 @@ from ...core.components.sprite_renderer import SpriteRenderer
 class StartButton(SpriteButton):
     def __init__(self, name: str = "StartButton",
                  pos: tuple[int, int] = (1339, 72)):
-        super().__init__(name, pos, Path(__file__).parent.parent.parent / "sprites" / "buttons" / "start_button.png", self.action)
+        super().__init__(name, pos, Path(__file__).parent.parent.
+                         parent / "sprites" / "buttons" / "start_button.png",
+                         self.action)
         self.__active: bool = True
 
-    def reset(self):
+    def reset(self) -> None:
         self.__active = True
-        self[SpriteRenderer].set_file_path(Path(__file__).parent.parent.parent / "sprites" / "buttons" / "start_button.png")
+        self[SpriteRenderer].set_file_path(
+            Path(__file__).parent.parent.
+            parent / "sprites" / "buttons" / "start_button.png")
 
-    def action(self):
+    def action(self) -> None:
         from ...components import MazeManager
         if not self.__active:
             return

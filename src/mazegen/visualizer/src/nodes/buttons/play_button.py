@@ -6,7 +6,9 @@ from ...core import EngineManager
 class PlayButton(SpriteButton):
     def __init__(self, name: str = "PlayButton",
                  pos: tuple[int, int] = (856, 536)):
-        super().__init__(name, pos, Path(__file__).parent.parent.parent / "sprites" / "buttons" / "play_button.png", self.action)
+        super().__init__(name, pos, Path(__file__).parent.parent.
+                         parent / "sprites" / "buttons" / "play_button.png",
+                         self.action)
 
-    def action(self):
+    def action(self) -> None:
         EngineManager.load_scene("Maze")

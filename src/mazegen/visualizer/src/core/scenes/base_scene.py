@@ -17,7 +17,7 @@ class BaseScene(ABC):
         for n in self.__nodes:
             n.on_update()
 
-    def __contains__(self, name: str):
+    def __contains__(self, name: str) -> bool:
         for n in self.__nodes:
             if n.get_name() == name:
                 return True

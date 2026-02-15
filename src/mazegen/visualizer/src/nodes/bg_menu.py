@@ -8,4 +8,5 @@ class BgMenu(BaseNode):
                  pos: tuple[int, int] = (0, 0)):
         super().__init__(name, pos)
         self += (SpriteRenderer,
-                 Path(__file__).resolve().parent.parent / "sprites" / "bg_menu.png")
+                 Path(__file__).resolve().parent.
+                 parent / "sprites" / "bg_menu.png")

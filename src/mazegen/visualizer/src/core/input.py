@@ -1,4 +1,4 @@
-from typing import Any, Callable
+from typing import Any, Callable, cast
 from .x11 import keysymdef
 from .events import EventManager
 
@@ -54,8 +54,10 @@ class InputManager:
 
     @classmethod
     def trigger_button_press(cls, button: int, *args: Any) -> None:
-        cls.trigger_press(button + keysymdef.XK_Pointer_Button1 - 1)
+        cls.trigger_press(cast(keysymdef,
+                               button + keysymdef.XK_Pointer_Button1 - 1))
 
     @classmethod
     def trigger_button_release(cls, button: int, *args: Any) -> None:
-        cls.trigger_release(button + keysymdef.XK_Pointer_Button1 - 1)
+        cls.trigger_release(cast(keysymdef,
+                                 button + keysymdef.XK_Pointer_Button1 - 1))

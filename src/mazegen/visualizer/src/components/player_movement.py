@@ -15,11 +15,20 @@ class PlayerMovement(BaseComponent):
         self.__cell: Coords = maze.get_entry()
         self.__exit_cell: Coords = maze.get_exit()
         self.__sprites: dict[str, Path] = {
-            "neutral": Path(__file__).resolve().parent.parent / "sprites" / "player" / "neutral.png",
-            "up": Path(__file__).resolve().parent.parent / "sprites" / "player" / "up.png",
-            "down": Path(__file__).resolve().parent.parent / "sprites" / "player" / "down.png",
-            "left": Path(__file__).resolve().parent.parent / "sprites" / "player" / "left.png",
-            "right": Path(__file__).resolve().parent.parent / "sprites" / "player" / "right.png"
+            "neutral": Path(__file__).resolve().parent.
+            parent / "sprites" / "player" / "neutral.png",
+
+            "up": Path(__file__).resolve().parent.
+            parent / "sprites" / "player" / "up.png",
+
+            "down": Path(__file__).resolve().parent.
+            parent / "sprites" / "player" / "down.png",
+
+            "left": Path(__file__).resolve().parent.
+            parent / "sprites" / "player" / "left.png",
+
+            "right": Path(__file__).resolve().parent.
+            parent / "sprites" / "player" / "right.png"
         }
         self.owner[SpriteRenderer].set_file_path(self.__sprites["neutral"])
         input_comp: Input = self.owner[Input]

@@ -1,4 +1,4 @@
-from typing import Callable, Any, TYPE_CHECKING
+from typing import Callable, Any
 from .base_component import BaseComponent
 from ..input import InputManager
 from ..x11 import keysymdef
@@ -53,7 +53,7 @@ class Input(BaseComponent):
         InputManager.remove_listener_on_release(key, callback)
         self.__release_listeners.remove((key, callback))
 
-    def __unload_listeners(self):
+    def __unload_listeners(self) -> None:
         for listener in self.__hold_listeners:
             InputManager.remove_listener_on_hold(*listener)
         for listener in self.__press_listeners:
@@ -61,7 +61,7 @@ class Input(BaseComponent):
         for listener in self.__release_listeners:
             InputManager.remove_listener_on_release(*listener)
 
-    def __load_listeners(self):
+    def __load_listeners(self) -> None:
         for listener in self.__hold_listeners:
             InputManager.add_listener_on_hold(*listener)
         for listener in self.__press_listeners:

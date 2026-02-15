@@ -7,24 +7,32 @@ from ...core.components.sprite_renderer import SpriteRenderer
 class ShowPathButton(SpriteButton):
     def __init__(self, name: str = "ShowPathButton",
                  pos: tuple[int, int] = (1577, 94)):
-        super().__init__(name, pos, Path(__file__).parent.parent.parent / "sprites" / "buttons" / "show_button.png", self.action)
+        super().__init__(name, pos, Path(__file__).parent.parent.
+                         parent / "sprites" / "buttons" / "show_button.png",
+                         self.action)
         self.__active: bool = False
 
-    def reset(self):
+    def reset(self) -> None:
         self.__active = False
-        self[SpriteRenderer].set_file_path(Path(__file__).parent.parent.parent / "sprites" / "buttons" / "show_button.png")
+        self[SpriteRenderer].set_file_path(
+            Path(__file__).parent.parent.
+            parent / "sprites" / "buttons" / "show_button.png")
 
-    def action(self):
+    def action(self) -> None:
         from ...components import MazeManager
         if not self.__active:
             self.__active = True
-            self[SpriteRenderer].set_file_path(Path(__file__).parent.parent.parent / "sprites" / "buttons" / "hide_button.png")
+            self[SpriteRenderer].set_file_path(
+                Path(__file__).parent.parent.
+                parent / "sprites" / "buttons" / "hide_button.png")
             manager = EngineManager.get_actual_scene().node(
                 "MazeRoot")[MazeManager]
             manager.spawn_footprints()
         else:
             self.__active = False
-            self[SpriteRenderer].set_file_path(Path(__file__).parent.parent.parent / "sprites" / "buttons" / "show_button.png")
+            self[SpriteRenderer].set_file_path(
+                Path(__file__).parent.parent.
+                parent / "sprites" / "buttons" / "show_button.png")
             manager = EngineManager.get_actual_scene().node(
                 "MazeRoot")[MazeManager]
             manager.destroy_footprints()

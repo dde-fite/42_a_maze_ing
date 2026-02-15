@@ -5,15 +5,18 @@ from ..core.components import BaseComponent, SpriteRenderer
 
 class CellComponent(BaseComponent):
     def on_init(self) -> None:
-        from ..nodes import CellNode
+        from ..nodes import CellNode, MazeRoot
+        self.__maze_root: MazeRoot = cast(MazeRoot, self.owner.parent_node)
         self.__owner_cell = cast(CellNode, self.owner)
         self.__sprite_renderer = self.__owner_cell[SpriteRenderer]
-        self.__walls_folder = Path(__file__).parent.parent / "sprites" / "walls"
+        self.__walls_folder = Path(__file__).parent.parent / "sprites" / \
+            "walls"
         self.__cell = self.__owner_cell.cell
         self.__is_fixed: bool = False
         if self.__cell["fixed"]:
             self.__is_fixed = True
-            self.__sprite_renderer.set_file_path(self.__walls_folder.joinpath("fixed.png"))
+            self.__sprite_renderer.set_file_path(self.__walls_folder.joinpath
+                                                 ("fixed.png"))
             return
         self.__state = self.__cell["state"]
         self.__alt: str | None = None
@@ -22,7 +25,7 @@ class CellComponent(BaseComponent):
         if self.__is_fixed:
             return
         state = self.__cell["state"]
-        alt = self.owner.parent_node.alt
+        alt = self.__maze_root.alt
         if self.__state != state and self.__alt != alt:
             return
         if state == 0b0000:
@@ -41,7 +44,8 @@ class CellComponent(BaseComponent):
         name += ".png"
         if alt:
             name = f"{alt}_" + name
-        self.__sprite_renderer.set_file_path(self.__walls_folder.joinpath(name))
+        self.__sprite_renderer.set_file_path(self.__walls_folder.joinpath
+                                             (name))
 
     def on_destroy(self) -> None:
         pass

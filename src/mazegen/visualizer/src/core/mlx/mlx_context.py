@@ -54,30 +54,3 @@ class MlxContext:
         if not cls.__mlx or not cls.__mlx_ptr:
             raise MlxNotFound("Mlx is not initiated")
         return cls.__mlx_ptr
-
-    @classmethod
-    def xpm_to_image(cls, xpm_data: str) -> tuple[c_void_p, int, int]:
-        """Recovers the deleted mlx_xpm_to_image function from the wrapper.
-
-        UNSTABLE
-
-        Args:
-            mlx_ptr (c_void_p): Pointer to Mlx
-            xpm_data (str): XMP data to load
-
-        Returns:
-            tuple[c_void_p, int, int]: Tuple of the img point, width and height
-        """
-        if not cls.__mlx or not cls.__mlx_ptr:
-            raise MlxNotFound("Mlx is not initiated")
-        width = c_uint()
-        height = c_uint()
-        cls.__mlx.mlx_func.mlx_xpm_file_to_image.argtypes = [
-            c_void_p, c_char_p, c_void_p, c_void_p]
-        cls.__mlx.mlx_func.mlx_xpm_file_to_image.restype = c_void_p
-        img = cls.__mlx.mlx_func.mlx_xpm_file_to_image(
-            cls.__mlx_ptr, xpm_data.encode('utf8'),
-            byref(width), byref(height))
-        if img is not None:
-            cls.__mlx._img_height[str(img)] = height.value
-        return img

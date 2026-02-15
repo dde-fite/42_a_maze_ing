@@ -84,7 +84,7 @@ class Window:
         return (pos[1], pos[2])
 
     def draw_sprite(self, sprite: Sprite,
-                    pos: tuple[int, int]) -> None:
+                    pos: tuple[int | float, int | float]) -> None:
         x, y = int(pos[0]), int(pos[1])
         size = sprite.size
 
