@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Type, TYPE_CHECKING, Any, TypeVar, Iterator, Self, cast
+from typing import Type, TYPE_CHECKING, Any, TypeVar, Iterator, cast
 from ..exceptions import EngineElementNotFound
 
 if TYPE_CHECKING:
@@ -159,7 +159,7 @@ class BaseNode:
 
     def __add__(
         self,
-        component: Type[TComponent] | tuple[Type[TComponent], *tuple[Any, ...]]
+        component: Type[TComponent] | tuple[Type[TComponent], ...]
     ) -> TComponent:
         args: tuple[Any, ...]
         if isinstance(component, type):
@@ -176,8 +176,8 @@ class BaseNode:
 
     def __iadd__(
         self,
-        component: Type[TComponent] | tuple[Type[TComponent], *tuple[Any, ...]]
-    ) -> Self:
+        component: Type[TComponent] | tuple[Type[TComponent], ...]
+    ) -> BaseNode:
         self.__add__(component)
         return self
 
