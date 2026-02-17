@@ -258,32 +258,3 @@ class ConfigValidator:
                 available_keys[result[0]] = result[1]
                 config_file_line = f.readline()
         return available_keys
-
-
-def main():
-    config_file = "config.txt"
-    config = ConfigValidator.read_config(config_file)
-    print("\nAvailable keys:")
-    print(config)
-    maze = Maze(width=config[ConfigValidator.AvailableKeys.WIDTH.value],
-                height=config[ConfigValidator.AvailableKeys.HEIGHT.value],
-                entry=config[ConfigValidator.AvailableKeys.ENTRY.value],
-                exit=config[ConfigValidator.AvailableKeys.EXIT.value],
-                output_file=config[
-                    ConfigValidator.AvailableKeys.OUTPUT_FILE.value],
-                ft_logo=config[ConfigValidator.AvailableKeys.FT_LOGO.value],
-                perfect=config[ConfigValidator.AvailableKeys.PERFECT.value],
-                seed_num=config[ConfigValidator.AvailableKeys.SEED.value],
-                path_finder=config[
-                    ConfigValidator.AvailableKeys.PATH_FINDER.value],
-                ft_logo_scale=config[
-                    ConfigValidator.AvailableKeys.FT_LOGO_SCALE.value]
-                )
-    # Generate the maze with the read config
-    maze.print_output()
-
-
-if __name__ == "__main__":
-    # import cProfile
-    # cProfile.run("main()")
-    main()

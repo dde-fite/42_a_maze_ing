@@ -323,7 +323,7 @@ class Maze:
         return self._ft_logo
 
     def get_ft_logo_cells(self) -> Optional[
-            tuple[Coords]]:
+            tuple[Coords, ...]]:
         """
         Calculates where the 42 logo should be placed.
         If it can be placed, calculates where the center of the maze is and
@@ -338,7 +338,7 @@ class Maze:
 
         scale = FtLogoCells.choose_logo_scale(self._width, self._height)
         if scale == 0:
-            return
+            return None
         if self._ft_logo_scale:
             ft_logo = FtLogoCells.scale_logo(scale)
         else:
@@ -378,9 +378,11 @@ class Maze:
                     continue
                 dir = choice(POSSIBLE_DIRECTIONS)
                 if random() < Maze.WALL_OPENING_CHANCE:
-                    adjacents = self.get_adjacent_cells((x, y))
-                    if (adjacents[dir] and
-                            not cells[adjacents[dir]]["fixed"] and
+                    adjacents: dict[str, Coords | None] = (
+                        self.get_adjacent_cells((x, y)))
+                    to_move = adjacents[dir]
+                    if (to_move is not None and
+                            not cells[to_move]["fixed"] and
                             cells[(x, y)]["state"] & Maze.WALLS[dir]):
                         # If adjacent exists and has the wall desired to open:
 
@@ -388,7 +390,7 @@ class Maze:
                         cells[(x, y)]["state"] -= Maze.WALLS[dir]
 
                         # Changing adjacent cell state
-                        cells[adjacents[dir]]["state"] -= (
+                        cells[to_move]["state"] -= (
                             Maze.WALLS[op[dir]])
 
                         broke_last = True
