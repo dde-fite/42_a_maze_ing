@@ -34,6 +34,9 @@ GARBAGE := $(foreach d,$(CACHE_FOLDERS),$(shell find . -type d -name "$(d)"))
 
 all: install run
 
+debug:
+	python3 -m pdb $(ENTRY_POINT) $(DEFAULT_CONFIG_FILE)
+
 install:
 	@read -p "Are you in the env? (yes/no) " answer; \
 	if [ -z "$$answer" ]; then \
@@ -68,16 +71,12 @@ run: $(SRC_FOLDER)
 	@$(PYTHON_VERSION) $(ENTRY_POINT) $(DEFAULT_CONFIG_FILE)
 
 lint:
-	flake8 src/.
-	mypy . --warn-return-any \
-	--warn-unused-ignores \
-	--ignore-missing-imports \
-	--disallow-untyped-defs \
-	--check-untyped-defs
-
-lint-strict:
-	flake8 src/.
-	mypy src/. --strict
+	python3 -m flake8 src
+	python3 -m mypy src --warn-return-any \
+		--warn-unused-ignores \
+		--ignore-missing-imports \
+		--disallow-untyped-defs \
+		--check-untyped-defs
 
 # ----------------------------------------
 

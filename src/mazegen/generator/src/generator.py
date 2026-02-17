@@ -81,8 +81,8 @@ class Generator:
         directions = list(POSSIBLE_DIRECTIONS)
         passed_cells: Pathway = [point]
         directions_followed: list[str] = []
-        exit_path: Pathway | None = None
-        path_dir: list[str] | None = None
+        exit_path: Pathway
+        path_dir: list[str]
         op = OPPOSITE_DIRECTIONS
         adjacents = maze.get_adjacent_cells(point)
         advanced = True
@@ -99,6 +99,8 @@ class Generator:
             for dir in directions:
                 if adjacents[dir]:
                     adjacent_cell = adjacents[dir]
+                    if adjacent_cell is None:
+                        continue
                     ad_cell_data = cells[adjacent_cell]  # adjacent cell data
                     if (not ad_cell_data["visited"] and
                             not ad_cell_data["fixed"]):

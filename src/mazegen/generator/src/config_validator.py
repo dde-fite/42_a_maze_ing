@@ -1,10 +1,9 @@
 #!/bin/env python3
 
 from enum import Enum
-from .maze import Maze
 from .exceptions import ConfigError
 from .gen_types import Config_Value
-from typing import Any
+from typing import Any, cast
 from .gen_types import Coords
 
 
@@ -227,12 +226,14 @@ class ConfigValidator:
     @classmethod
     def read_config(cls, config_file: str = "config.txt"
                     ) -> dict[str, Config_Value]:
-        available_keys: dict[str, int | str | tuple[Coords] | bool] = {}
+        available_keys: dict[str, int | str | tuple[Coords, ...] | bool] = {}
         for key in cls.AvailableKeys:
             if key is cls.AvailableKeys.DEFAULT_VALUES:
                 break
-            available_keys[key.value] = (
-                cls.AvailableKeys.DEFAULT_VALUES.value[key.value])
+            available_keys[key.value] = cast((
+                int | str | tuple[Coords, ...] | bool),
+                cls.AvailableKeys.DEFAULT_VALUES.value[key.value]
+                )
         with open(config_file, "r") as f:
             config_file_line = f.readline()
             while (config_file_line):

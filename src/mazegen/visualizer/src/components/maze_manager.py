@@ -97,7 +97,8 @@ class MazeManager(BaseComponent):
 
     def spawn_player(self) -> None:
         from ..nodes.player import Player
-        if not self.__maze_generated or self.__maze_root.get_subnode("win_event"):
+        if (not self.__maze_generated or
+                self.__maze_root.get_subnode("win_event")):
             return
         self.__maze_root.add_subnode(Player(
             self.__maze, self.__sprite_size, self.__scale))
@@ -107,8 +108,11 @@ class MazeManager(BaseComponent):
         if not self.__maze_generated or \
                 self.__maze_root.get_subnode("FootprintRoot"):
             return
-        self.__maze_root.add_subnode(FootprintRoot(self.__sprite_size, self.__scale,
-                                             self.__maze.get_pathway()))
+        self.__maze_root.add_subnode(
+            FootprintRoot(
+                self.__sprite_size,
+                self.__scale,
+                self.__maze.get_pathway()))
 
     def destroy_footprints(self) -> None:
         footprints = self.__maze_root.get_subnode("FootprintRoot")

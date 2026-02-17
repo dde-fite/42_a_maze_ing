@@ -78,14 +78,10 @@ class Cell:
             return
         self._state -= self._state & Maze.WALLS[direction]
         if direction == NORTH:
-            self._adjacent[NORTH]._state -= (self._adjacent[NORTH]._state &
-                                             Maze.WALLS[SOUTH])
+            adjacent._state -= (adjacent._state & Maze.WALLS[SOUTH])
         if direction == EAST:
-            self._adjacent[EAST]._state -= (self._adjacent[EAST]._state &
-                                            Maze.WALLS[WEST])
+            adjacent._state -= (adjacent._state & Maze.WALLS[WEST])
         if direction == SOUTH:
-            self._adjacent[SOUTH]._state -= (self._adjacent[SOUTH]._state &
-                                             Maze.WALLS[NORTH])
+            adjacent._state -= (adjacent._state & Maze.WALLS[NORTH])
         if direction == WEST:
-            self._adjacent[WEST]._state -= (self._adjacent[WEST]._state &
-                                            Maze.WALLS[EAST])
+            adjacent._state -= (adjacent._state & Maze.WALLS[EAST])

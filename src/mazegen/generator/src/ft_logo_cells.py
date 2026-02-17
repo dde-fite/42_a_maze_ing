@@ -16,7 +16,7 @@ class FtLogoCells():
     __SCALE_3 = 3
     __SCALE_4 = 4
 
-    DEFAULT_CELLS: tuple[Coords] = (
+    DEFAULT_CELLS: tuple[Coords, ...] = (
         (-1, 0),
         (-2, 0),
         (-3, 0),
@@ -37,9 +37,8 @@ class FtLogoCells():
         (3, 2)
     )
 
-    # TODO: IMPROVE THIS DOCUMENTATION
     @classmethod
-    def scale_logo(cls, scale: int) -> tuple[Coords]:
+    def scale_logo(cls, scale: int) -> tuple[Coords, ...]:
         """
         Adjusts the default 42 logo cells to the given scale.
         While the default 42 logo being a 1x1 cell combination

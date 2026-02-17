@@ -1,4 +1,4 @@
-from src.mazegen import __main__
+from src import __main__
 
 if __name__ == "__main__":
     __main__.main()

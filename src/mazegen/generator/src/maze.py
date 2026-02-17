@@ -74,7 +74,7 @@ class Maze:
         # cell_generation: dict[Coords, Cell_State]
 
         # Extras init
-        self._player = Player(self._cells[entry])
+        # self._player = Player(self._cells[entry])
         self._possible_pathways: list[Pathway] = []
         self._pathfinder = path_finder
 
@@ -94,8 +94,7 @@ class Maze:
             # Recursive
             if path_finder:
                 # print("Looking for paths...")
-                self._possible_pathways: list[Pathway] = (
-                    PathFinder.path_finder_dfs(self))
+                self._possible_pathways = (PathFinder.path_finder_dfs(self))
                 return
             else:
                 # print("No pathfinder added!")
@@ -105,7 +104,7 @@ class Maze:
 
     # BASE INITIATION ---------------------------------------------------------
     def __base_fields_init(self, width: int, height: int, ft_logo: bool,
-                           entry: Coords, exit: Coords):
+                           entry: Coords, exit: Coords) -> None:
         """
         Initiates all the class fields that are essential for any maze to work.
         """
@@ -116,7 +115,7 @@ class Maze:
         self.set_entry(entry)
         self.set_exit(exit)
         self._ft_logo = ft_logo
-        self._cells, self._pathway, self._directions_followed = (
+        (self._cells, self._pathway, self._directions_followed) = (
             Generator.dfs_generation(self))
 
     # WIDTH -------------------------------------------------------------------
@@ -204,7 +203,6 @@ class Maze:
             A dictionary with a coordinate(or None if not found)
             for each direction.
         """
-        # TODO: Improve docstring
         adjacent_cells: dict[str, Optional[Coords]] = {}
         if point[0] == 1:
             adjacent_cells[WEST] = None
@@ -231,30 +229,30 @@ class Maze:
     def get_player(self) -> Player:
         return self._player
 
-    def __check_if_can_go(self, direction: str) -> bool:
-        """
-        Checks if there is a wall in the given direction from the
-        player's cell.
+    # def __check_if_can_go(self, direction: str) -> bool:
+    #     """
+    #     Checks if there is a wall in the given direction from the
+    #     player's cell.
 
-        Parameters
-        ----------
-        direction: str
-            The direction to check.
+    #     Parameters
+    #     ----------
+    #     direction: str
+    #         The direction to check.
 
-        Returns
-        -------
-        True
-            If there is no wall in the given direction.
-        False
-            If there is a wall in the given direction.
-        """
-        player = self._player
-        player_cell: Cell | None = self.get_cell(player.get_coordinates())
-        if not player_cell:
-            return False
-        if player_cell["state"] & Maze.WALLS[direction]:
-            return False
-        return True
+    #     Returns
+    #     -------
+    #     True
+    #         If there is no wall in the given direction.
+    #     False
+    #         If there is a wall in the given direction.
+    #     """
+    #     player = self._player
+    #     player_cell: Cell | None = self.get_cell(player.get_coordinates())
+    #     if not player_cell:
+    #         return False
+    #     if player_cell["state"] & Maze.WALLS[direction]:
+    #         return False
+    #     return True
 
     def check_if_can_go(self, coords: Coords, direction: str) -> bool:
         """
@@ -276,32 +274,32 @@ class Maze:
         False
             If there is a wall in the given direction.
         """
-        cell: Cell = self.get_cell(coords)
+        cell: Cell | None = self.get_cell(coords)
         if not cell:
             return False
         if cell["state"] & Maze.WALLS[direction]:
             return False
         return True
 
-    def move_player(self, direction: str) -> bool:
-        """
-        It will try to move the player to the given direction by using
-        the ``move_to`` method from the ``Player`` class.
+    # def move_player(self, direction: str) -> bool:
+    #     """
+    #     It will try to move the player to the given direction by using
+    #     the ``move_to`` method from the ``Player`` class.
 
-        Returns
-        -------
-        True
-            If the player moved.
-        False
-            If the player didn't move.
-        """
-        if self.__check_if_can_go(direction):
-            adyacent = self.get_adjacent_cells(self._player)[direction]
-            if adyacent is None:
-                return False
-            self._player.set_coordinates(adyacent)
-            return True
-        return False
+    #     Returns
+    #     -------
+    #     True
+    #         If the player moved.
+    #     False
+    #         If the player didn't move.
+    #     """
+    #     if self.__check_if_can_go(direction):
+    #         adyacent = self.get_adjacent_cells(self._player)[direction]
+    #         if adyacent is None:
+    #             return False
+    #         self._player.set_coordinates(adyacent)
+    #         return True
+    #     return False
 
     def put_player_at(self, coordinates: Coords) -> None:
         """
@@ -312,8 +310,9 @@ class Maze:
         This method completely ignores walls. It's a quick way
         to stablish the position of the player.
         """
-        if self.get_cell(coordinates) is not None:
-            self._player.set_coordinates(self.get_cell(coordinates))
+        cell = self.get_cell(coordinates)
+        if cell is not None:
+            self._player.set_coordinates(coordinates)
 
     def get_player_coordinates(self) -> Coords:
         return self._player.get_coordinates()
@@ -359,7 +358,6 @@ class Maze:
         return self._perfect
 
     def open_random_walls(self) -> dict[Coords, Cell]:
-        # TODO: Improve the logic of this function
         from .predefined import POSSIBLE_DIRECTIONS, OPPOSITE_DIRECTIONS
 
         # Initializing variables
@@ -424,9 +422,6 @@ class Maze:
         turns the wall state from each cell to hexadecimal.
         It also writes the original pathway found.
         """
-        # TODO: Finish description when project is fully finished.
-        # Add the directions followed to the exit too.
-        # print("Printing in the output file...")
         try:
             with open(self._output_file, "w") as f:
                 for height in range(1, self._height + 1):

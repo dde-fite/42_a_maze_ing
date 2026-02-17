@@ -12,7 +12,7 @@ from random import shuffle
 class PathFinder:
 
     @classmethod
-    def path_finder_dfs(cls, maze: Maze):
+    def path_finder_dfs(cls, maze: Maze) -> list[Pathway]:
         """
         Find possible paths from the maze entry to the exit.
 
@@ -68,12 +68,13 @@ class PathFinder:
             shuffle(directions)
 
             for dir in directions:
-                if not adjacents[dir] or adjacents[dir] in passed_cells:
+                adjacent = adjacents[dir]
+                if not adjacent or adjacent in passed_cells:
                     continue
                 if cells[point]["state"] & Maze.WALLS[dir]:
                     continue
-                elif (adjacents[dir] not in wrong_cells):
-                    point = adjacents[dir]
+                elif (adjacent not in wrong_cells):
+                    point = adjacent
                     passed_cells.append(point)
                     adjacents = maze.get_adjacent_cells(point)
                     moved = True

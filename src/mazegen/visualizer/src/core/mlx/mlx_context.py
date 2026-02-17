@@ -1,5 +1,5 @@
 from mlx import Mlx
-from ctypes import c_void_p, c_uint, c_char_p, byref
+from ctypes import c_void_p
 from ..exceptions import MlxException, MlxNotFound
 
 
