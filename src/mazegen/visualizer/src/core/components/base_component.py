@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Any
-from ..nodes import BaseNode
+from ..nodes.base_node import BaseNode
 from ..exceptions import EngineNoReference
 
 

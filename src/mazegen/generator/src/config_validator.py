@@ -1,10 +1,9 @@
 #!/bin/env python3
 
 from enum import Enum
-from .maze import Maze
 from .exceptions import ConfigError
 from .gen_types import Config_Value
-from typing import Any
+from typing import Any, cast
 from .gen_types import Coords
 
 
@@ -227,12 +226,14 @@ class ConfigValidator:
     @classmethod
     def read_config(cls, config_file: str = "config.txt"
                     ) -> dict[str, Config_Value]:
-        available_keys: dict[str, int | str | tuple[Coords] | bool] = {}
+        available_keys: dict[str, int | str | tuple[Coords, ...] | bool] = {}
         for key in cls.AvailableKeys:
             if key is cls.AvailableKeys.DEFAULT_VALUES:
                 break
-            available_keys[key.value] = (
-                cls.AvailableKeys.DEFAULT_VALUES.value[key.value])
+            available_keys[key.value] = cast((
+                int | str | tuple[Coords, ...] | bool),
+                cls.AvailableKeys.DEFAULT_VALUES.value[key.value]
+                )
         with open(config_file, "r") as f:
             config_file_line = f.readline()
             while (config_file_line):
@@ -258,32 +259,3 @@ class ConfigValidator:
                 available_keys[result[0]] = result[1]
                 config_file_line = f.readline()
         return available_keys
-
-
-def main():
-    config_file = "config.txt"
-    config = ConfigValidator.read_config(config_file)
-    print("\nAvailable keys:")
-    print(config)
-    maze = Maze(width=config[ConfigValidator.AvailableKeys.WIDTH.value],
-                height=config[ConfigValidator.AvailableKeys.HEIGHT.value],
-                entry=config[ConfigValidator.AvailableKeys.ENTRY.value],
-                exit=config[ConfigValidator.AvailableKeys.EXIT.value],
-                output_file=config[
-                    ConfigValidator.AvailableKeys.OUTPUT_FILE.value],
-                ft_logo=config[ConfigValidator.AvailableKeys.FT_LOGO.value],
-                perfect=config[ConfigValidator.AvailableKeys.PERFECT.value],
-                seed_num=config[ConfigValidator.AvailableKeys.SEED.value],
-                path_finder=config[
-                    ConfigValidator.AvailableKeys.PATH_FINDER.value],
-                ft_logo_scale=config[
-                    ConfigValidator.AvailableKeys.FT_LOGO_SCALE.value]
-                )
-    # Generate the maze with the read config
-    maze.print_output()
-
-
-if __name__ == "__main__":
-    # import cProfile
-    # cProfile.run("main()")
-    main()

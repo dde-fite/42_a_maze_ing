@@ -1,9 +1,10 @@
 from __future__ import annotations
-from typing import Type, TYPE_CHECKING, Any, TypeVar, Iterator, cast
+from typing import Type, Any, TypeVar, Iterator, cast, TYPE_CHECKING
 from ..exceptions import EngineElementNotFound
+from typing_extensions import Self
 
 if TYPE_CHECKING:
-    from ..components import BaseComponent
+    from ..components.base_component import BaseComponent
     from .. import Window
 
 TComponent = TypeVar('TComponent', bound='BaseComponent')
@@ -19,7 +20,7 @@ class BaseNode:
         self._active: bool = True
         self._parent_node: BaseNode | None = None
         self._subnodes: list[BaseNode] = []
-        self._components: list[BaseComponent] = []
+        self._components: list['BaseComponent'] = []
         self._window: Window
         self.__destroy: bool = False
 
@@ -159,8 +160,8 @@ class BaseNode:
 
     def __add__(
         self,
-        component: Type[TComponent] | tuple[Type[TComponent], ...]
-    ) -> TComponent:
+        component: Any
+    ) -> 'BaseComponent':
         args: tuple[Any, ...]
         if isinstance(component, type):
             component_cls = component
@@ -172,12 +173,12 @@ class BaseNode:
         instance.set_owner(self)
         self._components.append(instance)
         instance.on_init(*args)
-        return instance
+        return cast('BaseComponent', instance)
 
     def __iadd__(
         self,
-        component: Type[TComponent] | tuple[Type[TComponent], ...]
-    ) -> BaseNode:
+        component: Any
+    ) -> Self:
         self.__add__(component)
         return self
 

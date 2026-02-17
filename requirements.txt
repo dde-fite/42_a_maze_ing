@@ -4,3 +4,4 @@ opencv-python==4.13.0.92
 build==1.4.0
 flake8
 mypy
+typing_extensions
