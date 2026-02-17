@@ -15,12 +15,23 @@ This work is published under the terms of <a href="LICENSE"><b>MIT license</b></
 
 <div align="center">
     <h2>Maze generator with visualizer built using Python and MiniLibX.</h2>
-    <!-- <img src="media/preview.gif"> -->
+    <img src="media/preview.gif">
 </div>
 
 ## Description
 
-### GENERATION ALGORITHM
+Procedural map generation is one of the foundations of all current and not-so-current games. If we analyze any game, we can find these algorithms everywhere, whether in the map or even in the textures.
+
+a_maze_ing is the first Python project in the new 42 curriculum. The idea is to randomly generate a maze according to the parameters you specify and visualize it graphically. In addition, it must store a file with the maze data.
+
+```bash
+python3 a_maze_ing.py config.txt...
+...
+```
+
+To achieve a 100% score, the project must be able to create the map and display it without any unhandled errors. If it has extra features, as is our case, it will be evaluated in the bonus section with up to 125%.
+
+## Generation Algorithm
 
 Recursive Backtracking is one of the most popular and intuitive algorithms for generating perfect mazes (mazes without loops and with exactly one path between any two cells if it is perfect). It is based on a depth-first search (DFS) strategy and produces long, winding corridors with a natural-looking structure.
 
@@ -33,7 +44,7 @@ Starting from the start point cell.
 
 Randomly visiting one of its unvisited neighboring cells.
 
-Removing the wall between the current cell and the chosen neighbor.
+Removing the wall between the current cell and the chosen neighbor
 
 Recursively repeating the process from the neighbor.
 
@@ -42,6 +53,8 @@ Backtracking when no unvisited neighbors remain.
 This continues until all cells have been visited.
 
 ### Step-by-Step Algorithm
+
+![flow graph of how the generator works](media/generator_flow.png)
 
 1. **Initialize the grid**.
 
@@ -75,7 +88,32 @@ This continues until all cells have been visited.
 
 The algorithm ends when the current point is the starting point and there is no possible way to move to (meaning that all cells were already visited).
 
+## Visualizer
+The display works using the Mlx Python Engine graphics engine, which we created ourselves for this project.
+
+This graphics engine is very complex, and explaining it in full would be very tedious.
+
+In general terms, Mlx Python Engine is a graphics engine with Unity concepts that uses Python's MiniLibX to render and accept user input.
+
+![flow graph of how the generator works](media/engine_pixel_rendering.png)
+
+
 ## Instructions
+
+## Usage
+
+```bash
+pip install -r requirements.txt
+```
+
+```bash
+python3 a_maze_ing.py <config file>
+```
+
+## Making package
+```bash
+python -m build
+```
 
 ## Resources
 
