@@ -1,7 +1,7 @@
 #!/bin/env python3
 
 from .exceptions import MazeError
-from .unused import Player
+from .legacy import Player
 
 from .gen_types import Coords, Cell, Pathway
 from .predefined import NORTH, SOUTH, EAST, WEST
