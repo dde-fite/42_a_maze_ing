@@ -3,34 +3,34 @@
 # The 5 first keys (WIDTH, HEIGHT, ENTRY, EXIT, OUTPUT_FILE) are mandatory
 
 # Width of the maze: int
-WIDTH=11
+WIDTH=50
 
 # Height of the maze: int
-HEIGHT=11
+HEIGHT=50
 
 # Entry point coordinates of the maze: (int, int)
 ENTRY=1,1
 
 # Exit point coordinates of the maze: (int, int)
-EXIT=11,11
+EXIT=5,5
 
 # Perfect maze (only one way from start to the end): bool
-PERFECT=True
+PERFECT=False
 
 # Output file name: str finished with .txt
 OUTPUT_FILE=maze.txt
 
 # Seed used, 0 will be treat as random: int = 0
-SEED=0
+SEED=3
 
 # These are not needed keys
 # Not having one of them will set them to their default value
 
 # Ft logo appearing in maze: bool = True
-FT_LOGO=True
+FT_LOGO=False
 
 # Ft logo can be scaled: bool = False
 FT_LOGO_SCALE=False
 
 # Path finder status (not recommended for more that 10000 cells): bool = False
-PATH_FINDER=False
+PATH_FINDER=True

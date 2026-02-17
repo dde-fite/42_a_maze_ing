@@ -1,7 +1,7 @@
 #!/bin/env python3
 
 from .exceptions import MazeError
-from .player import Player
+from .unused import Player
 
 from .gen_types import Coords, Cell, Pathway
 from .predefined import NORTH, SOUTH, EAST, WEST
@@ -21,7 +21,7 @@ class Maze:
     MIN_FT_WIDTH = 9
     MIN_FT_HEIGHT = 7
 
-    WALL_OPENING_CHANCE = 1 / 5
+    WALL_OPENING_CHANCE = 1 / 10
     PATH_ATTEMPTS = 10
 
     DEFAULT_OUTPUT_FILE = "maze.txt"
@@ -249,7 +249,7 @@ class Maze:
             If there is a wall in the given direction.
         """
         player = self._player
-        player_cell: Cell = self.get_cell(player.get_coordinates())
+        player_cell: Cell | None = self.get_cell(player.get_coordinates())
         if not player_cell:
             return False
         if player_cell["state"] & Maze.WALLS[direction]:
@@ -474,7 +474,7 @@ if __name__ == "__main__":
     print("=== Maze Generation Example ===")
     print("\nGenerating a new maze...")
     try:
-        maze = Maze(10, 10, (1, 1), (10, 10))
+        maze = Maze(1000, 1000, (1, 1), (10, 10))
     except MazeError as e:
         print("ERROR:", e)
         sys.exit(1)

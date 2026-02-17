@@ -4,6 +4,8 @@ from enum import Enum
 from .maze import Maze
 from .exceptions import ConfigError
 from .gen_types import Config_Value
+from typing import Any
+from .gen_types import Coords
 
 
 class ConfigValidator:
@@ -198,6 +200,7 @@ class ConfigValidator:
         if ' ' in value:
             raise ConfigError("Spaces are not allowed in the line!")
         value = value.rstrip("\n")  # We substract the '\n'
+        result: Any = None
         match key:
             case cls.AvailableKeys.WIDTH.value:
                 result = cls.__parse_width(value)
@@ -224,7 +227,7 @@ class ConfigValidator:
     @classmethod
     def read_config(cls, config_file: str = "config.txt"
                     ) -> dict[str, Config_Value]:
-        available_keys = {}
+        available_keys: dict[str, int | str | tuple[Coords] | bool] = {}
         for key in cls.AvailableKeys:
             if key is cls.AvailableKeys.DEFAULT_VALUES:
                 break

@@ -68,18 +68,14 @@ run: $(SRC_FOLDER)
 	@$(PYTHON_VERSION) $(ENTRY_POINT) $(DEFAULT_CONFIG_FILE)
 
 lint:
-	pip install flake8
-	pip install mypy
 	flake8 src/.
-	mypy src/. --warn-return-any \
+	mypy . --warn-return-any \
 	--warn-unused-ignores \
 	--ignore-missing-imports \
 	--disallow-untyped-defs \
 	--check-untyped-defs
 
 lint-strict:
-	pip install flake8
-	pip install mypy
 	flake8 src/.
 	mypy src/. --strict
 
