@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-    <img alt="Static Badge" src="https://img.shields.io/badge/pending/100-yellow?logo=42&logoColor=white">
+    <img alt="Static Badge" src="https://img.shields.io/badge/125/100-gree?logo=42&logoColor=white">
 </p>
 
 <p align="center">
