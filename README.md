@@ -54,7 +54,7 @@ Headless mode is used by importing the package with `from mazegen import MazeGen
 
 When importing it as a package, it will call the \_\_init\_\_.py of a_maze_ing, which only exposes the generator.
 
-From here, you can call it whenever a maze is required with `generate(config file)`, which will return an object of the Maze class with all the data required to use it in your project.
+From here, you can call it whenever a maze is required with `MazeGenerator.generate(config file)`, which will return an object of the Maze class with all the data required to use it in your project.
 
 In case of an error generating the maze, the following errors may be invoked:
 - `FileNotFoundError`: Configuration file not found.
