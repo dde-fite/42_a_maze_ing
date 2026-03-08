@@ -124,8 +124,6 @@ In general terms, is a graphics engine that attempts to resemble Unity and uses 
 </p>
 
 
-## Instructions
-
 ## Usage
 
 ### Standalone (Visualizer + Generator)
